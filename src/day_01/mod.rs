@@ -1,12 +1,12 @@
 use crate::shared::{Day, PartSolution};
 
-fn first_number_with_index(line: &str) -> Option<(usize, u32)> {
+fn first_09_digit(line: &str) -> Option<(usize, u32)> {
     line.chars()
         .enumerate()
         .find_map(|(index, c)| c.to_digit(10).map(|d| (index, d)))
 }
 
-fn last_number_with_index(line: &str) -> Option<(usize, u32)> {
+fn last_09_digit(line: &str) -> Option<(usize, u32)> {
     line.chars()
         .rev()
         .enumerate()
@@ -16,8 +16,8 @@ fn last_number_with_index(line: &str) -> Option<(usize, u32)> {
 fn calculate_total_calibration_value_part_1(lines: &[&str]) -> u32 {
     let mut total = 0;
     for line in lines {
-        let (_, first_number) = first_number_with_index(line).expect("No number found");
-        let (_, last_number) = last_number_with_index(line).expect("No number found");
+        let (_, first_number) = first_09_digit(line).expect("No number found");
+        let (_, last_number) = last_09_digit(line).expect("No number found");
 
         total += first_number * 10 + last_number;
     }
@@ -29,48 +29,48 @@ const NUMBER_WORDS: [&str; 9] = [
     "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
 ];
 
+fn get_first_last(
+    left: Option<(usize, u32)>,
+    right: Option<(usize, u32)>,
+    cmp: fn(usize, usize) -> bool,
+) -> Option<u32> {
+    match (left, right) {
+        (None, None) => None,
+        (None, Some((_, right))) => Some(right),
+        (Some((_, left)), None) => Some(left),
+        (Some((left_index, left_number)), Some((right_index, right_number))) => {
+            if cmp(left_index, right_index) {
+                Some(left_number)
+            } else {
+                Some(right_number)
+            }
+        },
+    }
+}
+
 fn calculate_total_calibration_value_part_2(lines: &[&str]) -> u32 {
     let mut total = 0;
     for line in lines {
-        let first_number = first_number_with_index(line);
-        let last_number = last_number_with_index(line);
+        let first_09_digit = first_09_digit(line);
+        let last_09_digit = last_09_digit(line);
 
-        let first_word = first_word_with_index(line);
-        let last_word = last_word_with_index(line);
+        let first_word_digit =
+            first_word_digit(line, first_09_digit.map_or(line.len(), |(index, _)| index));
+        let last_word_digit = last_word_digit(line, last_09_digit.map_or(0, |(index, _)| index));
 
-        let first = match (first_number, first_word) {
-            (None, None) => panic!("No number found"),
-            (None, Some((_, first))) | (Some((_, first)), None) => first,
-            (Some((first_number_index, first_number)), Some((first_word_index, first_word))) => {
-                if first_number_index < first_word_index {
-                    first_number
-                } else {
-                    first_word
-                }
-            },
-        };
-
-        total += first * 10;
-
-        let last = match (last_number, last_word) {
-            (None, None) => panic!("No number found"),
-            (None, Some((_, last))) | (Some((_, last)), None) => last,
-            (Some((last_number_index, last_number)), Some((last_word_index, last_word))) => {
-                if last_number_index > last_word_index {
-                    last_number
-                } else {
-                    last_word
-                }
-            },
-        };
+        let first =
+            get_first_last(first_09_digit, first_word_digit, |l, r| l < r).expect("No first found");
+        let last =
+            get_first_last(last_09_digit, last_word_digit, |l, r| l > r).expect("No last found");
 
         total += last;
+        total += first * 10;
     }
     total
 }
 
-fn first_word_with_index(line: &str) -> Option<(usize, u32)> {
-    for i in 0..line.len() {
+fn first_word_digit(line: &str, first_09_digit_index: usize) -> Option<(usize, u32)> {
+    for i in 0..first_09_digit_index {
         for (word_index, word) in NUMBER_WORDS.iter().enumerate() {
             if line[i..].starts_with(word) {
                 return Some((i, word_index as u32 + 1));
@@ -81,8 +81,8 @@ fn first_word_with_index(line: &str) -> Option<(usize, u32)> {
     None
 }
 
-fn last_word_with_index(line: &str) -> Option<(usize, u32)> {
-    for i in (0..line.len()).rev() {
+fn last_word_digit(line: &str, last_09_digit_index: usize) -> Option<(usize, u32)> {
+    for i in (last_09_digit_index..line.len()).rev() {
         for (word_index, word) in NUMBER_WORDS.iter().enumerate() {
             if line[i..].starts_with(word) {
                 return Some((i, word_index as u32 + 1));
@@ -165,7 +165,7 @@ mod test {
         #[test]
         fn first_word_with_index() {
             let line = "one two three four five six seven eight nine";
-            let (index, number) = super::super::first_word_with_index(line).unwrap();
+            let (index, number) = super::super::first_word_digit(line, line.len()).unwrap();
 
             assert_eq!(index, 0);
             assert_eq!(number, 1);
@@ -174,7 +174,7 @@ mod test {
         #[test]
         fn last_word_with_index() {
             let line = "one two three four five six seven eight nine";
-            let (index, number) = super::super::last_word_with_index(line).unwrap();
+            let (index, number) = super::super::last_word_digit(line, 0).unwrap();
 
             assert_eq!(index, 40);
             assert_eq!(number, 9);
