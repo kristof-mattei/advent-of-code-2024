@@ -1,5 +1,5 @@
 [package]
-name = "advent-of-code-2022"
+name = "advent-of-code-2023"
 # don't change this, it's updated before an actual build by update-version.sh
 version = "0.0.0-development"
 edition = "2021"
@@ -7,7 +7,7 @@ rust-version = "1.74.0"
 authors = ["Kristof Mattei"]
 license-file = "LICENSE"
 description = "Advent of Code 2022"
-repository = "https://github.com/kristof-mattei/advent-of-code-2022"
+repository = "https://github.com/kristof-mattei/advent-of-code-2023"
 keywords = ["playground"]
 categories = ["playground"]
 
