@@ -19,9 +19,7 @@ fn calculate_total_calibration_value_part_1(lines: &[&str]) -> u32 {
         let (_, first_number) = first_number_with_index(line).expect("No number found");
         let (_, last_number) = last_number_with_index(line).expect("No number found");
 
-        let total_this_line = first_number * 10 + last_number;
-
-        total += total_this_line;
+        total += first_number * 10 + last_number;
     }
 
     total
