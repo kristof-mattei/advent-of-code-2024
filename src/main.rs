@@ -1,6 +1,7 @@
 use shared::Day;
 
 mod day_01;
+mod day_02;
 mod shared;
 mod utils;
 
@@ -11,7 +12,8 @@ fn print_answer(day: usize, part: u32, result: &str) {
 fn main() -> Result<(), color_eyre::Report> {
     color_eyre::install()?;
 
-    let solutions: Vec<Box<dyn Day>> = vec![Box::new(day_01::Solution {})];
+    let solutions: Vec<Box<dyn Day>> =
+        vec![Box::new(day_01::Solution {}), Box::new(day_02::Solution {})];
 
     for (i, solution) in solutions.iter().enumerate() {
         print_answer(i + 1, 1, &solution.part_1().to_string());
