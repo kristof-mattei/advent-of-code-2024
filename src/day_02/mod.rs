@@ -161,14 +161,11 @@ mod test {
         use super::super::parse_lines;
         use super::super::Solution;
         use super::get_example;
-        use crate::{
-            day_02::add_valid_games,
-            shared::{Day, PartSolution},
-        };
+        use crate::{day_02::add_valid_games, shared::Day};
 
         #[test]
         fn outcome() {
-            assert_eq!(PartSolution::USize(1_297_683), (Solution {}).part_1());
+            assert_eq!(2449, (Solution {}).part_1());
         }
 
         #[test]
@@ -184,8 +181,8 @@ mod test {
     }
 
     mod part_2 {
+        use crate::day_02::sum_of_powers;
         use crate::shared::Day;
-        use crate::{day_02::sum_of_powers, shared::PartSolution};
 
         use super::super::parse_lines;
         use super::super::Solution;
@@ -193,7 +190,7 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!(PartSolution::USize(63_981), (Solution {}).part_2());
+            assert_eq!(63_981, (Solution {}).part_2());
         }
 
         #[test]

@@ -66,3 +66,92 @@ impl std::fmt::Display for PartSolution {
         write!(f, "{}", string)
     }
 }
+
+impl std::cmp::PartialEq<PartSolution> for i32 {
+    fn eq(&self, other: &PartSolution) -> bool {
+        match other {
+            PartSolution::I32(x) => self == x,
+            PartSolution::U32(x) => (*x).try_into().is_ok_and(|o: i32| &o == self),
+            PartSolution::U64(x) => (*x).try_into().is_ok_and(|o: i32| &o == self),
+            PartSolution::USize(x) => (*x).try_into().is_ok_and(|o: i32| &o == self),
+            PartSolution::String(_) | PartSolution::Vec(_) | PartSolution::None => false,
+        }
+    }
+}
+
+impl std::cmp::PartialEq<PartSolution> for u32 {
+    fn eq(&self, other: &PartSolution) -> bool {
+        match other {
+            PartSolution::I32(x) => (*x).try_into().is_ok_and(|o: u32| &o == self),
+            PartSolution::U32(x) => self == x,
+            PartSolution::U64(x) => (x) == &u64::from(*self),
+            PartSolution::USize(x) => (*x).try_into().is_ok_and(|o: u32| &o == self),
+            PartSolution::String(_) | PartSolution::Vec(_) | PartSolution::None => false,
+        }
+    }
+}
+
+impl std::cmp::PartialEq<PartSolution> for u64 {
+    fn eq(&self, other: &PartSolution) -> bool {
+        match other {
+            PartSolution::I32(x) => (*x).try_into().is_ok_and(|o: u64| &o == self),
+            PartSolution::U32(x) => &u64::from(*x) == self,
+            PartSolution::U64(x) => x == self,
+            PartSolution::USize(x) => (*x).try_into().is_ok_and(|o: u64| &o == self),
+            PartSolution::String(_) | PartSolution::Vec(_) | PartSolution::None => false,
+        }
+    }
+}
+
+impl std::cmp::PartialEq<PartSolution> for usize {
+    fn eq(&self, other: &PartSolution) -> bool {
+        match other {
+            PartSolution::I32(x) => (*x).try_into().is_ok_and(|o: usize| &o == self),
+            PartSolution::U32(x) => (*x).try_into().is_ok_and(|o: usize| &o == self),
+            PartSolution::U64(x) => (*x).try_into().is_ok_and(|o: usize| &o == self),
+            PartSolution::USize(x) => x == self,
+            PartSolution::String(_) | PartSolution::Vec(_) | PartSolution::None => false,
+        }
+    }
+}
+
+impl std::cmp::PartialEq<PartSolution> for String {
+    fn eq(&self, other: &PartSolution) -> bool {
+        match other {
+            PartSolution::I32(_)
+            | PartSolution::U32(_)
+            | PartSolution::U64(_)
+            | PartSolution::Vec(_)
+            | PartSolution::None
+            | PartSolution::USize(_) => false,
+            PartSolution::String(s) => s == self,
+        }
+    }
+}
+
+impl std::cmp::PartialEq<PartSolution> for Vec<String> {
+    fn eq(&self, other: &PartSolution) -> bool {
+        match other {
+            PartSolution::I32(_)
+            | PartSolution::U32(_)
+            | PartSolution::U64(_)
+            | PartSolution::None
+            | PartSolution::USize(_)
+            | PartSolution::String(_) => false,
+
+            PartSolution::Vec(v) => {
+                if v.len() != self.len() {
+                    return false;
+                }
+
+                for (l, r) in self.iter().zip(v) {
+                    if l != r {
+                        return false;
+                    }
+                }
+
+                true
+            },
+        }
+    }
+}
