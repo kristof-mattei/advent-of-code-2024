@@ -1,28 +1,56 @@
+use crate::shared::{Day, PartSolution};
 use std::fmt::Display;
 
-use crate::shared::{Day, PartSolution};
+fn count_valid_games(lines: &str) -> u32 {
+    let mut total = 0;
 
-fn parse_lines(lines: &[&str]) -> Vec<Game> {
-    let mut games = vec![];
-    for line in lines {
-        let game = naive_parse_line(line);
+    for line in lines.lines() {
+        let game_number = is_valid_game_optimized(line);
 
-        games.push(game);
+        if let Some(g_n) = game_number {
+            total += g_n;
+        }
     }
 
-    games
+    total
 }
 
-fn add_valid_games(games: &[Game]) -> u32 {
-    games
-        .iter()
-        .filter(|game| game.is_valid())
-        .map(|game| game.game_number)
-        .sum()
+fn is_valid_game_optimized(line: &str) -> Option<u32> {
+    let (left, right) = line.split_once(|d| d == ':')?;
+
+    let game_number = left[5..].parse::<u32>().ok()?;
+
+    for subset in right.split(';') {
+        let mut blue = 0;
+        let mut green = 0;
+        let mut red = 0;
+
+        for c in subset.trim().split(',') {
+            let (left, right) = c.trim().split_once(' ')?;
+
+            let amount = left.trim().parse::<u32>().ok()?;
+
+            match right {
+                "blue" => blue = amount,
+                "green" => green = amount,
+                "red" => red = amount,
+                _ => return None,
+            }
+        }
+
+        if blue > 14 || green > 13 || red > 12 {
+            return None;
+        }
+    }
+
+    Some(game_number)
 }
 
-fn sum_of_powers(games: &[Game]) -> u32 {
-    games.iter().map(Game::get_lowest_amount_of_cubes).sum()
+fn sum_of_powers(lines: &str) -> u32 {
+    lines.lines().fold(0, |total, line| {
+        let game = naive_parse_line(line);
+        total + game.get_lowest_amount_of_cubes()
+    })
 }
 
 struct Game {
@@ -132,36 +160,30 @@ pub struct Solution {}
 
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
-        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
+        let input = include_str!("input.txt");
 
-        let games = parse_lines(&lines);
+        let games = count_valid_games(input);
 
-        add_valid_games(&games).into()
+        games.into()
     }
 
     fn part_2(&self) -> PartSolution {
-        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
+        let input = include_str!("input.txt");
 
-        let games = parse_lines(&lines);
-
-        sum_of_powers(&games).into()
+        sum_of_powers(input).into()
     }
 }
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> Vec<&'static str> {
+    fn get_example() -> &'static str {
         include_str!("example.txt")
-            .lines()
-            .map(Into::into)
-            .collect()
     }
 
     mod part_1 {
-        use super::super::parse_lines;
         use super::super::Solution;
         use super::get_example;
-        use crate::{day_02::add_valid_games, shared::Day};
+        use crate::{day_02::count_valid_games, shared::Day};
 
         #[test]
         fn outcome() {
@@ -172,9 +194,7 @@ mod test {
         fn example() {
             let lines = get_example();
 
-            let games = parse_lines(&lines);
-
-            let valid_games_sum = add_valid_games(&games);
+            let valid_games_sum = count_valid_games(lines);
 
             assert_eq!(8, valid_games_sum);
         }
@@ -184,7 +204,6 @@ mod test {
         use crate::day_02::sum_of_powers;
         use crate::shared::Day;
 
-        use super::super::parse_lines;
         use super::super::Solution;
         use super::get_example;
 
@@ -197,9 +216,7 @@ mod test {
         fn example() {
             let lines = get_example();
 
-            let games = parse_lines(&lines);
-
-            let sum_of_powers = sum_of_powers(&games);
+            let sum_of_powers = sum_of_powers(lines);
 
             assert_eq!(2286, sum_of_powers);
         }
