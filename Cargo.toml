@@ -49,6 +49,7 @@ coverage = []
 nu-ansi-term = "0.49.0"
 regex = "1.10.2"
 color-eyre = "0.6.2"
+backtrace = "0.3.69"
 # reqwest = { version = "0.11.5", features = ["json"] }
 # serde_json = "1.0.68"
 # serde = { version = "1.0.130", features = ["derive"] }
