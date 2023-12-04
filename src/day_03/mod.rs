@@ -2,7 +2,7 @@ use crate::shared::{Day, PartSolution};
 
 enum Cell {
     Number(u32),
-    Symbol(),
+    Symbol(char),
     Empty(),
 }
 
@@ -18,7 +18,7 @@ impl TryFrom<char> for Cell {
 
                 Ok(Cell::Number(n))
             },
-            _ => Ok(Cell::Symbol()),
+            _ => Ok(Cell::Symbol(c)),
         }
     }
 }
@@ -76,12 +76,91 @@ fn find_number_at(row: &[Cell], column_index: usize) -> Option<u32> {
     Some(number)
 }
 
+fn multiply_gear_numbers(schematic: &Schematic) -> u32 {
+    let mut sum = 0;
+
+    for (row_index, row) in schematic.iter().enumerate() {
+        for column_index in 0..row.len() {
+            if matches!(row[column_index], Cell::Symbol('*')) {
+                let mut gear_ratios = vec![];
+                let row_above = row_index.checked_sub(1).and_then(|ri| schematic.get(ri));
+                let row_below = schematic.get(row_index + 1);
+
+                let can_go_left = column_index > 0;
+                let can_go_right = column_index + 1 < schematic[row_index].len();
+
+                // left
+                if can_go_left {
+                    if let Some(n) = find_number_at(row, column_index - 1) {
+                        gear_ratios.push(n);
+                    }
+                }
+
+                // right
+                if can_go_right {
+                    if let Some(n) = find_number_at(row, column_index + 1) {
+                        gear_ratios.push(n);
+                    }
+                }
+
+                if let Some(row_above) = row_above {
+                    // if we have a number right above us then that is the only number that can touch us
+                    // as we go as far left/right as we can
+                    if let Some(n) = find_number_at(row_above, column_index) {
+                        gear_ratios.push(n);
+                    } else {
+                        // left-top
+                        if can_go_left {
+                            if let Some(n) = find_number_at(row_above, column_index - 1) {
+                                gear_ratios.push(n);
+                            }
+                        }
+
+                        // right-top
+                        if can_go_right {
+                            if let Some(n) = find_number_at(row_above, column_index + 1) {
+                                gear_ratios.push(n);
+                            }
+                        }
+                    }
+                }
+
+                if let Some(row_below) = row_below {
+                    if let Some(n) = find_number_at(row_below, column_index) {
+                        gear_ratios.push(n);
+                    } else {
+                        // left-bottom
+                        if can_go_left {
+                            if let Some(n) = find_number_at(row_below, column_index - 1) {
+                                gear_ratios.push(n);
+                            }
+                        }
+
+                        // right-bottom
+                        if can_go_right {
+                            if let Some(n) = find_number_at(row_below, column_index + 1) {
+                                gear_ratios.push(n);
+                            }
+                        }
+                    }
+                }
+
+                if gear_ratios.len() > 1 {
+                    sum += gear_ratios.iter().product::<u32>();
+                }
+            }
+        }
+    }
+
+    sum
+}
+
 fn sum_all_part_numbers(schematic: &Schematic) -> u32 {
     let mut sum = 0;
 
     for (row_index, row) in schematic.iter().enumerate() {
         for column_index in 0..row.len() {
-            if matches!(row[column_index], Cell::Symbol()) {
+            if matches!(row[column_index], Cell::Symbol(_)) {
                 let row_above = row_index.checked_sub(1).and_then(|ri| schematic.get(ri));
                 let row_below = schematic.get(row_index + 1);
 
@@ -164,9 +243,9 @@ impl Day for Solution {
     fn part_2(&self) -> PartSolution {
         let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
-        let _parsed = parse_lines(&lines);
+        let parsed = parse_lines(&lines);
 
-        PartSolution::None
+        multiply_gear_numbers(&parsed).into()
     }
 }
 
@@ -180,10 +259,10 @@ mod test {
     }
 
     mod part_1 {
-        use super::super::parse_lines;
-        use super::super::Solution;
+        use super::super::{parse_lines, Solution};
         use super::get_example;
-        use crate::{day_03::sum_all_part_numbers, shared::Day};
+        use crate::day_03::sum_all_part_numbers;
+        use crate::shared::Day;
 
         #[test]
         fn outcome() {
@@ -203,25 +282,23 @@ mod test {
     }
 
     mod part_2 {
-        use crate::shared::Day;
-        use crate::shared::PartSolution;
-
-        use super::super::parse_lines;
-        use super::super::Solution;
+        use super::super::{parse_lines, Solution};
         use super::get_example;
+        use crate::day_03::multiply_gear_numbers;
+        use crate::shared::Day;
 
         #[test]
         fn outcome() {
-            assert_eq!(PartSolution::None, (Solution {}).part_2());
+            assert_eq!(79_026_871, (Solution {}).part_2());
         }
 
         #[test]
         fn example() {
             let lines = get_example();
 
-            let _parsed = parse_lines(&lines);
+            let parsed = parse_lines(&lines);
 
-            // assert_eq!(Vec::<u32>::new(), parsed);
+            assert_eq!(467_835, multiply_gear_numbers(&parsed));
         }
     }
 }

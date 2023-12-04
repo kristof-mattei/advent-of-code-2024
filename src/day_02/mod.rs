@@ -1,5 +1,6 @@
-use crate::shared::{Day, PartSolution};
 use std::fmt::Display;
+
+use crate::shared::{Day, PartSolution};
 
 fn count_valid_games(lines: &str) -> u32 {
     let mut total = 0;
@@ -183,7 +184,8 @@ mod test {
     mod part_1 {
         use super::super::Solution;
         use super::get_example;
-        use crate::{day_02::count_valid_games, shared::Day};
+        use crate::day_02::count_valid_games;
+        use crate::shared::Day;
 
         #[test]
         fn outcome() {
@@ -201,11 +203,10 @@ mod test {
     }
 
     mod part_2 {
-        use crate::day_02::sum_of_powers;
-        use crate::shared::Day;
-
         use super::super::Solution;
         use super::get_example;
+        use crate::day_02::sum_of_powers;
+        use crate::shared::Day;
 
         #[test]
         fn outcome() {
