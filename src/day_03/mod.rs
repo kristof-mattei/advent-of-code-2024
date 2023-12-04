@@ -41,106 +41,108 @@ fn parse_lines(lines: &[&str]) -> Schematic {
 
 type Schematic = Vec<Vec<Cell>>;
 
-fn parse_number_from(row: &[Cell], start_index: usize) -> Option<(usize, u32)> {
-    let (length, number) = row[start_index..]
-        .iter()
-        .map_while(|c| {
-            if let Cell::Number(n) = c {
-                Some(*n)
-            } else {
-                None
-            }
-        })
-        .fold((0, 0), |(length, value), c| (length + 1, value * 10 + c));
+fn find_number_at(row: &[Cell], column_index: usize) -> Option<u32> {
+    // first we check if we are at the start of our number
+    // on the left it must either be Empty or Symbol, just not a number
+    // this avoids cases like
+    // 123
+    //  *
+    // 456
+    // and we landed on the (0,1). We should then ignore the number as it will be covered by the left-top check
 
-    if length > 0 {
-        Some((length, number))
-    } else {
-        None
+    // are we on a number? If not, return
+    if !matches!(row[column_index], Cell::Number(_)) {
+        return None;
     }
-}
 
-fn cells_to_check(
-    schematic: &Schematic,
-    row_index: usize,
-    column_index: usize,
-    length: usize,
-) -> Vec<(usize, usize)> {
-    let mut cells = vec![];
+    // we're on a number, let's make sure we're on the start on the number
+    let mut start = column_index;
 
-    let row_index_minus_one = row_index.checked_sub(1);
+    while start > 0 && matches!(row[start - 1], Cell::Number(_)) {
+        start -= 1;
+    }
 
-    let before_number_index = column_index.checked_sub(1);
+    // okay we're at the start of a number
+    let mut number = 0;
 
-    let row_index_plus_one = if row_index + 1 == schematic.len() {
-        None
-    } else {
-        Some(row_index + 1)
-    };
-
-    // no plus one here as length is cardinal and indexes are ordinal
-    let after_number_index = if column_index + length == schematic[row_index].len() {
-        None
-    } else {
-        Some(column_index + length)
-    };
-
-    if let Some(row_above_index) = row_index_minus_one {
-        for column_index in before_number_index.unwrap_or(column_index)
-            ..=after_number_index.unwrap_or(column_index + length - 1)
-        {
-            cells.push((row_above_index, column_index));
+    for c in &row[start..] {
+        if let Cell::Number(n) = c {
+            number = number * 10 + n;
+        } else {
+            break;
         }
     }
 
-    if let Some(row_below_index) = row_index_plus_one {
-        for column_index in before_number_index.unwrap_or(column_index)
-            ..=after_number_index.unwrap_or(column_index + length - 1)
-        {
-            cells.push((row_below_index, column_index));
-        }
-    }
-
-    if let Some(b) = before_number_index {
-        cells.push((row_index, b));
-    }
-
-    if let Some(a) = after_number_index {
-        cells.push((row_index, a));
-    }
-
-    cells
+    Some(number)
 }
 
 fn sum_all_part_numbers(schematic: &Schematic) -> u32 {
     let mut sum = 0;
 
-    for row_index in 0..schematic.len() {
-        let mut column_index = 0;
+    for (row_index, row) in schematic.iter().enumerate() {
+        for column_index in 0..row.len() {
+            if matches!(row[column_index], Cell::Symbol()) {
+                let row_above = row_index.checked_sub(1).and_then(|ri| schematic.get(ri));
+                let row_below = schematic.get(row_index + 1);
 
-        while column_index < schematic[row_index].len() {
-            if let Some((length, number)) = parse_number_from(&schematic[row_index], column_index) {
-                // check all cells at (row - 1)
+                let can_go_left = column_index > 0;
+                let can_go_right = column_index + 1 < schematic[row_index].len();
 
-                let cells_to_check = cells_to_check(schematic, row_index, column_index, length);
-
-                let sum_of_symbols = cells_to_check
-                    .iter()
-                    .filter(|(r, c)| matches!(schematic[*r][*c], Cell::Symbol()))
-                    .count();
-
-                if sum_of_symbols > 0 {
-                    println!(
-                        "Found number {} at ({}, {}) for length {} with {} symbols",
-                        number, row_index, column_index, length, sum_of_symbols
-                    );
-
-                    sum += number;
+                // left
+                if can_go_left {
+                    if let Some(n) = find_number_at(row, column_index - 1) {
+                        sum += n;
+                    }
                 }
 
-                column_index += length;
-            } else {
-                column_index += 1;
+                // right
+                if can_go_right {
+                    if let Some(n) = find_number_at(row, column_index + 1) {
+                        sum += n;
+                    }
+                }
+
+                if let Some(row_above) = row_above {
+                    // if we have a number right above us then that is the only number that can touch us
+                    // as we go as far left/right as we can
+                    if let Some(n) = find_number_at(row_above, column_index) {
+                        sum += n;
+                    } else {
+                        // left-top
+                        if can_go_left {
+                            if let Some(n) = find_number_at(row_above, column_index - 1) {
+                                sum += n;
+                            }
+                        }
+
+                        // right-top
+                        if can_go_right {
+                            if let Some(n) = find_number_at(row_above, column_index + 1) {
+                                sum += n;
+                            }
+                        }
+                    }
+                }
+
+                if let Some(row_below) = row_below {
+                    if let Some(n) = find_number_at(row_below, column_index) {
+                        sum += n;
+                    } else {
+                        // left-bottom
+                        if can_go_left {
+                            if let Some(n) = find_number_at(row_below, column_index - 1) {
+                                sum += n;
+                            }
+                        }
+
+                        // right-bottom
+                        if can_go_right {
+                            if let Some(n) = find_number_at(row_below, column_index + 1) {
+                                sum += n;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -164,7 +166,7 @@ impl Day for Solution {
 
         let _parsed = parse_lines(&lines);
 
-        todo!()
+        PartSolution::None
     }
 }
 
@@ -210,14 +212,14 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!(PartSolution::USize(5_756_764), (Solution {}).part_2());
+            assert_eq!(PartSolution::None, (Solution {}).part_2());
         }
 
         #[test]
         fn example() {
             let lines = get_example();
 
-            let parsed = parse_lines(&lines);
+            let _parsed = parse_lines(&lines);
 
             // assert_eq!(Vec::<u32>::new(), parsed);
         }
