@@ -73,7 +73,10 @@ fn first_word_digit(line: &str, first_09_digit_index: usize) -> Option<(usize, u
     for i in 0..first_09_digit_index {
         for (word_index, word) in NUMBER_WORDS.iter().enumerate() {
             if line[i..].starts_with(word) {
-                return Some((i, word_index as u32 + 1));
+                return Some((
+                    i,
+                    u32::try_from(word_index).expect("index doesn't fit u32") + 1,
+                ));
             }
         }
     }
@@ -85,7 +88,10 @@ fn last_word_digit(line: &str, last_09_digit_index: usize) -> Option<(usize, u32
     for i in (last_09_digit_index..line.len()).rev() {
         for (word_index, word) in NUMBER_WORDS.iter().enumerate() {
             if line[i..].starts_with(word) {
-                return Some((i, word_index as u32 + 1));
+                return Some((
+                    i,
+                    u32::try_from(word_index).expect("index doesn't fit u32") + 1,
+                ));
             }
         }
     }
