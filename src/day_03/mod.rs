@@ -76,74 +76,82 @@ fn find_number_at(row: &[Cell], column_index: usize) -> Option<u32> {
     Some(number)
 }
 
+fn get_numbers_around(schematic: &Schematic, row_index: usize, column_index: usize) -> Vec<u32> {
+    let mut numbers_around = vec![];
+
+    let row_above = row_index.checked_sub(1).and_then(|ri| schematic.get(ri));
+    let row_below = schematic.get(row_index + 1);
+
+    let column_index_left = column_index.checked_sub(1);
+    let column_index_right =
+        (column_index + 1 < schematic[row_index].len()).then_some(column_index + 1);
+
+    // left
+    if let Some(left_index) = column_index_left {
+        if let Some(n) = find_number_at(&schematic[row_index], left_index) {
+            numbers_around.push(n);
+        }
+    }
+
+    // right
+    if let Some(right_index) = column_index_right {
+        if let Some(n) = find_number_at(&schematic[row_index], right_index) {
+            numbers_around.push(n);
+        }
+    }
+
+    if let Some(row) = row_above {
+        // if we have a number right above us then that is the only number that can touch us
+        // as we go as far left/right as we can
+        if let Some(n) = find_number_at(row, column_index) {
+            numbers_around.push(n);
+        } else {
+            // left-top
+            if let Some(left_index) = column_index_left {
+                if let Some(n) = find_number_at(row, left_index) {
+                    numbers_around.push(n);
+                }
+            }
+
+            // right-top
+            if let Some(right_index) = column_index_right {
+                if let Some(n) = find_number_at(row, right_index) {
+                    numbers_around.push(n);
+                }
+            }
+        }
+    }
+
+    if let Some(row) = row_below {
+        if let Some(n) = find_number_at(row, column_index) {
+            numbers_around.push(n);
+        } else {
+            // left-bottom
+            if let Some(left_index) = column_index_left {
+                if let Some(n) = find_number_at(row, left_index) {
+                    numbers_around.push(n);
+                }
+            }
+
+            // right-bottom
+            if let Some(right_index) = column_index_right {
+                if let Some(n) = find_number_at(row, right_index) {
+                    numbers_around.push(n);
+                }
+            }
+        }
+    }
+
+    numbers_around
+}
+
 fn multiply_gear_numbers(schematic: &Schematic) -> u32 {
     let mut sum = 0;
 
     for (row_index, row) in schematic.iter().enumerate() {
-        for column_index in 0..row.len() {
-            if matches!(row[column_index], Cell::Symbol('*')) {
-                let mut gear_ratios = vec![];
-                let row_above = row_index.checked_sub(1).and_then(|ri| schematic.get(ri));
-                let row_below = schematic.get(row_index + 1);
-
-                let can_go_left = column_index > 0;
-                let can_go_right = column_index + 1 < schematic[row_index].len();
-
-                // left
-                if can_go_left {
-                    if let Some(n) = find_number_at(row, column_index - 1) {
-                        gear_ratios.push(n);
-                    }
-                }
-
-                // right
-                if can_go_right {
-                    if let Some(n) = find_number_at(row, column_index + 1) {
-                        gear_ratios.push(n);
-                    }
-                }
-
-                if let Some(row_above) = row_above {
-                    // if we have a number right above us then that is the only number that can touch us
-                    // as we go as far left/right as we can
-                    if let Some(n) = find_number_at(row_above, column_index) {
-                        gear_ratios.push(n);
-                    } else {
-                        // left-top
-                        if can_go_left {
-                            if let Some(n) = find_number_at(row_above, column_index - 1) {
-                                gear_ratios.push(n);
-                            }
-                        }
-
-                        // right-top
-                        if can_go_right {
-                            if let Some(n) = find_number_at(row_above, column_index + 1) {
-                                gear_ratios.push(n);
-                            }
-                        }
-                    }
-                }
-
-                if let Some(row_below) = row_below {
-                    if let Some(n) = find_number_at(row_below, column_index) {
-                        gear_ratios.push(n);
-                    } else {
-                        // left-bottom
-                        if can_go_left {
-                            if let Some(n) = find_number_at(row_below, column_index - 1) {
-                                gear_ratios.push(n);
-                            }
-                        }
-
-                        // right-bottom
-                        if can_go_right {
-                            if let Some(n) = find_number_at(row_below, column_index + 1) {
-                                gear_ratios.push(n);
-                            }
-                        }
-                    }
-                }
+        for (column_index, column) in row.iter().enumerate() {
+            if matches!(column, Cell::Symbol('*')) {
+                let gear_ratios = get_numbers_around(schematic, row_index, column_index);
 
                 if gear_ratios.len() > 1 {
                     sum += gear_ratios.iter().product::<u32>();
@@ -159,69 +167,11 @@ fn sum_all_part_numbers(schematic: &Schematic) -> u32 {
     let mut sum = 0;
 
     for (row_index, row) in schematic.iter().enumerate() {
-        for column_index in 0..row.len() {
-            if matches!(row[column_index], Cell::Symbol(_)) {
-                let row_above = row_index.checked_sub(1).and_then(|ri| schematic.get(ri));
-                let row_below = schematic.get(row_index + 1);
-
-                let can_go_left = column_index > 0;
-                let can_go_right = column_index + 1 < schematic[row_index].len();
-
-                // left
-                if can_go_left {
-                    if let Some(n) = find_number_at(row, column_index - 1) {
-                        sum += n;
-                    }
-                }
-
-                // right
-                if can_go_right {
-                    if let Some(n) = find_number_at(row, column_index + 1) {
-                        sum += n;
-                    }
-                }
-
-                if let Some(row_above) = row_above {
-                    // if we have a number right above us then that is the only number that can touch us
-                    // as we go as far left/right as we can
-                    if let Some(n) = find_number_at(row_above, column_index) {
-                        sum += n;
-                    } else {
-                        // left-top
-                        if can_go_left {
-                            if let Some(n) = find_number_at(row_above, column_index - 1) {
-                                sum += n;
-                            }
-                        }
-
-                        // right-top
-                        if can_go_right {
-                            if let Some(n) = find_number_at(row_above, column_index + 1) {
-                                sum += n;
-                            }
-                        }
-                    }
-                }
-
-                if let Some(row_below) = row_below {
-                    if let Some(n) = find_number_at(row_below, column_index) {
-                        sum += n;
-                    } else {
-                        // left-bottom
-                        if can_go_left {
-                            if let Some(n) = find_number_at(row_below, column_index - 1) {
-                                sum += n;
-                            }
-                        }
-
-                        // right-bottom
-                        if can_go_right {
-                            if let Some(n) = find_number_at(row_below, column_index + 1) {
-                                sum += n;
-                            }
-                        }
-                    }
-                }
+        for (column_index, column) in row.iter().enumerate() {
+            if matches!(column, Cell::Symbol(_)) {
+                sum += get_numbers_around(schematic, row_index, column_index)
+                    .iter()
+                    .sum::<u32>();
             }
         }
     }
