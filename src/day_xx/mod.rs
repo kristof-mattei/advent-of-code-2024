@@ -1,8 +1,7 @@
-
 use crate::shared::{Day, PartSolution};
 
 fn parse_lines(_lines: &[&str]) -> Vec<u32> {
-    todo!()
+    vec![]
 }
 pub struct Solution {}
 
@@ -12,7 +11,7 @@ impl Day for Solution {
 
         let _parsed = parse_lines(&lines);
 
-        todo!()
+        PartSolution::None
     }
 
     fn part_2(&self) -> PartSolution {
@@ -20,7 +19,7 @@ impl Day for Solution {
 
         let _parsed = parse_lines(&lines);
 
-        todo!()
+        PartSolution::None
     }
 }
 
@@ -34,14 +33,13 @@ mod test {
     }
 
     mod part_1 {
-        use super::super::parse_lines;
-        use super::super::Solution;
+        use super::super::{parse_lines, Solution};
         use super::get_example;
         use crate::shared::{Day, PartSolution};
 
         #[test]
         fn outcome() {
-            assert_eq!(PartSolution::USize(1_297_683), (Solution {}).part_1());
+            assert_eq!(PartSolution::None, (Solution {}).part_1());
         }
 
         #[test]
@@ -55,16 +53,13 @@ mod test {
     }
 
     mod part_2 {
-        use crate::shared::Day;
-        use crate::shared::PartSolution;
-
-        use super::super::parse_lines;
-        use super::super::Solution;
+        use super::super::{parse_lines, Solution};
         use super::get_example;
+        use crate::shared::{Day, PartSolution};
 
         #[test]
         fn outcome() {
-            assert_eq!(PartSolution::USize(5_756_764), (Solution {}).part_2());
+            assert_eq!(PartSolution::None, (Solution {}).part_2());
         }
 
         #[test]
