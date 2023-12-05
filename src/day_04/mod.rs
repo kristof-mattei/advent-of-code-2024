@@ -4,9 +4,8 @@ use std::hash::{Hash, Hasher};
 use crate::shared::{Day, PartSolution};
 
 struct Game {
-    my_numbers: HashSet<u32>,
-    winning_numbers: HashSet<u32>,
     game_number: usize,
+    intersection_count: usize,
 }
 
 impl Hash for Game {
@@ -31,10 +30,13 @@ fn parse_lines(lines: &[&str]) -> Vec<Game> {
 
         let (winning_numbers, my_numbers) = all_numbers.split_once('|').expect("Invalid numbers");
 
+        let intersection_count = split_string_into_numbers(winning_numbers)
+            .intersection(&split_string_into_numbers(my_numbers))
+            .count();
+
         games.push(Game {
             game_number: parse_game_number(game),
-            my_numbers: split_string_into_numbers(my_numbers),
-            winning_numbers: split_string_into_numbers(winning_numbers),
+            intersection_count,
         });
     }
 
@@ -64,7 +66,7 @@ impl Game {
     }
 
     fn get_intersection_count(&self) -> usize {
-        self.winning_numbers.intersection(&self.my_numbers).count()
+        self.intersection_count
     }
 }
 
