@@ -4,6 +4,7 @@ mod day_01;
 mod day_02;
 mod day_03;
 mod day_04;
+mod day_05;
 mod shared;
 mod utils;
 
@@ -19,6 +20,7 @@ fn main() -> Result<(), color_eyre::Report> {
         Box::new(day_02::Solution {}),
         Box::new(day_03::Solution {}),
         Box::new(day_04::Solution {}),
+        Box::new(day_05::Solution {}),
     ];
 
     for (i, solution) in solutions.iter().enumerate() {
