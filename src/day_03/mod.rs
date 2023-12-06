@@ -23,10 +23,10 @@ impl TryFrom<char> for Cell {
     }
 }
 
-fn parse_lines(lines: &[&str]) -> Schematic {
+fn parse_lines(lines: &str) -> Schematic {
     let mut parsed = Vec::new();
 
-    for line in lines {
+    for line in lines.lines() {
         let mut row = Vec::new();
 
         for c in line.chars() {
@@ -182,18 +182,22 @@ fn sum_all_part_numbers(schematic: &Schematic) -> u32 {
 pub struct Solution {}
 
 impl Day for Solution {
-    fn part_1(&self) -> PartSolution {
-        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
+    fn get_input(&self) -> &str {
+        include_str!("input.txt")
+    }
 
-        let parsed = parse_lines(&lines);
+    fn get_example(&self) -> &str {
+        include_str!("example.txt")
+    }
+
+    fn part_1(&self, input: &str) -> PartSolution {
+        let parsed = parse_lines(input);
 
         sum_all_part_numbers(&parsed).into()
     }
 
-    fn part_2(&self) -> PartSolution {
-        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
-
-        let parsed = parse_lines(&lines);
+    fn part_2(&self, input: &str) -> PartSolution {
+        let parsed = parse_lines(input);
 
         multiply_gear_numbers(&parsed).into()
     }
@@ -201,54 +205,33 @@ impl Day for Solution {
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> Vec<&'static str> {
-        include_str!("example.txt")
-            .lines()
-            .map(Into::into)
-            .collect()
-    }
-
     mod part_1 {
-        use super::super::{parse_lines, Solution};
-        use super::get_example;
-        use crate::day_03::sum_all_part_numbers;
+        use super::super::Solution;
         use crate::shared::Day;
 
         #[test]
         fn outcome() {
-            assert_eq!(527_364, (Solution {}).part_1());
+            assert_eq!(527_364, (Solution {}).part_1_with_input());
         }
 
         #[test]
         fn example() {
-            let lines = get_example();
-
-            let parsed = parse_lines(&lines);
-
-            let sum = sum_all_part_numbers(&parsed);
-
-            assert_eq!(4361, sum);
+            assert_eq!(4361, (Solution {}).part_1_with_example());
         }
     }
 
     mod part_2 {
-        use super::super::{parse_lines, Solution};
-        use super::get_example;
-        use crate::day_03::multiply_gear_numbers;
+        use super::super::Solution;
         use crate::shared::Day;
 
         #[test]
         fn outcome() {
-            assert_eq!(79_026_871, (Solution {}).part_2());
+            assert_eq!(79_026_871, (Solution {}).part_2_with_input());
         }
 
         #[test]
         fn example() {
-            let lines = get_example();
-
-            let parsed = parse_lines(&lines);
-
-            assert_eq!(467_835, multiply_gear_numbers(&parsed));
+            assert_eq!(467_835, (Solution {}).part_2_with_example());
         }
     }
 }

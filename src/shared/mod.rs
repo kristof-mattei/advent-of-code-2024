@@ -1,6 +1,20 @@
 pub trait Day {
-    fn part_1(&self) -> PartSolution;
-    fn part_2(&self) -> PartSolution;
+    fn get_input(&self) -> &str;
+    fn get_example(&self) -> &str;
+    fn part_1(&self, input: &str) -> PartSolution;
+    fn part_2(&self, input: &str) -> PartSolution;
+    fn part_1_with_input(&self) -> PartSolution {
+        self.part_1(self.get_input())
+    }
+    fn part_1_with_example(&self) -> PartSolution {
+        self.part_1(self.get_example())
+    }
+    fn part_2_with_input(&self) -> PartSolution {
+        self.part_2(self.get_input())
+    }
+    fn part_2_with_example(&self) -> PartSolution {
+        self.part_2(self.get_example())
+    }
 }
 
 #[derive(PartialEq, Eq, Debug)]

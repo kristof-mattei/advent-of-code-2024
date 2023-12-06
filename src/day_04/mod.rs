@@ -22,10 +22,10 @@ impl PartialEq for Game {
 
 impl Eq for Game {}
 
-fn parse_lines(lines: &[&str]) -> Vec<Game> {
+fn parse_lines(lines: &str) -> Vec<Game> {
     let mut games = Vec::new();
 
-    for line in lines {
+    for line in lines.lines() {
         let (game, all_numbers) = line.split_once(':').expect("Invalid game");
 
         let (winning_numbers, my_numbers) = all_numbers.split_once('|').expect("Invalid numbers");
@@ -130,18 +130,22 @@ fn split_string_into_numbers(numbers: &str) -> HashSet<u32> {
 pub struct Solution {}
 
 impl Day for Solution {
-    fn part_1(&self) -> PartSolution {
-        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
+    fn get_input(&self) -> &str {
+        include_str!("input.txt")
+    }
 
-        let games = parse_lines(&lines);
+    fn get_example(&self) -> &str {
+        include_str!("example.txt")
+    }
+
+    fn part_1(&self, input: &str) -> PartSolution {
+        let games = parse_lines(input);
 
         get_scores(&games).into()
     }
 
-    fn part_2(&self) -> PartSolution {
-        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
-
-        let mut parsed = parse_lines(&lines);
+    fn part_2(&self, input: &str) -> PartSolution {
+        let mut parsed = parse_lines(input);
 
         let total_cards = count_played_cards(&mut parsed);
 
@@ -151,52 +155,33 @@ impl Day for Solution {
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> Vec<&'static str> {
-        include_str!("example.txt")
-            .lines()
-            .map(Into::into)
-            .collect()
-    }
-
     mod part_1 {
-        use super::super::{parse_lines, Solution};
-        use super::get_example;
-        use crate::{day_04::get_scores, shared::Day};
+        use super::super::Solution;
+        use crate::shared::Day;
 
         #[test]
         fn outcome() {
-            assert_eq!(18_619, (Solution {}).part_1());
+            assert_eq!(18_619, (Solution {}).part_1_with_input());
         }
 
         #[test]
         fn example() {
-            let lines = get_example();
-
-            let parsed = parse_lines(&lines);
-
-            assert_eq!(13, get_scores(&parsed));
+            assert_eq!(13, (Solution {}).part_1_with_example());
         }
     }
 
     mod part_2 {
-        use super::super::{parse_lines, Solution};
-        use super::get_example;
-        use crate::{day_04::count_played_cards, shared::Day};
+        use super::super::Solution;
+        use crate::shared::Day;
 
         #[test]
         fn outcome() {
-            assert_eq!(8_063_216, (Solution {}).part_2());
+            assert_eq!(8_063_216, (Solution {}).part_2_with_input());
         }
 
         #[test]
         fn example() {
-            let lines = get_example();
-
-            let mut parsed = parse_lines(&lines);
-
-            let total_cards = count_played_cards(&mut parsed);
-
-            assert_eq!(30, total_cards);
+            assert_eq!(30, (Solution {}).part_2_with_example());
         }
     }
 }

@@ -160,66 +160,54 @@ fn naive_parse_line(line: &str) -> Game {
 pub struct Solution {}
 
 impl Day for Solution {
-    fn part_1(&self) -> PartSolution {
-        let input = include_str!("input.txt");
+    fn get_input(&self) -> &str {
+        include_str!("input.txt")
+    }
 
+    fn get_example(&self) -> &str {
+        include_str!("example.txt")
+    }
+
+    fn part_1(&self, input: &str) -> PartSolution {
         let games = count_valid_games(input);
 
         games.into()
     }
 
-    fn part_2(&self) -> PartSolution {
-        let input = include_str!("input.txt");
-
+    fn part_2(&self, input: &str) -> PartSolution {
         sum_of_powers(input).into()
     }
 }
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> &'static str {
-        include_str!("example.txt")
-    }
-
     mod part_1 {
         use super::super::Solution;
-        use super::get_example;
-        use crate::day_02::count_valid_games;
         use crate::shared::Day;
 
         #[test]
         fn outcome() {
-            assert_eq!(2449, (Solution {}).part_1());
+            assert_eq!(2449, (Solution {}).part_1_with_input());
         }
 
         #[test]
         fn example() {
-            let lines = get_example();
-
-            let valid_games_sum = count_valid_games(lines);
-
-            assert_eq!(8, valid_games_sum);
+            assert_eq!(8, (Solution {}).part_1_with_example());
         }
     }
 
     mod part_2 {
         use super::super::Solution;
-        use super::get_example;
-        use crate::day_02::sum_of_powers;
         use crate::shared::Day;
 
         #[test]
         fn outcome() {
-            assert_eq!(63_981, (Solution {}).part_2());
+            assert_eq!(63_981, (Solution {}).part_2_with_input());
         }
 
         #[test]
         fn example() {
-            let lines = get_example();
-
-            let sum_of_powers = sum_of_powers(lines);
-
-            assert_eq!(2286, sum_of_powers);
+            assert_eq!(2286, (Solution {}).part_2_with_example());
         }
     }
 }

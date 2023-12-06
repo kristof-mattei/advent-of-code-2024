@@ -101,14 +101,23 @@ fn last_word_digit(line: &str, last_09_digit_index: usize) -> Option<(usize, u32
 pub struct Solution {}
 
 impl Day for Solution {
-    fn part_1(&self) -> PartSolution {
-        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
+    fn get_input(&self) -> &str {
+        include_str!("input.txt")
+    }
+
+    fn get_example(&self) -> &str {
+        ""
+        // include_str!("example.txt")
+    }
+
+    fn part_1(&self, input: &str) -> PartSolution {
+        let lines: Vec<&str> = input.lines().collect();
 
         calculate_total_calibration_value_part_1(&lines).into()
     }
 
-    fn part_2(&self) -> PartSolution {
-        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
+    fn part_2(&self, input: &str) -> PartSolution {
+        let lines: Vec<&str> = input.lines().collect();
 
         calculate_total_calibration_value_part_2(&lines).into()
     }
@@ -130,7 +139,7 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!(PartSolution::U32(54159), (Solution {}).part_1());
+            assert_eq!(PartSolution::U32(54159), (Solution {}).part_1_with_input());
         }
 
         #[test]
@@ -165,7 +174,7 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!(PartSolution::U32(53866), (Solution {}).part_2());
+            assert_eq!(PartSolution::U32(53866), (Solution {}).part_2_with_input());
         }
 
         #[test]

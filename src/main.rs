@@ -24,8 +24,8 @@ fn main() -> Result<(), color_eyre::Report> {
     ];
 
     for (i, solution) in solutions.iter().enumerate() {
-        print_answer(i + 1, 1, &solution.part_1().to_string());
-        print_answer(i + 1, 2, &solution.part_2().to_string());
+        print_answer(i + 1, 1, &solution.part_1_with_input().to_string());
+        print_answer(i + 1, 2, &solution.part_2_with_input().to_string());
     }
 
     Ok(())

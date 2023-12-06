@@ -1,6 +1,10 @@
 use std::fmt::Debug;
+use std::ops::Range;
 
+use self::parse::{IndividualSeeds, RangeOfSeeds};
 use crate::shared::{Day, PartSolution};
+
+mod parse;
 
 #[derive(Debug, PartialEq, Eq)]
 struct AlmanacMap(Vec<DestinationSourceRange>);
@@ -15,10 +19,140 @@ impl AlmanacMap {
 
         seed
     }
+
+    fn remap_seed_ranges(&self, seed_ranges: Vec<Range<u64>>) -> Vec<Range<u64>> {
+        // run the seed_range through the mapping ONCE, splitting it into processed and unprocessed
+        let mut processed = vec![]; // these have been split off and remapped
+
+        let mut todo = seed_ranges;
+
+        while let Some(seed_range) = todo.pop() {
+            let mut processed_inner = vec![];
+            let mut todo_inner = vec![];
+
+            for dsr in &self.0 {
+                let map_source = dsr.1..(dsr.1 + dsr.2);
+
+                if seed_range.end <= map_source.start || seed_range.start >= map_source.end {
+                    // no overlap
+                } else if seed_range.start < map_source.start {
+                    if seed_range.end <= map_source.end {
+                        // seed_range: |___________|
+                        //        map:       |__________|
+                        //             S1    M1    S2    M2
+                        // S1..M1
+                        // M1..S2 (remap)
+                        // or
+                        // seed_range: |___________|
+                        //        map:       |_____|
+                        //             S1    M1    S2,M2
+                        // S1..M1
+                        todo_inner.push(seed_range.start..map_source.start);
+                        // M1..S2 (remap)
+                        processed_inner.push(
+                            dsr.map_to_destination(map_source.start)
+                                ..dsr.map_to_destination(seed_range.end),
+                        );
+                    } else {
+                        // seed_range: |_________________|
+                        //        map:       |_____|
+                        //             S1    M1    M2    S2
+                        // S1..M1
+                        todo_inner.push(seed_range.start..map_source.start);
+                        // M1..M2 (remap)
+                        processed_inner.push(
+                            dsr.map_to_destination(map_source.start)
+                                ..dsr.map_to_destination(map_source.end),
+                        );
+                        // M2..S2
+                        todo_inner.push(map_source.end..seed_range.end);
+                    }
+                } else if seed_range.start > map_source.start {
+                    if seed_range.end <= map_source.end {
+                        // seed_range:       |_____|
+                        //        map: |_________________|
+                        //             M1    S1    S2    M2
+                        // S1..S2 (remap)
+                        // or
+                        // seed_range:       |_____|
+                        //        map: |___________|
+                        //             M1    S1    S2,M2
+                        // S1..S2 (remap)
+                        processed_inner.push(
+                            dsr.map_to_destination(seed_range.start)
+                                ..dsr.map_to_destination(seed_range.end),
+                        );
+                    } else {
+                        // seed_range:       |___________|
+                        //        map: |___________|
+                        //             M1    S1    M2    S2
+                        // S1..M2 (remap)
+                        processed_inner.push(
+                            dsr.map_to_destination(seed_range.start)
+                                ..dsr.map_to_destination(map_source.end),
+                        );
+                        // M2..S2
+                        todo_inner.push(map_source.end..seed_range.end);
+                    }
+                } else if seed_range.start == map_source.start {
+                    if seed_range.end <= map_source.end {
+                        // seed_range: |_____|
+                        //        map: |___________|
+                        //             S1,M1 S2    M2
+                        // S1..S2 (remap)
+                        // or
+                        // seed_range: |_____|
+                        //        map: |_____|
+                        //             S1,M1 S2,M2
+                        // S1..S2 (remap)
+                        processed_inner.push(
+                            dsr.map_to_destination(map_source.start)
+                                ..dsr.map_to_destination(seed_range.end),
+                        );
+                    } else {
+                        // seed_range: |___________|
+                        //        map: |_____|
+                        //             S1,M1 M2    S2
+                        // M1..M2 (remap)
+                        processed_inner.push(
+                            dsr.map_to_destination(map_source.start)
+                                ..dsr.map_to_destination(map_source.end),
+                        );
+                        // M2..S2
+                        todo_inner.push(map_source.end..seed_range.end);
+                    }
+                } else {
+                    // nothing happened
+                    panic!("Uncovered case");
+                }
+
+                if !processed_inner.is_empty() {
+                    break;
+                }
+            }
+
+            if processed_inner.is_empty() {
+                // we got through all the maps without processing anything, so the range is fully processed
+                processed.push(seed_range);
+            } else {
+                // we got a hit on this map
+                // we bail to avoid duplicate non-mapped pieces
+
+                // processed pieces, retain them
+                processed.append(&mut processed_inner);
+
+                // enqueue the cut of pieces for re-processing
+                todo.append(&mut todo_inner);
+            }
+        }
+
+        processed
+    }
 }
 
 impl From<Vec<DestinationSourceRange>> for AlmanacMap {
-    fn from(vec: Vec<DestinationSourceRange>) -> Self {
+    fn from(mut vec: Vec<DestinationSourceRange>) -> Self {
+        vec.sort_by_key(|r| r.1);
         AlmanacMap(vec)
     }
 }
@@ -29,281 +163,221 @@ struct DestinationSourceRange(u64, u64, u64);
 impl DestinationSourceRange {
     fn map(&self, seed: u64) -> Option<u64> {
         if (self.1..self.1 + self.2).contains(&seed) {
-            Some(seed - self.1 + self.0)
+            Some(self.map_to_destination(seed))
         } else {
             None
         }
     }
+
+    fn map_to_destination(&self, seed: u64) -> u64 {
+        seed + self.0 - self.1
+    }
 }
 
 impl std::fmt::Debug for DestinationSourceRange {
-    #[allow(clippy::range_minus_one)]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("DestinationSourceRange")
-            .field("Destination", &((self.0)..=(self.0 + self.2 - 1)))
-            .field("Source", &((self.1)..=(self.1 + self.2 - 1)))
+            .field("Destination", &((self.0)..(self.0 + self.2)))
+            .field("Source", &((self.1)..(self.1 + self.2)))
             .field("Range", &self.2)
             .finish()
     }
 }
 
 #[derive(Debug, PartialEq, Eq)]
+struct Maps(Vec<AlmanacMap>);
+
+impl From<Vec<AlmanacMap>> for Maps {
+    fn from(vec: Vec<AlmanacMap>) -> Self {
+        Maps(vec)
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
 struct Almanac {
-    seeds: Vec<u64>,
-    seed_to_soil_map: AlmanacMap,
-    soil_to_fertilizer_map: AlmanacMap,
-    fertilizer_to_water_map: AlmanacMap,
-    water_to_light_map: AlmanacMap,
-    light_to_temperature_map: AlmanacMap,
-    temperature_to_humidity_map: AlmanacMap,
-    humidity_to_location_map: AlmanacMap,
+    maps: Maps,
 }
 
 impl Almanac {
-    fn seed_to_soil(&self, seed: u64) -> u64 {
-        self.seed_to_soil_map.map(seed)
-    }
-
-    fn soil_to_fertilizer_map(&self, seed: u64) -> u64 {
-        self.soil_to_fertilizer_map.map(seed)
-    }
-
-    fn fertilizer_to_water_map(&self, seed: u64) -> u64 {
-        self.fertilizer_to_water_map.map(seed)
-    }
-
-    fn water_to_light_map(&self, seed: u64) -> u64 {
-        self.water_to_light_map.map(seed)
-    }
-
-    fn light_to_temperature_map(&self, seed: u64) -> u64 {
-        self.light_to_temperature_map.map(seed)
-    }
-
-    fn temperature_to_humidity_map(&self, seed: u64) -> u64 {
-        self.temperature_to_humidity_map.map(seed)
-    }
-
-    fn humidity_to_location_map(&self, seed: u64) -> u64 {
-        self.humidity_to_location_map.map(seed)
-    }
-
-    fn all_the_way(&self, seed: u64) -> u64 {
-        let soil = self.seed_to_soil(seed);
-        let fertilizer = self.soil_to_fertilizer_map(soil);
-        let water = self.fertilizer_to_water_map(fertilizer);
-        let light = self.water_to_light_map(water);
-        let temperature = self.light_to_temperature_map(light);
-        let humidity = self.temperature_to_humidity_map(temperature);
-
-        self.humidity_to_location_map(humidity)
-    }
-}
-
-fn parse_lines(lines: &[&str]) -> Almanac {
-    let mut seeds = Vec::new();
-    let mut seed_to_soil_map = None;
-    let mut soil_to_fertilizer_map = None;
-    let mut fertilizer_to_water_map = None;
-    let mut water_to_light_map = None;
-    let mut light_to_temperature_map = None;
-    let mut temperature_to_humidity_map = None;
-    let mut humidity_to_location_map = None;
-
-    for group in lines.split(|line| line.is_empty()) {
-        assert!(!group.is_empty());
-
-        match group[0] {
-            "seed-to-soil map:" => seed_to_soil_map = process_map(&group[1..]).into(),
-            "soil-to-fertilizer map:" => soil_to_fertilizer_map = process_map(&group[1..]).into(),
-            "fertilizer-to-water map:" => fertilizer_to_water_map = process_map(&group[1..]).into(),
-            "water-to-light map:" => water_to_light_map = process_map(&group[1..]).into(),
-            "light-to-temperature map:" => {
-                light_to_temperature_map = process_map(&group[1..]).into();
-            },
-            "temperature-to-humidity map:" => {
-                temperature_to_humidity_map = process_map(&group[1..]).into();
-            },
-            "humidity-to-location map:" => {
-                humidity_to_location_map = process_map(&group[1..]).into();
-            },
-            s if s.starts_with("seeds:") => {
-                seeds = group[0]
-                    .split(' ')
-                    .skip(1)
-                    .map(|s| s.parse::<u64>().expect("Invalid seed"))
-                    .collect();
-            },
-            _ => panic!("Invalid group"),
+    fn all_the_way(&self, mut seed: u64) -> u64 {
+        for map in &self.maps.0 {
+            seed = map.map(seed);
         }
+
+        seed
     }
 
-    Almanac {
-        seeds,
-        seed_to_soil_map: seed_to_soil_map.expect("Missing map"),
-        soil_to_fertilizer_map: soil_to_fertilizer_map.expect("Missing map"),
-        fertilizer_to_water_map: fertilizer_to_water_map.expect("Missing map"),
-        water_to_light_map: water_to_light_map.expect("Missing map"),
-        light_to_temperature_map: light_to_temperature_map.expect("Missing map"),
-        temperature_to_humidity_map: temperature_to_humidity_map.expect("Missing map"),
-        humidity_to_location_map: humidity_to_location_map.expect("Missing map"),
+    fn remap_seed_ranges_all_the_way(&self, mut seed_ranges: Vec<Range<u64>>) -> Vec<Range<u64>> {
+        for map in &self.maps.0 {
+            seed_ranges = map.remap_seed_ranges(seed_ranges);
+        }
+
+        seed_ranges
     }
 }
 
-fn process_map(lines: &[&str]) -> AlmanacMap {
-    let mut almanac_map = Vec::new();
-    for line in lines {
-        let x = line
-            .split(' ')
-            .map(|s| s.parse().expect("Invalid number"))
-            .collect::<Vec<u64>>();
-
-        assert!(x.len() == 3);
-
-        almanac_map.push(DestinationSourceRange(x[0], x[1], x[2]));
-    }
-
-    almanac_map.into()
-}
 pub struct Solution {}
 
 impl Day for Solution {
-    fn part_1(&self) -> PartSolution {
-        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
+    fn get_input(&self) -> &str {
+        include_str!("input.txt")
+    }
 
-        let parsed = parse_lines(&lines);
+    fn get_example(&self) -> &str {
+        include_str!("example.txt")
+    }
 
-        let min_location = parsed
-            .seeds
-            .iter()
-            .map(|s| parsed.all_the_way(*s))
+    fn part_1(&self, input: &str) -> PartSolution {
+        let (almanac, seeds) = parse::parse_lines::<IndividualSeeds>(input);
+
+        let min_location = seeds
+            .0
+            .into_iter()
+            .map(|s| almanac.all_the_way(s))
             .min()
             .expect("No min found");
 
-        min_location.into()
+        (min_location).into()
     }
 
-    fn part_2(&self) -> PartSolution {
-        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
+    fn part_2(&self, input: &str) -> PartSolution {
+        let (almanac, mut range_of_seeds) = parse::parse_lines::<RangeOfSeeds>(input);
 
-        let _parsed = parse_lines(&lines);
+        let mut result_seed_ranges =
+            almanac.remap_seed_ranges_all_the_way(range_of_seeds.0.clone());
 
-        PartSolution::None
+        range_of_seeds.0.sort_by_key(|r| r.start);
+        result_seed_ranges.sort_by_key(|r| r.start);
+
+        let mut min = u64::MAX;
+
+        'outer: for seed_range in result_seed_ranges {
+            for original_seed_range in &range_of_seeds.0 {
+                if original_seed_range.contains(&(seed_range.start - 1)) {
+                    min = seed_range.start;
+                    break 'outer;
+                }
+
+                if original_seed_range.contains(&(seed_range.end - 1)) {
+                    min = original_seed_range.start;
+                    break 'outer;
+                }
+            }
+        }
+
+        min.into()
     }
 }
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> Vec<&'static str> {
-        include_str!("example.txt")
-            .lines()
-            .map(Into::into)
-            .collect()
-    }
 
     mod part_1 {
-        use super::super::{parse_lines, Solution};
-        use super::get_example;
-        use crate::{
-            day_05::{Almanac, DestinationSourceRange},
-            shared::Day,
-        };
+        use parse::parse_lines;
+
+        use crate::day_05::{parse, Almanac, DestinationSourceRange, IndividualSeeds, Solution};
+        use crate::shared::Day;
 
         #[test]
         fn outcome() {
-            assert_eq!(309_796_150, (Solution {}).part_1());
+            let s = Solution {};
+            assert_eq!(309_796_150, s.part_1(s.get_input()));
         }
 
         #[test]
         fn example() {
-            let lines = get_example();
+            let lines = Solution {}.get_example();
 
-            let parsed = parse_lines(&lines);
+            let (almanac, seeds) = parse_lines::<IndividualSeeds>(lines);
+
+            assert_eq!(IndividualSeeds(vec![79, 14, 55, 13]), seeds);
 
             assert_eq!(
+                almanac,
                 Almanac {
-                    seeds: vec![79, 14, 55, 13],
-                    seed_to_soil_map: vec![
-                        DestinationSourceRange(50, 98, 2),
-                        DestinationSourceRange(52, 50, 48)
-                    ]
-                    .into(),
-                    soil_to_fertilizer_map: vec![
-                        DestinationSourceRange(0, 15, 37),
-                        DestinationSourceRange(37, 52, 2),
-                        DestinationSourceRange(39, 0, 15)
-                    ]
-                    .into(),
-                    fertilizer_to_water_map: vec![
-                        DestinationSourceRange(49, 53, 8),
-                        DestinationSourceRange(0, 11, 42),
-                        DestinationSourceRange(42, 0, 7),
-                        DestinationSourceRange(57, 7, 4)
-                    ]
-                    .into(),
-                    water_to_light_map: vec![
-                        DestinationSourceRange(88, 18, 7),
-                        DestinationSourceRange(18, 25, 70)
-                    ]
-                    .into(),
-                    light_to_temperature_map: vec![
-                        DestinationSourceRange(45, 77, 23),
-                        DestinationSourceRange(81, 45, 19),
-                        DestinationSourceRange(68, 64, 13)
-                    ]
-                    .into(),
-                    temperature_to_humidity_map: vec![
-                        DestinationSourceRange(0, 69, 1),
-                        DestinationSourceRange(1, 0, 69)
-                    ]
-                    .into(),
-                    humidity_to_location_map: vec![
-                        DestinationSourceRange(60, 56, 37),
-                        DestinationSourceRange(56, 93, 4)
+                    maps: vec![
+                        vec![
+                            DestinationSourceRange(50, 98, 2),
+                            DestinationSourceRange(52, 50, 48)
+                        ]
+                        .into(),
+                        vec![
+                            DestinationSourceRange(0, 15, 37),
+                            DestinationSourceRange(37, 52, 2),
+                            DestinationSourceRange(39, 0, 15)
+                        ]
+                        .into(),
+                        vec![
+                            DestinationSourceRange(49, 53, 8),
+                            DestinationSourceRange(0, 11, 42),
+                            DestinationSourceRange(42, 0, 7),
+                            DestinationSourceRange(57, 7, 4)
+                        ]
+                        .into(),
+                        vec![
+                            DestinationSourceRange(88, 18, 7),
+                            DestinationSourceRange(18, 25, 70)
+                        ]
+                        .into(),
+                        vec![
+                            DestinationSourceRange(45, 77, 23),
+                            DestinationSourceRange(81, 45, 19),
+                            DestinationSourceRange(68, 64, 13)
+                        ]
+                        .into(),
+                        vec![
+                            DestinationSourceRange(0, 69, 1),
+                            DestinationSourceRange(1, 0, 69)
+                        ]
+                        .into(),
+                        vec![
+                            DestinationSourceRange(60, 56, 37),
+                            DestinationSourceRange(56, 93, 4)
+                        ]
+                        .into()
                     ]
                     .into(),
                 },
-                parsed
             );
         }
 
         #[test]
         fn example_seed_to_soil() {
-            let lines = get_example();
+            let lines = Solution {}.get_example();
 
-            let parsed = parse_lines(&lines);
+            let (almanac, _) = parse_lines::<IndividualSeeds>(lines);
 
-            assert_eq!(81, parsed.seed_to_soil(79));
-            assert_eq!(14, parsed.seed_to_soil(14));
-            assert_eq!(57, parsed.seed_to_soil(55));
-            assert_eq!(13, parsed.seed_to_soil(13));
+            assert_eq!(81, almanac.maps.0[0].map(79));
+            assert_eq!(14, almanac.maps.0[0].map(14));
+            assert_eq!(57, almanac.maps.0[0].map(55));
+            assert_eq!(13, almanac.maps.0[0].map(13));
         }
 
         #[test]
         fn example_seed_to_location() {
-            let lines = get_example();
+            let lines = Solution {}.get_example();
 
-            let parsed = parse_lines(&lines);
+            let (almanac, _) = parse_lines::<IndividualSeeds>(lines);
 
-            assert_eq!(81, parsed.seed_to_soil(79));
-            assert_eq!(81, parsed.soil_to_fertilizer_map(81));
-            assert_eq!(81, parsed.fertilizer_to_water_map(81));
-            assert_eq!(74, parsed.water_to_light_map(81));
-            assert_eq!(78, parsed.light_to_temperature_map(74));
-            assert_eq!(78, parsed.temperature_to_humidity_map(78));
-            assert_eq!(82, parsed.humidity_to_location_map(78));
+            assert_eq!(81, almanac.maps.0[0].map(79));
+            assert_eq!(81, almanac.maps.0[1].map(81));
+            assert_eq!(81, almanac.maps.0[2].map(81));
+            assert_eq!(74, almanac.maps.0[3].map(81));
+            assert_eq!(78, almanac.maps.0[4].map(74));
+            assert_eq!(78, almanac.maps.0[5].map(78));
+            assert_eq!(82, almanac.maps.0[6].map(78));
         }
 
         #[test]
         fn seed_maps() {
-            let lines = get_example();
+            let lines = Solution {}.get_example();
 
-            let parsed = parse_lines(&lines);
+            let (almanac, seeds) = parse_lines::<IndividualSeeds>(lines);
 
-            let locations = parsed
-                .seeds
-                .iter()
-                .map(|s| parsed.all_the_way(*s))
+            let locations = seeds
+                .0
+                .into_iter()
+                .map(|s| almanac.all_the_way(s))
                 .collect::<Vec<u64>>();
 
             assert_eq!(vec![82, 43, 86, 35], locations);
@@ -311,22 +385,67 @@ mod test {
     }
 
     mod part_2 {
-        use super::super::{parse_lines, Solution};
-        use super::get_example;
-        use crate::shared::{Day, PartSolution};
+        use std::ops::Range;
+
+        use super::super::Solution;
+        use crate::day_05::parse::parse_lines;
+        use crate::day_05::{AlmanacMap, DestinationSourceRange, RangeOfSeeds};
+        use crate::shared::Day;
 
         #[test]
         fn outcome() {
-            assert_eq!(PartSolution::None, (Solution {}).part_2());
+            assert_eq!(50_716_416, (Solution {}).part_2_with_input());
         }
 
         #[test]
-        fn example() {
-            let lines = get_example();
+        fn example_test_ranges() {
+            let lines = Solution {}.get_example();
 
-            let _parsed = parse_lines(&lines);
+            let (_, range_of_seeds) = parse_lines::<RangeOfSeeds>(lines);
 
-            // assert_eq!(Vec::<u32>::new(), parsed);
+            assert_eq!(vec![79..93, 55..68], range_of_seeds.0);
+        }
+
+        #[test]
+        fn example_test_min_ranges_naive() {
+            let lines = Solution {}.get_example();
+
+            let (almanac, range_of_seeds) = parse_lines::<RangeOfSeeds>(lines);
+
+            let location = range_of_seeds
+                .0
+                .into_iter()
+                .filter_map(|s| s.clone().map(|s| almanac.all_the_way(s)).min())
+                .min()
+                .expect("No min found");
+
+            assert_eq!(location, 46);
+        }
+
+        #[test]
+        fn example_test_overlap() {
+            let map = AlmanacMap(vec![DestinationSourceRange(0, 10, 5)]);
+
+            let remapped = map.remap_seed_ranges(vec![Range { start: 5, end: 15 }]);
+
+            assert_eq!(remapped, vec![0..5, 5..10]);
+        }
+
+        #[test]
+        fn example_test_overlap_multiple() {
+            let map = AlmanacMap(vec![
+                DestinationSourceRange(0, 10, 5),
+                DestinationSourceRange(20, 5, 5),
+            ]);
+
+            let remapped = map.remap_seed_ranges(vec![Range { start: 5, end: 15 }]);
+
+            assert_eq!(remapped, vec![0..5, 20..25]);
+        }
+
+        #[test]
+        fn example_lowest_in_original() {
+            assert_eq!(55, Solution {}.part_2_with_example());
         }
     }
 }
