@@ -117,16 +117,13 @@ mod test {
 
     mod part_1 {
         use advent_of_code_2023::shared::solution::{read_file, read_file_part};
-        use advent_of_code_2023::shared::{Day, PartSolution};
+        use advent_of_code_2023::shared::Day;
 
         use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
-            assert_eq!(
-                PartSolution::U32(54159),
-                (Solution {}).part_1(&read_file("inputs", DAY))
-            );
+            assert_eq!(54159, (Solution {}).part_1(&read_file("inputs", DAY)));
         }
 
         #[test]
