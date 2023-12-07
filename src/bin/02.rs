@@ -147,7 +147,7 @@ fn naive_parse_line(line: &str) -> Game {
                 "blue" => parsed_cubes.blue = amount,
                 "green" => parsed_cubes.green = amount,
                 "red" => parsed_cubes.red = amount,
-                _ => panic!(&format!("Invalid color: {}", color)),
+                _ => panic!("Invalid color: {}", right),
             }
         }
 

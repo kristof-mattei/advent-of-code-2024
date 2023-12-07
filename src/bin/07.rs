@@ -1,5 +1,3 @@
-use std::convert::Into;
-
 use advent_of_code_2023::shared::{Day, PartSolution};
 
 advent_of_code_2023::solution!(7);
@@ -7,11 +5,11 @@ advent_of_code_2023::solution!(7);
 pub struct Solution {}
 
 impl Day for Solution {
-    fn part_1(&self, input: &str) -> PartSolution {
+    fn part_1(&self, _input: &str) -> PartSolution {
         PartSolution::None
     }
 
-    fn part_2(&self, input: &str) -> PartSolution {
+    fn part_2(&self, _input: &str) -> PartSolution {
         PartSolution::None
     }
 }
