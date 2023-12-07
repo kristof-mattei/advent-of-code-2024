@@ -1,4 +1,6 @@
-use crate::shared::{Day, PartSolution};
+use advent_of_code_2023::shared::{Day, PartSolution};
+
+advent_of_code_2023::solution!(3, 527_364, 79_026_871);
 
 enum Cell {
     Number(u32),
@@ -13,7 +15,6 @@ impl TryFrom<char> for Cell {
         match c {
             '.' => Ok(Cell::Empty()),
             '0'..='9' => {
-                // 48 is the ascii value of '0'
                 let n = u32::try_from(c).unwrap() - 48;
 
                 Ok(Cell::Number(n))
@@ -182,14 +183,6 @@ fn sum_all_part_numbers(schematic: &Schematic) -> u32 {
 pub struct Solution {}
 
 impl Day for Solution {
-    fn get_input(&self) -> &str {
-        include_str!("input.txt")
-    }
-
-    fn get_example(&self) -> &str {
-        include_str!("example.txt")
-    }
-
     fn part_1(&self, input: &str) -> PartSolution {
         let parsed = parse_lines(input);
 
@@ -206,32 +199,34 @@ impl Day for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use super::super::Solution;
-        use crate::shared::Day;
+        use advent_of_code_2023::shared::{solution::read_file, Day};
+
+        use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
-            assert_eq!(527_364, (Solution {}).part_1_with_input());
+            assert_eq!(527_364, (Solution {}).part_1(&read_file("inputs", DAY)));
         }
 
         #[test]
         fn example() {
-            assert_eq!(4361, (Solution {}).part_1_with_example());
+            assert_eq!(4361, (Solution {}).part_1(&read_file("examples", DAY)));
         }
     }
 
     mod part_2 {
-        use super::super::Solution;
-        use crate::shared::Day;
+        use advent_of_code_2023::shared::{solution::read_file, Day};
+
+        use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
-            assert_eq!(79_026_871, (Solution {}).part_2_with_input());
+            assert_eq!(79_026_871, (Solution {}).part_2(&read_file("inputs", DAY)));
         }
 
         #[test]
         fn example() {
-            assert_eq!(467_835, (Solution {}).part_2_with_example());
+            assert_eq!(467_835, (Solution {}).part_2(&read_file("examples", DAY)));
         }
     }
 }

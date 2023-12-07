@@ -1,6 +1,8 @@
 use std::fmt::Display;
 
-use crate::shared::{Day, PartSolution};
+use advent_of_code_2023::shared::{Day, PartSolution};
+
+advent_of_code_2023::solution!(2, 2449, 63981);
 
 fn count_valid_games(lines: &str) -> u32 {
     let mut total = 0;
@@ -110,14 +112,14 @@ enum Cube {
 }
 
 impl TryFrom<(u32, &str)> for Cube {
-    type Error = &'static str;
+    type Error = String;
 
     fn try_from((amount, color): (u32, &str)) -> Result<Self, Self::Error> {
         match color {
             "blue" => Ok(Cube::Blue(amount)),
             "green" => Ok(Cube::Green(amount)),
             "red" => Ok(Cube::Red(amount)),
-            _ => Err("Invalid color"),
+            _ => Err(format!("Invalid color: {}", color)),
         }
     }
 }
@@ -145,7 +147,7 @@ fn naive_parse_line(line: &str) -> Game {
                 "blue" => parsed_cubes.blue = amount,
                 "green" => parsed_cubes.green = amount,
                 "red" => parsed_cubes.red = amount,
-                _ => panic!("Invalid color"),
+                _ => panic!(&format!("Invalid color: {}", color)),
             }
         }
 
@@ -157,17 +159,10 @@ fn naive_parse_line(line: &str) -> Game {
         runs: parsed_runs,
     }
 }
+
 pub struct Solution {}
 
 impl Day for Solution {
-    fn get_input(&self) -> &str {
-        include_str!("input.txt")
-    }
-
-    fn get_example(&self) -> &str {
-        include_str!("example.txt")
-    }
-
     fn part_1(&self, input: &str) -> PartSolution {
         let games = count_valid_games(input);
 
@@ -182,32 +177,36 @@ impl Day for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
+        use advent_of_code_2023::shared::{solution::read_file, Day};
+
+        use crate::DAY;
+
         use super::super::Solution;
-        use crate::shared::Day;
 
         #[test]
         fn outcome() {
-            assert_eq!(2449, (Solution {}).part_1_with_input());
+            assert_eq!(2449, (Solution {}).part_1(&read_file("inputs", DAY)));
         }
 
         #[test]
         fn example() {
-            assert_eq!(8, (Solution {}).part_1_with_example());
+            assert_eq!(8, (Solution {}).part_1(&read_file("examples", DAY)));
         }
     }
 
     mod part_2 {
-        use super::super::Solution;
-        use crate::shared::Day;
+        use advent_of_code_2023::shared::{solution::read_file, Day};
+
+        use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
-            assert_eq!(63_981, (Solution {}).part_2_with_input());
+            assert_eq!(63_981, (Solution {}).part_2(&read_file("inputs", DAY)));
         }
 
         #[test]
         fn example() {
-            assert_eq!(2286, (Solution {}).part_2_with_example());
+            assert_eq!(2286, (Solution {}).part_2(&read_file("examples", DAY)));
         }
     }
 }

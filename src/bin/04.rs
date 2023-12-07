@@ -1,7 +1,9 @@
 use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 
-use crate::shared::{Day, PartSolution};
+advent_of_code_2023::solution!(4, 18_619, 8_063_216);
+
+use advent_of_code_2023::shared::{Day, PartSolution};
 
 struct Game {
     game_number: usize,
@@ -130,14 +132,6 @@ fn split_string_into_numbers(numbers: &str) -> HashSet<u32> {
 pub struct Solution {}
 
 impl Day for Solution {
-    fn get_input(&self) -> &str {
-        include_str!("input.txt")
-    }
-
-    fn get_example(&self) -> &str {
-        include_str!("example.txt")
-    }
-
     fn part_1(&self, input: &str) -> PartSolution {
         let games = parse_lines(input);
 
@@ -156,32 +150,34 @@ impl Day for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use super::super::Solution;
-        use crate::shared::Day;
+        use advent_of_code_2023::shared::{solution::read_file, Day};
+
+        use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
-            assert_eq!(18_619, (Solution {}).part_1_with_input());
+            assert_eq!(18_619, (Solution {}).part_1(&read_file("inputs", DAY)));
         }
 
         #[test]
         fn example() {
-            assert_eq!(13, (Solution {}).part_1_with_example());
+            assert_eq!(13, (Solution {}).part_1(&read_file("examples", DAY)));
         }
     }
 
     mod part_2 {
-        use super::super::Solution;
-        use crate::shared::Day;
+        use advent_of_code_2023::shared::{solution::read_file, Day};
+
+        use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
-            assert_eq!(8_063_216, (Solution {}).part_2_with_input());
+            assert_eq!(8_063_216, (Solution {}).part_2(&read_file("inputs", DAY)));
         }
 
         #[test]
         fn example() {
-            assert_eq!(30, (Solution {}).part_2_with_example());
+            assert_eq!(30, (Solution {}).part_2(&read_file("examples", DAY)));
         }
     }
 }

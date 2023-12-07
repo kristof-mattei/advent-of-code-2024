@@ -1,3 +1,7 @@
+use std::error::Error;
+use std::fmt::Display;
+use std::str::FromStr;
+
 /// A valid day number of advent (i.e. an integer in range 1 to 25).
 ///
 /// # Display
@@ -14,6 +18,7 @@ pub struct Day(u8);
 impl Day {
     /// Creates a [`Day`] from the provided value if it's in the valid range,
     /// returns [`None`] otherwise.
+    #[must_use]
     pub fn new(day: u8) -> Option<Self> {
         if day == 0 || day > 25 {
             return None;
@@ -22,12 +27,15 @@ impl Day {
     }
 
     // Not part of the public API
+    #[must_use]
     #[doc(hidden)]
     pub const fn __new_unchecked(day: u8) -> Self {
         Self(day)
     }
 
     /// Converts the [`Day`] into an [`u8`].
+    #[must_use]
+    #[allow(dead_code)]
     pub fn into_inner(self) -> u8 {
         self.0
     }
@@ -63,6 +71,7 @@ impl FromStr for Day {
 }
 
 /// An error which can be returned when parsing a [`Day`].
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct DayFromStrError;
 
@@ -73,6 +82,7 @@ impl Display for DayFromStrError {
         f.write_str("expecting a day number between 1 and 25")
     }
 }
+
 /// Creates a [`Day`] value in a const context.
 #[macro_export]
 macro_rules! day {
@@ -85,6 +95,6 @@ macro_rules! day {
                 "`, expecting a value between 1 and 25"
             ),
         );
-        $crate::Day::__new_unchecked($day)
+        $crate::shared::day::Day::__new_unchecked($day)
     }};
 }
