@@ -37,6 +37,7 @@ macro_rules! solution {
 
         #[allow(dead_code)]
         fn main() {
+            println!("{}", file!());
             // use advent_of_code::template::runner::*;
 
             let input = $crate::shared::solution::read_file("inputs", DAY);
@@ -70,6 +71,7 @@ macro_rules! solution {
         fn main() {
             // use advent_of_code::template::runner::*;
 
+            println!("{}", file!());
             let input = $crate::shared::solution::read_file("inputs", DAY);
             let s = Solution {};
 
