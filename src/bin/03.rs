@@ -1,4 +1,6 @@
-use crate::shared::{Day, PartSolution};
+use advent_of_code_2023::shared::{Day, PartSolution};
+
+advent_of_code_2023::solution!(3, 527_364, 79_026_871);
 
 enum Cell {
     Number(u32),
@@ -13,7 +15,6 @@ impl TryFrom<char> for Cell {
         match c {
             '.' => Ok(Cell::Empty()),
             '0'..='9' => {
-                // 48 is the ascii value of '0'
                 let n = u32::try_from(c).unwrap() - 48;
 
                 Ok(Cell::Number(n))
@@ -23,10 +24,10 @@ impl TryFrom<char> for Cell {
     }
 }
 
-fn parse_lines(lines: &[&str]) -> Schematic {
+fn parse_lines(lines: &str) -> Schematic {
     let mut parsed = Vec::new();
 
-    for line in lines {
+    for line in lines.lines() {
         let mut row = Vec::new();
 
         for c in line.chars() {
@@ -182,18 +183,14 @@ fn sum_all_part_numbers(schematic: &Schematic) -> u32 {
 pub struct Solution {}
 
 impl Day for Solution {
-    fn part_1(&self) -> PartSolution {
-        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
-
-        let parsed = parse_lines(&lines);
+    fn part_1(&self, input: &str) -> PartSolution {
+        let parsed = parse_lines(input);
 
         sum_all_part_numbers(&parsed).into()
     }
 
-    fn part_2(&self) -> PartSolution {
-        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
-
-        let parsed = parse_lines(&lines);
+    fn part_2(&self, input: &str) -> PartSolution {
+        let parsed = parse_lines(input);
 
         multiply_gear_numbers(&parsed).into()
     }
@@ -201,54 +198,35 @@ impl Day for Solution {
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> Vec<&'static str> {
-        include_str!("example.txt")
-            .lines()
-            .map(Into::into)
-            .collect()
-    }
-
     mod part_1 {
-        use super::super::{parse_lines, Solution};
-        use super::get_example;
-        use crate::day_03::sum_all_part_numbers;
-        use crate::shared::Day;
+        use advent_of_code_2023::shared::{solution::read_file, Day};
+
+        use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
-            assert_eq!(527_364, (Solution {}).part_1());
+            assert_eq!(527_364, (Solution {}).part_1(&read_file("inputs", DAY)));
         }
 
         #[test]
         fn example() {
-            let lines = get_example();
-
-            let parsed = parse_lines(&lines);
-
-            let sum = sum_all_part_numbers(&parsed);
-
-            assert_eq!(4361, sum);
+            assert_eq!(4361, (Solution {}).part_1(&read_file("examples", DAY)));
         }
     }
 
     mod part_2 {
-        use super::super::{parse_lines, Solution};
-        use super::get_example;
-        use crate::day_03::multiply_gear_numbers;
-        use crate::shared::Day;
+        use advent_of_code_2023::shared::{solution::read_file, Day};
+
+        use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
-            assert_eq!(79_026_871, (Solution {}).part_2());
+            assert_eq!(79_026_871, (Solution {}).part_2(&read_file("inputs", DAY)));
         }
 
         #[test]
         fn example() {
-            let lines = get_example();
-
-            let parsed = parse_lines(&lines);
-
-            assert_eq!(467_835, multiply_gear_numbers(&parsed));
+            assert_eq!(467_835, (Solution {}).part_2(&read_file("examples", DAY)));
         }
     }
 }

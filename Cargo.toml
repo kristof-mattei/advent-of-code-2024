@@ -6,10 +6,13 @@ edition = "2021"
 rust-version = "1.74.0"
 authors = ["Kristof Mattei"]
 license-file = "LICENSE"
-description = "Advent of Code 2022"
+description = "Advent of Code 2023"
 repository = "https://github.com/kristof-mattei/advent-of-code-2023"
 keywords = ["playground"]
 categories = ["playground"]
+
+[lib]
+doctest = false
 
 [profile.dev]
 debug = true

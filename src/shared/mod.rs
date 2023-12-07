@@ -1,6 +1,9 @@
+pub mod day;
+pub mod solution;
+
 pub trait Day {
-    fn part_1(&self) -> PartSolution;
-    fn part_2(&self) -> PartSolution;
+    fn part_1(&self, input: &str) -> PartSolution;
+    fn part_2(&self, input: &str) -> PartSolution;
 }
 
 #[derive(PartialEq, Eq, Debug)]
