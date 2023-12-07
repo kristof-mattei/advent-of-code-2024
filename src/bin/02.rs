@@ -179,9 +179,7 @@ mod test {
     mod part_1 {
         use advent_of_code_2023::shared::{solution::read_file, Day};
 
-        use crate::DAY;
-
-        use super::super::Solution;
+        use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
