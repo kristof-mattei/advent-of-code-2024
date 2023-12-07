@@ -147,7 +147,7 @@ fn naive_parse_line(line: &str) -> Game {
                 "blue" => parsed_cubes.blue = amount,
                 "green" => parsed_cubes.green = amount,
                 "red" => parsed_cubes.red = amount,
-                _ => panic!(&format!("Invalid color: {}", color)),
+                _ => panic!("Invalid color: {}", right),
             }
         }
 
@@ -179,9 +179,7 @@ mod test {
     mod part_1 {
         use advent_of_code_2023::shared::{solution::read_file, Day};
 
-        use crate::DAY;
-
-        use super::super::Solution;
+        use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
