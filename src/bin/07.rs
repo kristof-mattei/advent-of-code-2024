@@ -1,10 +1,8 @@
-use advent_of_code_2023::shared::{Day, PartSolution};
+use advent_of_code_2023::shared::{PartSolution, Parts};
 
-advent_of_code_2023::solution!(7);
+advent_of_code_2023::solution!();
 
-pub struct Solution {}
-
-impl Day for Solution {
+impl Parts for Solution {
     fn part_1(&self, _input: &str) -> PartSolution {
         PartSolution::None
     }
@@ -16,9 +14,8 @@ impl Day for Solution {
 
 #[cfg(test)]
 mod test {
-
     mod part_1 {
-        use advent_of_code_2023::shared::{solution::read_file, Day, PartSolution};
+        use advent_of_code_2023::shared::{solution::read_file, PartSolution, Parts};
 
         use crate::{Solution, DAY};
 
@@ -26,7 +23,7 @@ mod test {
         fn outcome() {
             assert_eq!(
                 PartSolution::None,
-                (Solution {}).part_1(&read_file("inputs", DAY))
+                (Solution {}).part_1(&read_file("inputs", &DAY))
             );
         }
 
@@ -34,13 +31,13 @@ mod test {
         fn example() {
             assert_eq!(
                 PartSolution::None,
-                (Solution {}).part_1(&read_file("examples", DAY))
+                (Solution {}).part_1(&read_file("examples", &DAY))
             );
         }
     }
 
     mod part_2 {
-        use advent_of_code_2023::shared::{solution::read_file, Day, PartSolution};
+        use advent_of_code_2023::shared::{solution::read_file, PartSolution, Parts};
 
         use crate::{Solution, DAY};
 
@@ -48,7 +45,7 @@ mod test {
         fn outcome() {
             assert_eq!(
                 PartSolution::None,
-                (Solution {}).part_2(&read_file("inputs", DAY))
+                (Solution {}).part_2(&read_file("inputs", &DAY))
             );
         }
 
@@ -56,7 +53,7 @@ mod test {
         fn example() {
             assert_eq!(
                 PartSolution::None,
-                (Solution {}).part_2(&read_file("examples", DAY))
+                (Solution {}).part_2(&read_file("examples", &DAY))
             );
         }
     }

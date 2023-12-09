@@ -1,6 +1,6 @@
-use advent_of_code_2023::shared::{Day, PartSolution};
+use advent_of_code_2023::shared::{PartSolution, Parts};
 
-advent_of_code_2023::solution!(1, 54159, 53866);
+advent_of_code_2023::solution!(54159, 53866);
 
 fn first_09_digit(line: &str) -> Option<(usize, u32)> {
     line.chars()
@@ -100,9 +100,8 @@ fn last_word_digit(line: &str, last_09_digit_index: usize) -> Option<(usize, u32
 
     None
 }
-pub struct Solution {}
 
-impl Day for Solution {
+impl Parts for Solution {
     fn part_1(&self, input: &str) -> PartSolution {
         calculate_total_calibration_value_part_1(input).into()
     }
@@ -117,38 +116,41 @@ mod test {
 
     mod part_1 {
         use advent_of_code_2023::shared::solution::{read_file, read_file_part};
-        use advent_of_code_2023::shared::Day;
+        use advent_of_code_2023::shared::Parts;
 
         use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
-            assert_eq!(54159, (Solution {}).part_1(&read_file("inputs", DAY)));
+            assert_eq!(54159, (Solution {}).part_1(&read_file("inputs", &DAY)));
         }
 
         #[test]
         fn example() {
             assert_eq!(
                 142,
-                (Solution {}).part_1(&read_file_part("examples", DAY, 1))
+                (Solution {}).part_1(&read_file_part("examples", &DAY, 1))
             );
         }
     }
 
     mod part_2 {
         use advent_of_code_2023::shared::solution::{read_file, read_file_part};
-        use advent_of_code_2023::shared::Day;
+        use advent_of_code_2023::shared::Parts;
 
         use crate::{first_word_digit, last_word_digit, Solution, DAY};
 
         #[test]
         fn example() {
-            assert_eq!(281, Solution {}.part_2(&read_file_part("examples", DAY, 2)));
+            assert_eq!(
+                281,
+                Solution {}.part_2(&read_file_part("examples", &DAY, 2))
+            );
         }
 
         #[test]
         fn outcome() {
-            assert_eq!(53866, (Solution {}).part_2(&read_file("inputs", DAY)));
+            assert_eq!(53866, (Solution {}).part_2(&read_file("inputs", &DAY)));
         }
 
         #[test]
