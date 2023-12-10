@@ -1,8 +1,9 @@
-use std::{cmp::Ordering, collections::HashMap};
+use std::cmp::Ordering;
+use std::collections::HashMap;
 
 use advent_of_code_2023::shared::{PartSolution, Parts};
 
-advent_of_code_2023::solution!(248_559_379);
+advent_of_code_2023::solution!(248_559_379, 249_631_254);
 
 #[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 enum Card {
@@ -19,6 +20,8 @@ enum Card {
     Four = 4,
     Three = 3,
     Two = 2,
+    // for part 2
+    Wildcard = 1,
 }
 
 impl TryFrom<char> for Card {
@@ -75,6 +78,27 @@ impl Hand {
             }
         });
 
+        // part 2 wildcard detection
+        if let Some(wildcard_count) = counts.remove(&Card::Wildcard) {
+            if wildcard_count == 5 {
+                return Type::FiveOfAKind;
+            }
+
+            let mut max_k = None;
+            let mut max_v = 0;
+
+            for (k, v) in &counts {
+                if v > &max_v {
+                    max_k = Some(*k);
+                    max_v = *v;
+                }
+            }
+
+            let max_k = max_k.expect("Invalid count");
+
+            *(counts.get_mut(max_k)).unwrap() += wildcard_count;
+        }
+
         match counts.len() {
             1 => Type::FiveOfAKind,
             2 => {
@@ -122,12 +146,24 @@ fn parse_game(game: &str) -> Vec<Card> {
         .collect::<Vec<Card>>()
 }
 
-fn parse_hands(input: &str) -> Vec<Hand> {
+fn parse_game_jack_is_wildcard(game: &str) -> Vec<Card> {
+    let mut parsed = parse_game(game);
+
+    for card in &mut parsed {
+        if card == &Card::Jack {
+            *card = Card::Wildcard;
+        }
+    }
+
+    parsed
+}
+
+fn _parse_hands(input: &str, parse_game_fn: fn(&str) -> Vec<Card>) -> Vec<Hand> {
     let mut hands = vec![];
     for line in input.lines() {
         let (game, bid) = line.split_once(' ').expect("Invalid game");
 
-        let parsed_game = parse_game(game);
+        let parsed_game = parse_game_fn(game);
 
         let parsed_bid = bid.parse().expect("Invalid bid");
         hands.push(Hand {
@@ -137,6 +173,14 @@ fn parse_hands(input: &str) -> Vec<Hand> {
     }
 
     hands
+}
+
+fn parse_hands(input: &str) -> Vec<Hand> {
+    _parse_hands(input, parse_game)
+}
+
+fn parse_hands_jack_is_wildcard(input: &str) -> Vec<Hand> {
+    _parse_hands(input, parse_game_jack_is_wildcard)
 }
 
 impl Parts for Solution {
@@ -152,15 +196,24 @@ impl Parts for Solution {
             .into()
     }
 
-    fn part_2(&self, _input: &str) -> PartSolution {
-        PartSolution::None
+    fn part_2(&self, input: &str) -> PartSolution {
+        let mut hands = parse_hands_jack_is_wildcard(input);
+
+        hands.sort();
+
+        hands
+            .iter()
+            .enumerate()
+            .fold(0usize, |acc, (i, hand)| acc + ((i + 1) * hand.bid))
+            .into()
     }
 }
 
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2023::shared::{solution::read_file, Parts};
+        use advent_of_code_2023::shared::solution::read_file;
+        use advent_of_code_2023::shared::Parts;
 
         use crate::{parse_game, parse_hands, Card, Hand, Solution, Type, DAY};
 
@@ -365,24 +418,49 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2023::shared::{solution::read_file, PartSolution, Parts};
+        use advent_of_code_2023::shared::solution::read_file;
+        use advent_of_code_2023::shared::Parts;
 
-        use crate::{Solution, DAY};
+        use crate::{parse_game, parse_game_jack_is_wildcard, Hand, Solution, Type, DAY};
 
         #[test]
         fn outcome() {
             assert_eq!(
-                PartSolution::None,
+                249_631_254,
                 (Solution {}).part_2(&read_file("inputs", &DAY))
             );
         }
 
         #[test]
         fn example() {
-            assert_eq!(
-                PartSolution::None,
-                (Solution {}).part_2(&read_file("examples", &DAY))
-            );
+            assert_eq!(5905, (Solution {}).part_2(&read_file("examples", &DAY)));
+        }
+
+        #[test]
+        fn get_type_baed_on_wildcards() {
+            let t = (Hand {
+                cards: parse_game_jack_is_wildcard("QJJQ2"),
+                bid: 0,
+            })
+            .get_type();
+
+            assert_eq!(t, Type::FourOfAKind);
+        }
+
+        #[test]
+        fn compare_wildcards() {
+            let left = Hand {
+                cards: parse_game_jack_is_wildcard("JKKK2"),
+                bid: 0,
+            };
+
+            let right = Hand {
+                cards: parse_game("QQQQ2"),
+                bid: 0,
+            };
+
+            assert_eq!(left.get_type(), right.get_type());
+            assert!(left < right);
         }
     }
 }

@@ -392,12 +392,11 @@ impl Parts for Solution {
 mod test {
 
     mod part_1 {
-        use advent_of_code_2023::shared::{solution::read_file, Parts};
+        use advent_of_code_2023::shared::solution::read_file;
+        use advent_of_code_2023::shared::Parts;
 
-        use crate::{
-            parse::{parse_lines, IndividualSeeds},
-            Almanac, Solution, DAY,
-        };
+        use crate::parse::{parse_lines, IndividualSeeds};
+        use crate::{Almanac, Solution, DAY};
 
         #[test]
         fn outcome() {
@@ -472,14 +471,12 @@ mod test {
     mod part_2 {
         use std::ops::Range;
 
-        use advent_of_code_2023::shared::{solution::read_file, Parts};
-
-        use crate::{
-            parse::{parse_lines, RangeOfSeeds},
-            AlmanacMap, DAY,
-        };
+        use advent_of_code_2023::shared::solution::read_file;
+        use advent_of_code_2023::shared::Parts;
 
         use super::super::Solution;
+        use crate::parse::{parse_lines, RangeOfSeeds};
+        use crate::{AlmanacMap, DAY};
 
         #[test]
         fn outcome() {
