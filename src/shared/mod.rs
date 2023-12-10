@@ -35,8 +35,8 @@ impl PartialEq<PartSolution> for PartSolution {
             PartSolution::USize(i) => i == other,
             PartSolution::String(i) => i == other,
             PartSolution::Vec(i) => i == other,
-            PartSolution::None => other == &PartSolution::None,
-            PartSolution::Manual => other == &PartSolution::Manual,
+            PartSolution::None => matches!(other, &PartSolution::None),
+            PartSolution::Manual => matches!(other, &PartSolution::Manual),
         }
     }
 }
