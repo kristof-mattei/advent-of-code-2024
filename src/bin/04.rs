@@ -1,9 +1,9 @@
 use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 
-advent_of_code_2023::solution!(4, 18_619, 8_063_216);
+advent_of_code_2023::solution!(18_619, 8_063_216);
 
-use advent_of_code_2023::shared::{Day, PartSolution};
+use advent_of_code_2023::shared::{PartSolution, Parts};
 
 struct Game {
     game_number: usize,
@@ -129,9 +129,8 @@ fn split_string_into_numbers(numbers: &str) -> HashSet<u32> {
         .map(|n| n.trim().parse::<u32>().expect("Invalid number"))
         .collect()
 }
-pub struct Solution {}
 
-impl Day for Solution {
+impl Parts for Solution {
     fn part_1(&self, input: &str) -> PartSolution {
         let games = parse_lines(input);
 
@@ -150,34 +149,34 @@ impl Day for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2023::shared::{solution::read_file, Day};
+        use advent_of_code_2023::shared::{solution::read_file, Parts};
 
         use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
-            assert_eq!(18_619, (Solution {}).part_1(&read_file("inputs", DAY)));
+            assert_eq!(18_619, (Solution {}).part_1(&read_file("inputs", &DAY)));
         }
 
         #[test]
         fn example() {
-            assert_eq!(13, (Solution {}).part_1(&read_file("examples", DAY)));
+            assert_eq!(13, (Solution {}).part_1(&read_file("examples", &DAY)));
         }
     }
 
     mod part_2 {
-        use advent_of_code_2023::shared::{solution::read_file, Day};
+        use advent_of_code_2023::shared::{solution::read_file, Parts};
 
         use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
-            assert_eq!(8_063_216, (Solution {}).part_2(&read_file("inputs", DAY)));
+            assert_eq!(8_063_216, (Solution {}).part_2(&read_file("inputs", &DAY)));
         }
 
         #[test]
         fn example() {
-            assert_eq!(30, (Solution {}).part_2(&read_file("examples", DAY)));
+            assert_eq!(30, (Solution {}).part_2(&read_file("examples", &DAY)));
         }
     }
 }

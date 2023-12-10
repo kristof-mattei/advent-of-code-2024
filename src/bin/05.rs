@@ -2,11 +2,11 @@ use std::convert::Into;
 use std::fmt::Debug;
 use std::ops::Range;
 
-use advent_of_code_2023::shared::{Day, PartSolution};
+use advent_of_code_2023::shared::{PartSolution, Parts};
 
 use self::parse::{IndividualSeeds, RangeOfSeeds};
 
-advent_of_code_2023::solution!(5, 309_796_150, 50_716_416);
+advent_of_code_2023::solution!(309_796_150, 50_716_416);
 
 #[derive(Debug, PartialEq, Eq)]
 struct Almanac {
@@ -345,9 +345,7 @@ mod parse {
     }
 }
 
-pub struct Solution {}
-
-impl Day for Solution {
+impl Parts for Solution {
     fn part_1(&self, input: &str) -> PartSolution {
         let (almanac, seeds) = parse::parse_lines::<IndividualSeeds>(input);
 
@@ -394,7 +392,7 @@ impl Day for Solution {
 mod test {
 
     mod part_1 {
-        use advent_of_code_2023::shared::{solution::read_file, Day};
+        use advent_of_code_2023::shared::{solution::read_file, Parts};
 
         use crate::{
             parse::{parse_lines, IndividualSeeds},
@@ -403,12 +401,12 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!(309_796_150, Solution {}.part_1(&read_file("inputs", DAY)));
+            assert_eq!(309_796_150, Solution {}.part_1(&read_file("inputs", &DAY)));
         }
 
         #[test]
         fn example() {
-            let lines = read_file("examples", DAY);
+            let lines = read_file("examples", &DAY);
 
             let (almanac, seeds) = parse_lines::<IndividualSeeds>(&lines);
 
@@ -430,7 +428,7 @@ mod test {
 
         #[test]
         fn example_seed_to_soil() {
-            let lines = read_file("examples", DAY);
+            let lines = read_file("examples", &DAY);
 
             let (almanac, _) = parse_lines::<IndividualSeeds>(&lines);
 
@@ -442,7 +440,7 @@ mod test {
 
         #[test]
         fn example_seed_to_location() {
-            let lines = read_file("examples", DAY);
+            let lines = read_file("examples", &DAY);
 
             let (almanac, _) = parse_lines::<IndividualSeeds>(&lines);
 
@@ -457,7 +455,7 @@ mod test {
 
         #[test]
         fn seed_maps() {
-            let lines = read_file("examples", DAY);
+            let lines = read_file("examples", &DAY);
 
             let (almanac, seeds) = parse_lines::<IndividualSeeds>(&lines);
 
@@ -474,7 +472,7 @@ mod test {
     mod part_2 {
         use std::ops::Range;
 
-        use advent_of_code_2023::shared::{solution::read_file, Day};
+        use advent_of_code_2023::shared::{solution::read_file, Parts};
 
         use crate::{
             parse::{parse_lines, RangeOfSeeds},
@@ -485,12 +483,12 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!(50_716_416, (Solution {}).part_2(&read_file("inputs", DAY)));
+            assert_eq!(50_716_416, (Solution {}).part_2(&read_file("inputs", &DAY)));
         }
 
         #[test]
         fn example_test_ranges() {
-            let lines = read_file("examples", DAY);
+            let lines = read_file("examples", &DAY);
 
             let (_, range_of_seeds) = parse_lines::<RangeOfSeeds>(&lines);
 
@@ -499,7 +497,7 @@ mod test {
 
         #[test]
         fn example_test_min_ranges_naive() {
-            let lines = read_file("examples", DAY);
+            let lines = read_file("examples", &DAY);
 
             let (almanac, range_of_seeds) = parse_lines::<RangeOfSeeds>(&lines);
 
@@ -533,7 +531,7 @@ mod test {
 
         #[test]
         fn example_lowest_in_original() {
-            assert_eq!(55, Solution {}.part_2(&read_file("examples", DAY)));
+            assert_eq!(55, Solution {}.part_2(&read_file("examples", &DAY)));
         }
     }
 }

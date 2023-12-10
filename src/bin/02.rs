@@ -1,8 +1,8 @@
 use std::fmt::Display;
 
-use advent_of_code_2023::shared::{Day, PartSolution};
+use advent_of_code_2023::shared::{PartSolution, Parts};
 
-advent_of_code_2023::solution!(2, 2449, 63981);
+advent_of_code_2023::solution!(2449, 63981);
 
 fn count_valid_games(lines: &str) -> u32 {
     let mut total = 0;
@@ -160,9 +160,7 @@ fn naive_parse_line(line: &str) -> Game {
     }
 }
 
-pub struct Solution {}
-
-impl Day for Solution {
+impl Parts for Solution {
     fn part_1(&self, input: &str) -> PartSolution {
         let games = count_valid_games(input);
 
@@ -177,34 +175,34 @@ impl Day for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2023::shared::{solution::read_file, Day};
+        use advent_of_code_2023::shared::{solution::read_file, Parts};
 
         use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
-            assert_eq!(2449, (Solution {}).part_1(&read_file("inputs", DAY)));
+            assert_eq!(2449, (Solution {}).part_1(&read_file("inputs", &DAY)));
         }
 
         #[test]
         fn example() {
-            assert_eq!(8, (Solution {}).part_1(&read_file("examples", DAY)));
+            assert_eq!(8, (Solution {}).part_1(&read_file("examples", &DAY)));
         }
     }
 
     mod part_2 {
-        use advent_of_code_2023::shared::{solution::read_file, Day};
+        use advent_of_code_2023::shared::{solution::read_file, Parts};
 
         use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
-            assert_eq!(63_981, (Solution {}).part_2(&read_file("inputs", DAY)));
+            assert_eq!(63_981, (Solution {}).part_2(&read_file("inputs", &DAY)));
         }
 
         #[test]
         fn example() {
-            assert_eq!(2286, (Solution {}).part_2(&read_file("examples", DAY)));
+            assert_eq!(2286, (Solution {}).part_2(&read_file("examples", &DAY)));
         }
     }
 }

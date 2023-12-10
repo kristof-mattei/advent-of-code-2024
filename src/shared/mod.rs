@@ -1,12 +1,12 @@
 pub mod day;
 pub mod solution;
 
-pub trait Day {
+pub trait Parts {
     fn part_1(&self, input: &str) -> PartSolution;
     fn part_2(&self, input: &str) -> PartSolution;
 }
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(Debug)]
 pub enum PartSolution {
     I32(i32),
     U32(u32),
@@ -15,7 +15,30 @@ pub enum PartSolution {
     String(String),
     Vec(Vec<String>),
     #[allow(dead_code)]
+    Manual,
+    #[allow(dead_code)]
     None,
+}
+impl PartSolution {
+    #[must_use]
+    pub fn has_solution(&self) -> bool {
+        !matches!(self, PartSolution::None)
+    }
+}
+
+impl PartialEq<PartSolution> for PartSolution {
+    fn eq(&self, other: &PartSolution) -> bool {
+        match self {
+            PartSolution::I32(i) => i == other,
+            PartSolution::U32(i) => i == other,
+            PartSolution::U64(i) => i == other,
+            PartSolution::USize(i) => i == other,
+            PartSolution::String(i) => i == other,
+            PartSolution::Vec(i) => i == other,
+            PartSolution::None => matches!(other, &PartSolution::None),
+            PartSolution::Manual => matches!(other, &PartSolution::Manual),
+        }
+    }
 }
 
 impl From<i32> for PartSolution {
@@ -54,6 +77,15 @@ impl From<String> for PartSolution {
     }
 }
 
+impl From<Option<PartSolution>> for PartSolution {
+    fn from(value: Option<PartSolution>) -> Self {
+        match value {
+            Some(v) => v,
+            None => PartSolution::None,
+        }
+    }
+}
+
 impl std::fmt::Display for PartSolution {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let string = match &self {
@@ -63,6 +95,7 @@ impl std::fmt::Display for PartSolution {
             PartSolution::USize(x) => x.to_string(),
             PartSolution::String(x) => x.to_string(),
             PartSolution::Vec(x) => format!("\n{}", x.join("\n")),
+            PartSolution::Manual => "Manual".to_owned(),
             PartSolution::None => "None".to_owned(),
         };
 
@@ -77,7 +110,7 @@ impl std::cmp::PartialEq<PartSolution> for i32 {
             PartSolution::U32(x) => (*x).try_into().is_ok_and(|o: i32| &o == self),
             PartSolution::U64(x) => (*x).try_into().is_ok_and(|o: i32| &o == self),
             PartSolution::USize(x) => (*x).try_into().is_ok_and(|o: i32| &o == self),
-            PartSolution::String(_) | PartSolution::Vec(_) | PartSolution::None => false,
+            _ => false,
         }
     }
 }
@@ -89,7 +122,7 @@ impl std::cmp::PartialEq<PartSolution> for u32 {
             PartSolution::U32(x) => self == x,
             PartSolution::U64(x) => (x) == &u64::from(*self),
             PartSolution::USize(x) => (*x).try_into().is_ok_and(|o: u32| &o == self),
-            PartSolution::String(_) | PartSolution::Vec(_) | PartSolution::None => false,
+            _ => false,
         }
     }
 }
@@ -101,7 +134,7 @@ impl std::cmp::PartialEq<PartSolution> for u64 {
             PartSolution::U32(x) => &u64::from(*x) == self,
             PartSolution::U64(x) => x == self,
             PartSolution::USize(x) => (*x).try_into().is_ok_and(|o: u64| &o == self),
-            PartSolution::String(_) | PartSolution::Vec(_) | PartSolution::None => false,
+            _ => false,
         }
     }
 }
@@ -113,7 +146,7 @@ impl std::cmp::PartialEq<PartSolution> for usize {
             PartSolution::U32(x) => (*x).try_into().is_ok_and(|o: usize| &o == self),
             PartSolution::U64(x) => (*x).try_into().is_ok_and(|o: usize| &o == self),
             PartSolution::USize(x) => x == self,
-            PartSolution::String(_) | PartSolution::Vec(_) | PartSolution::None => false,
+            _ => false,
         }
     }
 }
@@ -121,13 +154,8 @@ impl std::cmp::PartialEq<PartSolution> for usize {
 impl std::cmp::PartialEq<PartSolution> for String {
     fn eq(&self, other: &PartSolution) -> bool {
         match other {
-            PartSolution::I32(_)
-            | PartSolution::U32(_)
-            | PartSolution::U64(_)
-            | PartSolution::Vec(_)
-            | PartSolution::None
-            | PartSolution::USize(_) => false,
             PartSolution::String(s) => s == self,
+            _ => false,
         }
     }
 }
@@ -135,13 +163,6 @@ impl std::cmp::PartialEq<PartSolution> for String {
 impl std::cmp::PartialEq<PartSolution> for Vec<String> {
     fn eq(&self, other: &PartSolution) -> bool {
         match other {
-            PartSolution::I32(_)
-            | PartSolution::U32(_)
-            | PartSolution::U64(_)
-            | PartSolution::None
-            | PartSolution::USize(_)
-            | PartSolution::String(_) => false,
-
             PartSolution::Vec(v) => {
                 if v.len() != self.len() {
                     return false;
@@ -155,6 +176,7 @@ impl std::cmp::PartialEq<PartSolution> for Vec<String> {
 
                 true
             },
+            _ => false,
         }
     }
 }
