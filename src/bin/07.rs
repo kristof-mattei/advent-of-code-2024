@@ -1,22 +1,24 @@
+use std::{cmp::Ordering, collections::HashMap};
+
 use advent_of_code_2023::shared::{PartSolution, Parts};
 
-advent_of_code_2023::solution!();
+advent_of_code_2023::solution!(248_559_379);
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 enum Card {
-    Ace,
-    King,
-    Queen,
-    Jack,
-    Ten,
-    Nine,
-    Eight,
-    Seven,
-    Six,
-    Five,
-    Four,
-    Three,
-    Two,
+    Ace = 14,
+    King = 13,
+    Queen = 12,
+    Jack = 11,
+    Ten = 10,
+    Nine = 9,
+    Eight = 8,
+    Seven = 7,
+    Six = 6,
+    Five = 5,
+    Four = 4,
+    Three = 3,
+    Two = 2,
 }
 
 impl TryFrom<char> for Card {
@@ -48,7 +50,76 @@ impl TryFrom<char> for Card {
 #[derive(Debug, PartialEq, Eq)]
 struct Hand {
     cards: Vec<Card>,
-    bid: u32,
+    bid: usize,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+enum Type {
+    FiveOfAKind = 6,
+    FourOfAKind = 5,
+    FullHouse = 4,
+    ThreeOfAKind = 3,
+    TwoPair = 2,
+    OnePair = 1,
+    HighCard = 0,
+}
+
+impl Hand {
+    fn get_type(&self) -> Type {
+        let mut counts = HashMap::<&Card, usize>::new();
+        self.cards.iter().for_each(|c| {
+            if let Some(cc) = counts.get_mut(c) {
+                *cc += 1;
+            } else {
+                counts.insert(c, 1);
+            }
+        });
+
+        match counts.len() {
+            1 => Type::FiveOfAKind,
+            2 => {
+                if counts.values().any(|c| c == &4) {
+                    Type::FourOfAKind
+                } else {
+                    Type::FullHouse
+                }
+            },
+            3 => {
+                if counts.values().any(|c| c == &3) {
+                    Type::ThreeOfAKind
+                } else {
+                    Type::TwoPair
+                }
+            },
+            4 => Type::OnePair,
+            5 => Type::HighCard,
+            _ => panic!("Too many cards"),
+        }
+    }
+}
+
+impl PartialOrd for Hand {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Hand {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        let cmp = self.get_type().cmp(&other.get_type());
+
+        if cmp == Ordering::Equal {
+            self.cards.cmp(&other.cards)
+        } else {
+            cmp
+        }
+    }
+}
+
+fn parse_game(game: &str) -> Vec<Card> {
+    game.chars()
+        .map(|c| c.try_into().expect("Invalid character"))
+        .collect::<Vec<Card>>()
 }
 
 fn parse_hands(input: &str) -> Vec<Hand> {
@@ -56,10 +127,7 @@ fn parse_hands(input: &str) -> Vec<Hand> {
     for line in input.lines() {
         let (game, bid) = line.split_once(' ').expect("Invalid game");
 
-        let parsed_game = game
-            .chars()
-            .map(|c| c.try_into().expect("Invalid character"))
-            .collect::<Vec<Card>>();
+        let parsed_game = parse_game(game);
 
         let parsed_bid = bid.parse().expect("Invalid bid");
         hands.push(Hand {
@@ -73,9 +141,15 @@ fn parse_hands(input: &str) -> Vec<Hand> {
 
 impl Parts for Solution {
     fn part_1(&self, input: &str) -> PartSolution {
-        let _hands = parse_hands(input);
+        let mut hands = parse_hands(input);
 
-        PartSolution::None
+        hands.sort();
+
+        hands
+            .iter()
+            .enumerate()
+            .fold(0usize, |acc, (i, hand)| acc + ((i + 1) * hand.bid))
+            .into()
     }
 
     fn part_2(&self, _input: &str) -> PartSolution {
@@ -86,36 +160,26 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2023::shared::{solution::read_file, PartSolution, Parts};
+        use advent_of_code_2023::shared::{solution::read_file, Parts};
 
-        use crate::{parse_hands, Card, Hand, Solution, DAY};
+        use crate::{parse_game, parse_hands, Card, Hand, Solution, Type, DAY};
 
         #[test]
         fn outcome() {
             assert_eq!(
-                PartSolution::None,
+                248_559_379,
                 (Solution {}).part_1(&read_file("inputs", &DAY))
             );
         }
 
         #[test]
         fn example() {
-            assert_eq!(
-                PartSolution::None,
-                (Solution {}).part_1(&read_file("examples", &DAY))
-            );
+            assert_eq!(6440, (Solution {}).part_1(&read_file("examples", &DAY)));
         }
 
         #[test]
-        fn parse() {
-            let input = [
-                "32T3K 765",
-                "T55J5 684",
-                "KK677 28",
-                "KTJJT 220",
-                "QQQJA 483",
-            ]
-            .join("\n");
+        fn parse_example() {
+            let input = &read_file("examples", &DAY);
 
             let hands = parse_hands(input.as_str());
 
@@ -141,6 +205,159 @@ mod test {
                         cards: vec![Card::Queen, Card::Queen, Card::Queen, Card::Jack, Card::Ace],
                         bid: 483
                     }
+                ],
+                hands
+            );
+        }
+
+        #[test]
+        fn parse_hand_type_five_of_a_kind() {
+            assert_eq!(
+                Hand {
+                    cards: parse_game("AAAAA"),
+                    bid: 0
+                }
+                .get_type(),
+                Type::FiveOfAKind
+            );
+        }
+
+        #[test]
+        fn parse_hand_type_four_of_a_kind() {
+            assert_eq!(
+                Hand {
+                    cards: parse_game("AA8AA"),
+                    bid: 0
+                }
+                .get_type(),
+                Type::FourOfAKind
+            );
+        }
+
+        #[test]
+        fn parse_hand_type_full_house() {
+            assert_eq!(
+                Hand {
+                    cards: parse_game("23332"),
+                    bid: 0
+                }
+                .get_type(),
+                Type::FullHouse
+            );
+        }
+
+        #[test]
+        fn parse_hand_type_three_of_a_kind() {
+            assert_eq!(
+                Hand {
+                    cards: parse_game("TTT98"),
+                    bid: 0
+                }
+                .get_type(),
+                Type::ThreeOfAKind
+            );
+        }
+
+        #[test]
+        fn parse_hand_type_two_pair() {
+            assert_eq!(
+                Hand {
+                    cards: parse_game("23432"),
+                    bid: 0
+                }
+                .get_type(),
+                Type::TwoPair
+            );
+        }
+
+        #[test]
+        fn parse_hand_type_one_pair() {
+            assert_eq!(
+                Hand {
+                    cards: parse_game("A23A4"),
+                    bid: 0
+                }
+                .get_type(),
+                Type::OnePair
+            );
+        }
+
+        #[test]
+        fn parse_hand_type_high_card() {
+            assert_eq!(
+                Hand {
+                    cards: parse_game("23456"),
+                    bid: 0
+                }
+                .get_type(),
+                Type::HighCard
+            );
+        }
+
+        #[test]
+        fn sort_order_1() {
+            let left = Hand {
+                cards: parse_game("33332"),
+                bid: 0,
+            };
+
+            let right = Hand {
+                cards: parse_game("2AAAA"),
+                bid: 0,
+            };
+
+            assert_eq!(left.get_type(), right.get_type());
+
+            assert!(left > right);
+        }
+
+        #[test]
+        fn sort_order_2() {
+            let left = Hand {
+                cards: parse_game("77888"),
+                bid: 0,
+            };
+
+            let right = Hand {
+                cards: parse_game("77788"),
+                bid: 0,
+            };
+
+            assert_eq!(left.get_type(), right.get_type());
+
+            assert!(left > right);
+        }
+
+        #[test]
+        fn example_sort_order() {
+            let input = &read_file("examples", &DAY);
+
+            let mut hands = parse_hands(input);
+
+            hands.sort();
+
+            assert_eq!(
+                vec![
+                    Hand {
+                        cards: vec![Card::Three, Card::Two, Card::Ten, Card::Three, Card::King],
+                        bid: 765
+                    },
+                    Hand {
+                        cards: vec![Card::King, Card::Ten, Card::Jack, Card::Jack, Card::Ten],
+                        bid: 220
+                    },
+                    Hand {
+                        cards: vec![Card::King, Card::King, Card::Six, Card::Seven, Card::Seven],
+                        bid: 28
+                    },
+                    Hand {
+                        cards: vec![Card::Ten, Card::Five, Card::Five, Card::Jack, Card::Five],
+                        bid: 684
+                    },
+                    Hand {
+                        cards: vec![Card::Queen, Card::Queen, Card::Queen, Card::Jack, Card::Ace],
+                        bid: 483
+                    },
                 ],
                 hands
             );
