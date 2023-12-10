@@ -35,7 +35,7 @@ macro_rules! solution {
         $crate::solution!(PartSolution::None, PartSolution::None);
     };
     ($solution_1:expr) => {
-        $crate::solution!(solution_1, PartSolution::None);
+        $crate::solution!($solution_1, PartSolution::None);
     };
     ($solution_1:expr, $solution_2:expr) => {
         /// The current day.

@@ -149,7 +149,8 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2023::shared::{solution::read_file, Parts};
+        use advent_of_code_2023::shared::solution::read_file;
+        use advent_of_code_2023::shared::Parts;
 
         use crate::{Solution, DAY};
 
@@ -165,7 +166,8 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2023::shared::{solution::read_file, Parts};
+        use advent_of_code_2023::shared::solution::read_file;
+        use advent_of_code_2023::shared::Parts;
 
         use crate::{Solution, DAY};
 
