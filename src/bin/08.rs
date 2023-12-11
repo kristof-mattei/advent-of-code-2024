@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::{array::TryFromSliceError, collections::BTreeMap};
 
 use advent_of_code_2023::shared::{PartSolution, Parts};
 
@@ -21,7 +21,28 @@ impl TryFrom<char> for Direction {
     }
 }
 
-type Node = [char; 3];
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+struct Node([char; 3]);
+
+impl Node {
+    fn is_end(&self) -> bool {
+        self.0[2] == 'Z'
+    }
+
+    fn is_start(&self) -> bool {
+        self.0[2] == 'A'
+    }
+}
+
+impl TryFrom<&[char]> for Node {
+    type Error = TryFromSliceError;
+
+    fn try_from(value: &[char]) -> Result<Self, Self::Error> {
+        let x: [char; 3] = value.try_into()?;
+
+        Ok(Node(x))
+    }
+}
 
 struct Network {
     directions: Vec<Direction>,
@@ -53,37 +74,41 @@ fn parse_lines(input: &str) -> Network {
 }
 
 fn follow_directions(network: &Network) -> usize {
-    const START: Node = ['A', 'A', 'A'];
-    const END: Node = ['Z', 'Z', 'Z'];
+    const START: Node = Node(['A', 'A', 'A']);
+    const END: Node = Node(['Z', 'Z', 'Z']);
 
     let mut steps = 0;
-    let mut current: Node = START;
+    let mut current: &Node = &START;
 
     for direction in network.directions.iter().cycle() {
-        if current == END {
+        if current == &END {
             break;
         }
         steps += 1;
 
-        let next = network.nodes.get(&current).expect("No next?");
+        let next = network.nodes.get(current).expect("No next?");
+
         match direction {
-            Direction::Left => current = next.0,
-            Direction::Right => current = next.1,
+            Direction::Left => current = &next.0,
+            Direction::Right => current = &next.1,
         }
     }
 
     steps
 }
 
-fn count_steps(mut current: Node, network: &Network) -> usize {
+fn count_steps<'node, 'network>(mut current: &'node Node, network: &'network Network) -> usize
+where
+    'network: 'node,
+{
     let mut steps = 0;
 
-    while current[2] != 'Z' {
-        let next = network.nodes.get(&current).expect("No next?");
+    while !current.is_end() {
+        let next = network.nodes.get(current).expect("No next?");
 
         match network.directions.get(steps % network.directions.len()) {
-            Some(Direction::Left) => current = next.0,
-            Some(Direction::Right) => current = next.1,
+            Some(Direction::Left) => current = &next.0,
+            Some(Direction::Right) => current = &next.1,
             None => panic!("Not found"),
         }
 
@@ -105,19 +130,19 @@ fn lcm(left: usize, right: usize) -> usize {
     (left * right) / gcd(left, right)
 }
 
-fn follow_directions_from_multiple(network: &Network, starts: Vec<Node>) -> usize {
+fn follow_directions_from_multiple(network: &Network, starts: Vec<&Node>) -> usize {
     starts
         .into_iter()
-        .map(|s| count_steps(s, network))
+        .map(|node| count_steps(node, network))
         .reduce(lcm)
         .unwrap()
 }
 
-fn find_starts(nodes: &BTreeMap<Node, (Node, Node)>) -> Vec<Node> {
+fn find_starts(nodes: &BTreeMap<Node, (Node, Node)>) -> Vec<&Node> {
     nodes
         .iter()
-        .filter_map(|(f, _)| if f[2] == 'A' { Some(*f) } else { None })
-        .collect::<Vec<Node>>()
+        .filter_map(|(f, _)| if f.is_start() { Some(f) } else { None })
+        .collect::<Vec<&Node>>()
 }
 
 impl Parts for Solution {
