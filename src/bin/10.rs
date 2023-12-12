@@ -275,7 +275,10 @@ mod test {
 
     mod part_2 {
 
-        use advent_of_code_2023::shared::{solution::read_file, PartSolution, Parts};
+        use advent_of_code_2023::shared::{
+            solution::{read_file, read_file_part},
+            PartSolution, Parts,
+        };
 
         use crate::{Solution, DAY};
 
@@ -288,10 +291,18 @@ mod test {
         }
 
         #[test]
-        fn example() {
+        fn example_1() {
             assert_eq!(
                 PartSolution::None,
-                (Solution {}).part_2(&read_file("examples", &DAY))
+                (Solution {}).part_2(&read_file_part("examples", &DAY, 5))
+            );
+        }
+
+        #[test]
+        fn example_2() {
+            assert_eq!(
+                PartSolution::None,
+                (Solution {}).part_2(&read_file_part("examples", &DAY, 6))
             );
         }
     }
