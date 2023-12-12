@@ -1,4 +1,5 @@
-use std::{array::TryFromSliceError, collections::BTreeMap};
+use std::array::TryFromSliceError;
+use std::collections::BTreeMap;
 
 use advent_of_code_2023::shared::{PartSolution, Parts};
 
