@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use hashbrown::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 
 advent_of_code_2023::solution!(18_619, 8_063_216);
