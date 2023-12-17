@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use hashbrown::HashMap;
 use std::fmt::Debug;
 
 use advent_of_code_2023::shared::{PartSolution, Parts};

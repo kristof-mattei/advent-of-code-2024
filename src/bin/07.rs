@@ -1,5 +1,5 @@
+use hashbrown::HashMap;
 use std::cmp::Ordering;
-use std::collections::HashMap;
 
 use advent_of_code_2023::shared::{PartSolution, Parts};
 
