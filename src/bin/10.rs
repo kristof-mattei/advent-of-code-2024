@@ -236,7 +236,7 @@ fn ray_cast_tile(map: &[Vec<Tile>], (from_row_index, from_column_index): (usize,
         }
     }
 
-    usize::from(count % 2 != 0)
+    count % 2
 }
 
 impl Parts for Solution {
