@@ -15,7 +15,7 @@ impl TryFrom<char> for Cell {
         match c {
             '.' => Ok(Cell::Empty()),
             '0'..='9' => {
-                let n = u32::try_from(c).unwrap() - 48;
+                let n = u32::from(c) - 48;
 
                 Ok(Cell::Number(n))
             },
