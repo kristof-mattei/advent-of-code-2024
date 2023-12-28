@@ -97,7 +97,7 @@ fn count_played_cards_r<'games>(
         return 0;
     };
 
-    let Some(game) = games.get(0) else {
+    let Some(game) = games.first() else {
         return 0;
     };
 
