@@ -1,7 +1,9 @@
-use hashbrown::HashMap;
-use std::{cell::Cell, collections::BinaryHeap, ops::RangeInclusive};
+use std::cell::Cell;
+use std::collections::BinaryHeap;
+use std::ops::RangeInclusive;
 
 use advent_of_code_2023::shared::{PartSolution, Parts};
+use hashbrown::HashMap;
 
 advent_of_code_2023::solution!(928, 1104);
 
@@ -320,7 +322,8 @@ fn dump_map(map: &[Vec<Block>]) {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2023::shared::{solution::read_file, Parts};
+        use advent_of_code_2023::shared::solution::read_file;
+        use advent_of_code_2023::shared::Parts;
 
         use crate::{Solution, DAY};
 
@@ -336,7 +339,8 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2023::shared::{solution::read_file, Parts};
+        use advent_of_code_2023::shared::solution::read_file;
+        use advent_of_code_2023::shared::Parts;
 
         use crate::{Solution, DAY};
 
