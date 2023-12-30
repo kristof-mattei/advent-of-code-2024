@@ -30,7 +30,7 @@ struct InstructionPart {
     count: usize,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 struct Coordinates {
     row_index: usize,
     column_index: usize,
@@ -174,11 +174,16 @@ pub(crate) fn build_coordinates(
 
 pub(crate) fn shoelace(coordinates: &[Coordinates], perimeter: usize) -> usize {
     let mut size: isize = 0;
+
     for coord in coordinates.windows(2) {
+        // [ a b ]
+        // [ c d ]
+
         let a: isize = coord[0].row_index.try_into().unwrap();
         let b: isize = coord[0].column_index.try_into().unwrap();
         let c: isize = coord[1].row_index.try_into().unwrap();
         let d: isize = coord[1].column_index.try_into().unwrap();
+
         size += (a * d) - (b * c);
     }
 
@@ -214,7 +219,7 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2023::shared::solution::read_file;
+        use advent_of_code_2023::shared::solution::{read_file, read_file_part};
         use advent_of_code_2023::shared::Parts;
 
         use crate::{Solution, DAY};
@@ -225,14 +230,25 @@ mod test {
         }
 
         #[test]
-        fn example() {
-            assert_eq!(62, (Solution {}).part_1(&read_file("examples", &DAY)));
+        fn example_1() {
+            assert_eq!(
+                62,
+                (Solution {}).part_1(&read_file_part("examples", &DAY, 1))
+            );
+        }
+
+        #[test]
+        fn example_2() {
+            assert_eq!(
+                100,
+                (Solution {}).part_1(&read_file_part("examples", &DAY, 2))
+            );
         }
     }
 
     mod part_2 {
 
-        use advent_of_code_2023::shared::solution::read_file;
+        use advent_of_code_2023::shared::solution::{read_file, read_file_part};
         use advent_of_code_2023::shared::Parts;
 
         use crate::{Solution, DAY};
@@ -249,7 +265,7 @@ mod test {
         fn example() {
             assert_eq!(
                 952_408_144_115usize,
-                (Solution {}).part_2(&read_file("examples", &DAY))
+                (Solution {}).part_2(&read_file_part("examples", &DAY, 1))
             );
         }
     }
