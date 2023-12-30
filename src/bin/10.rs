@@ -10,57 +10,28 @@ enum Direction {
     Left,
 }
 
-struct Tile {
-    part_of_loop: bool,
-    pattern: Pattern,
-}
-
 #[derive(Copy, Clone)]
-enum Pattern {
-    Vertical,
-    Horizontal,
-    NorthEast,
-    NorthWest,
-    SouthWest,
-    SouthEast,
+enum Tile {
+    Vertical(bool),
+    Horizontal(bool),
+    NorthEast(bool),
+    NorthWest(bool),
+    SouthWest(bool),
+    SouthEast(bool),
     Ground,
 }
 
 impl Tile {
-    fn from_board_value(value: char, start_piece: Pattern) -> Result<Tile, &'static str> {
+    fn from_board_value(value: char, start_piece: Tile) -> Result<Tile, &'static str> {
         match value {
-            '|' => Ok(Tile {
-                part_of_loop: false,
-                pattern: Pattern::Vertical,
-            }),
-            '-' => Ok(Tile {
-                part_of_loop: false,
-                pattern: Pattern::Horizontal,
-            }),
-            'L' => Ok(Tile {
-                part_of_loop: false,
-                pattern: Pattern::NorthEast,
-            }),
-            'J' => Ok(Tile {
-                part_of_loop: false,
-                pattern: Pattern::NorthWest,
-            }),
-            '7' => Ok(Tile {
-                part_of_loop: false,
-                pattern: Pattern::SouthWest,
-            }),
-            'F' => Ok(Tile {
-                part_of_loop: false,
-                pattern: Pattern::SouthEast,
-            }),
-            '.' => Ok(Tile {
-                part_of_loop: false,
-                pattern: Pattern::Ground,
-            }),
-            'S' => Ok(Tile {
-                part_of_loop: true,
-                pattern: start_piece,
-            }),
+            '|' => Ok(Tile::Vertical(false)),
+            '-' => Ok(Tile::Horizontal(false)),
+            'L' => Ok(Tile::NorthEast(false)),
+            'J' => Ok(Tile::NorthWest(false)),
+            '7' => Ok(Tile::SouthWest(false)),
+            'F' => Ok(Tile::SouthEast(false)),
+            '.' => Ok(Tile::Ground),
+            'S' => Ok(start_piece),
             _ => Err("Invalid character"),
         }
     }
@@ -73,7 +44,7 @@ fn split_input(input: &str) -> Vec<Vec<char>> {
         .collect::<Vec<Vec<_>>>()
 }
 
-fn parse_lines(lines: Vec<Vec<char>>, start_piece: Pattern) -> Vec<Vec<Tile>> {
+fn parse_lines(lines: Vec<Vec<char>>, start_piece: Tile) -> Vec<Vec<Tile>> {
     lines
         .into_iter()
         .map(|line| {
@@ -84,7 +55,7 @@ fn parse_lines(lines: Vec<Vec<char>>, start_piece: Pattern) -> Vec<Vec<Tile>> {
         .collect::<Vec<_>>()
 }
 
-fn find_start_piece(map: &Vec<Vec<char>>) -> ((usize, usize), Pattern) {
+fn find_start_piece(map: &Vec<Vec<char>>) -> ((usize, usize), Tile) {
     for (i, line) in map.iter().enumerate() {
         for (j, column) in line.iter().enumerate() {
             if column != &'S' {
@@ -109,22 +80,17 @@ fn find_start_piece(map: &Vec<Vec<char>>) -> ((usize, usize), Pattern) {
 
             let start = match (up, down, left, right) {
                 // coming from top to bottom
-                (true, true, false, false) => Pattern::Vertical,
-
+                (true, true, false, false) => Tile::Vertical(true),
                 // coming from top to left
-                (true, false, true, false) => Pattern::NorthWest,
-
+                (true, false, true, false) => Tile::NorthWest(true),
                 // top to right
-                (true, false, false, true) => Pattern::NorthEast,
-
+                (true, false, false, true) => Tile::NorthEast(true),
                 // coming from below to left
-                (false, true, true, false) => Pattern::SouthWest,
-
+                (false, true, true, false) => Tile::SouthWest(true),
                 // coming from below to right
-                (false, true, false, true) => Pattern::SouthEast,
-
+                (false, true, false, true) => Tile::SouthEast(true),
                 // coming from left to right
-                (false, false, true, true) => Pattern::Horizontal,
+                (false, false, true, true) => Tile::Horizontal(true),
                 _ => panic!("Invalid S"),
             };
 
@@ -136,35 +102,32 @@ fn find_start_piece(map: &Vec<Vec<char>>) -> ((usize, usize), Pattern) {
 }
 
 fn get_any_start_direction(map: &[Vec<Tile>], start: &(usize, usize)) -> Direction {
-    let tile = &map[start.0][start.1];
-
-    assert!(tile.part_of_loop, "Start tile should be part of the loop");
-
-    match &tile.pattern {
-        Pattern::Vertical | Pattern::SouthEast => Direction::Up,
-        Pattern::Horizontal | Pattern::SouthWest => Direction::Right,
-        Pattern::NorthWest => Direction::Down,
-        Pattern::NorthEast => Direction::Left,
-        Pattern::Ground => panic!("We never start on ground"),
+    match &map[start.0][start.1] {
+        Tile::Vertical(true) | Tile::SouthEast(true) => Direction::Up,
+        Tile::Horizontal(true) | Tile::SouthWest(true) => Direction::Right,
+        Tile::NorthWest(true) => Direction::Down,
+        Tile::NorthEast(true) => Direction::Left,
+        Tile::Ground => panic!("We never start on ground"),
+        _ => panic!("Start tile should be part of the loop"),
     }
 }
 
 fn next_direction(map: &[Vec<Tile>], from: &Direction, start: &(usize, usize)) -> Direction {
-    let current = &map[start.0][start.1].pattern;
+    let current = &map[start.0][start.1];
 
     match (from, current) {
-        (Direction::Up, Pattern::Vertical)
-        | (Direction::Right, Pattern::NorthWest)
-        | (Direction::Left, Pattern::NorthEast) => Direction::Up,
-        (Direction::Up, Pattern::SouthEast)
-        | (Direction::Right, Pattern::Horizontal)
-        | (Direction::Down, Pattern::NorthEast) => Direction::Right,
-        (Direction::Up, Pattern::SouthWest)
-        | (Direction::Down, Pattern::NorthWest)
-        | (Direction::Left, Pattern::Horizontal) => Direction::Left,
-        (Direction::Right, Pattern::SouthWest)
-        | (Direction::Down, Pattern::Vertical)
-        | (Direction::Left, Pattern::SouthEast) => Direction::Down,
+        (Direction::Up, Tile::Vertical(true))
+        | (Direction::Right, Tile::NorthWest(true))
+        | (Direction::Left, Tile::NorthEast(true)) => Direction::Up,
+        (Direction::Up, Tile::SouthEast(true))
+        | (Direction::Right, Tile::Horizontal(true))
+        | (Direction::Down, Tile::NorthEast(true)) => Direction::Right,
+        (Direction::Up, Tile::SouthWest(true))
+        | (Direction::Down, Tile::NorthWest(true))
+        | (Direction::Left, Tile::Horizontal(true)) => Direction::Left,
+        (Direction::Right, Tile::SouthWest(true))
+        | (Direction::Down, Tile::Vertical(true))
+        | (Direction::Left, Tile::SouthEast(true)) => Direction::Down,
         _ => panic!("Invalid directions"),
     }
 }
@@ -182,13 +145,18 @@ fn next_coordinates(
 }
 
 fn mark_coordinates_as_part_of_loop(map: &mut [Vec<Tile>], coordinates: (usize, usize)) {
-    let tile = &mut map[coordinates.0][coordinates.1];
+    #[allow(clippy::match_on_vec_items)]
+    let new_tile = match map[coordinates.0][coordinates.1] {
+        Tile::Vertical(_) => Tile::Vertical(true),
+        Tile::Horizontal(_) => Tile::Horizontal(true),
+        Tile::NorthEast(_) => Tile::NorthEast(true),
+        Tile::NorthWest(_) => Tile::NorthWest(true),
+        Tile::SouthWest(_) => Tile::SouthWest(true),
+        Tile::SouthEast(_) => Tile::SouthEast(true),
+        Tile::Ground => panic!("Ground cannot be part of loop"),
+    };
 
-    if matches!(tile.pattern, Pattern::Ground) {
-        panic!("Ground cannot be part of loop");
-    }
-
-    tile.part_of_loop = true;
+    map[coordinates.0][coordinates.1] = new_tile;
 }
 
 fn mark_loop(map: &mut [Vec<Tile>], start: (usize, usize)) -> (Vec<(usize, usize)>, usize) {
