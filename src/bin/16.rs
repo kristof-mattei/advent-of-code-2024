@@ -36,7 +36,8 @@ impl std::fmt::Display for Mirror {
         write!(f, "{}", c)
     }
 }
-enum Ummm {
+
+enum Beam {
     Split((Traveling, Traveling)),
     Single(Traveling),
 }
@@ -70,26 +71,26 @@ fn apply_direction_to_coordinates(
 }
 
 impl Tile {
-    fn get_next_direction(&self, energy_is_traveling: Traveling) -> Ummm {
+    fn get_next_direction(&self, energy_is_traveling: Traveling) -> Beam {
         match (energy_is_traveling, &self.mirror) {
             (Traveling::Up, Mirror::Slash)
             | (Traveling::Right, Mirror::Dash | Mirror::Ground)
-            | (Traveling::Down, Mirror::BackwardsSlash) => Ummm::Single(Traveling::Right),
+            | (Traveling::Down, Mirror::BackwardsSlash) => Beam::Single(Traveling::Right),
             (Traveling::Left, Mirror::Dash | Mirror::Ground)
             | (Traveling::Down, Mirror::Slash)
-            | (Traveling::Up, Mirror::BackwardsSlash) => Ummm::Single(Traveling::Left),
+            | (Traveling::Up, Mirror::BackwardsSlash) => Beam::Single(Traveling::Left),
             (Traveling::Up, Mirror::Pipe | Mirror::Ground)
             | (Traveling::Right, Mirror::Slash)
-            | (Traveling::Left, Mirror::BackwardsSlash) => Ummm::Single(Traveling::Up),
+            | (Traveling::Left, Mirror::BackwardsSlash) => Beam::Single(Traveling::Up),
             (Traveling::Left | Traveling::Right, Mirror::Pipe) => {
-                Ummm::Split((Traveling::Up, Traveling::Down))
+                Beam::Split((Traveling::Up, Traveling::Down))
             },
             (Traveling::Up | Traveling::Down, Mirror::Dash) => {
-                Ummm::Split((Traveling::Left, Traveling::Right))
+                Beam::Split((Traveling::Left, Traveling::Right))
             },
             (Traveling::Down, Mirror::Pipe | Mirror::Ground)
             | (Traveling::Left, Mirror::Slash)
-            | (Traveling::Right, Mirror::BackwardsSlash) => Ummm::Single(Traveling::Down),
+            | (Traveling::Right, Mirror::BackwardsSlash) => Beam::Single(Traveling::Down),
         }
     }
 
@@ -164,7 +165,7 @@ fn send_light(
         }
 
         match parsed[row_index][column_index].get_next_direction(direction) {
-            Ummm::Split((d1, d2)) => {
+            Beam::Split((d1, d2)) => {
                 if let Some(row_column_index) =
                     apply_direction_to_coordinates(parsed, row_index, column_index, d1)
                 {
@@ -179,7 +180,7 @@ fn send_light(
 
                 break;
             },
-            Ummm::Single(d) => {
+            Beam::Single(d) => {
                 direction = d;
             },
         }
