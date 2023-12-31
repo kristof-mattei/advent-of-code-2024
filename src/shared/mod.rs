@@ -6,7 +6,6 @@ pub trait Parts {
     fn part_2(&self, input: &str) -> PartSolution;
 }
 
-#[derive(Debug)]
 pub enum PartSolution {
     I32(i32),
     U32(u32),
@@ -19,6 +18,22 @@ pub enum PartSolution {
     #[allow(dead_code)]
     None,
 }
+
+impl std::fmt::Debug for PartSolution {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::I32(arg0) => write!(f, "{}i32", arg0),
+            Self::U32(arg0) => write!(f, "{}u32", arg0),
+            Self::U64(arg0) => write!(f, "{}u64", arg0),
+            Self::USize(arg0) => write!(f, "{}usize", arg0),
+            Self::String(arg0) => write!(f, "\"{}\"", arg0),
+            Self::Vec(arg0) => write!(f, "{:?}", arg0),
+            Self::Manual => write!(f, "Manual"),
+            Self::None => write!(f, "None"),
+        }
+    }
+}
+
 impl PartSolution {
     #[must_use]
     pub fn has_solution(&self) -> bool {
