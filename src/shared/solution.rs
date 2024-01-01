@@ -1,4 +1,5 @@
-use std::{env, fs, path::Path};
+use std::path::Path;
+use std::{env, fs};
 
 use super::day::Day;
 
