@@ -3,7 +3,7 @@ use std::collections::VecDeque;
 use advent_of_code_2023::shared::{PartSolution, Parts};
 use hashbrown::HashMap;
 
-advent_of_code_2023::solution!(763_500_168);
+advent_of_code_2023::solution!(763_500_168, 207_652_583_562_007usize);
 
 const BROADCASTER: &str = "broadcaster";
 
