@@ -1,6 +1,17 @@
+use std::path::Path;
 use std::{env, fs};
 
 use super::day::Day;
+
+fn read_file_base(filepath: impl AsRef<Path>) -> String {
+    let f = fs::read_to_string(&filepath);
+    f.unwrap_or_else(|e| {
+        panic!(
+            "Error reading file \"{}\": {e:?}",
+            filepath.as_ref().to_str().unwrap()
+        )
+    })
+}
 
 /// Helper function that reads a text file to a string.
 /// # Panics
@@ -10,8 +21,8 @@ use super::day::Day;
 pub fn read_file(folder: &str, day: &Day) -> String {
     let cwd = env::current_dir().unwrap();
     let filepath = cwd.join("data").join(folder).join(format!("{}.txt", day));
-    let f = fs::read_to_string(filepath);
-    f.expect("could not open input file")
+
+    read_file_base(filepath)
 }
 
 /// Helper function that reads a text file to string, appending a part suffix. E.g. like `01-2.txt`.
@@ -25,8 +36,8 @@ pub fn read_file_part(folder: &str, day: &Day, part: u8) -> String {
         .join("data")
         .join(folder)
         .join(format!("{}-{}.txt", day, part));
-    let f = fs::read_to_string(filepath);
-    f.expect("could not open input file")
+
+    read_file_base(filepath)
 }
 
 #[macro_export]
