@@ -1,4 +1,5 @@
 pub mod day;
+pub mod grids;
 pub mod solution;
 
 pub trait Parts {

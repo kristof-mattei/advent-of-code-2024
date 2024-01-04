@@ -1,10 +1,27 @@
-use advent_of_code_2023::shared::{PartSolution, Parts};
+use std::{collections::VecDeque, num::NonZeroUsize};
 
-advent_of_code_2023::solution!(3503);
+use advent_of_code_2023::shared::{PartSolution, Parts};
+use hashbrown::HashSet;
+
+advent_of_code_2023::solution!(3503, 584_211_423_220_706usize);
 
 enum Tile {
     Rock,
     Garden(bool),
+}
+
+impl std::fmt::Display for Tile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Tile::Rock => write!(f, "#"),
+            Tile::Garden(false) => write!(f, "."),
+            Tile::Garden(true) => write!(f, "O"),
+        }
+    }
+}
+
+fn neighbors(_map: &[Vec<Tile>], r: isize, c: isize) -> Vec<(isize, isize)> {
+    vec![(r - 1, c), (r, c - 1), (r + 1, c), (r, c + 1)]
 }
 
 fn parse_input(input: &str) -> Vec<Vec<Tile>> {
@@ -30,72 +47,126 @@ fn parse_input(input: &str) -> Vec<Vec<Tile>> {
     map
 }
 
-fn steps(mut map: Vec<Vec<Tile>>) -> usize {
-    for _ in 1usize..=64 {
-        let mut current_gardens = vec![];
-        let mut to_flip = vec![];
+fn bfs(grid: &[Vec<Tile>], start: (isize, isize), steps: NonZeroUsize) -> usize {
+    let mut visited = HashSet::new();
+    let mut garden_plots = 0;
 
-        for (row_index, row) in map.iter().enumerate() {
-            for (column_index, tile) in row.iter().enumerate() {
-                if matches!(tile, Tile::Garden(true)) {
-                    current_gardens.push((row_index, column_index));
-                }
-            }
+    let even_odd = steps.get() % 2;
+
+    let mut dq = VecDeque::from_iter([(start, 0usize)]);
+
+    while let Some((coord, steps_traveled)) = dq.pop_front() {
+        if steps_traveled > steps.get() || visited.contains(&coord) {
+            continue;
         }
 
-        for (r, c) in current_gardens {
-            map[r][c] = Tile::Garden(false);
+        visited.insert(coord);
 
-            if r > 0 {
-                to_flip.push((r - 1, c));
-            }
-
-            if c > 0 {
-                to_flip.push((r, c - 1));
-            }
-
-            if r + 1 < map.len() {
-                to_flip.push((r + 1, c));
-            }
-
-            if c + 1 < map[r].len() {
-                to_flip.push((r, c + 1));
-            }
+        if steps_traveled % 2 == even_odd {
+            garden_plots += 1;
         }
 
-        for (r, c) in to_flip {
-            if matches!(map[r][c], Tile::Garden(false)) {
-                map[r][c] = Tile::Garden(true);
+        let row_len: isize = grid.len().try_into().expect("Index too long");
+        let column_len: isize = grid[0].len().try_into().expect("Index too long");
+
+        for new_coord in neighbors(grid, coord.0, coord.1) {
+            if matches!(
+                grid[new_coord.0.rem_euclid(row_len).unsigned_abs()]
+                    [new_coord.1.rem_euclid(column_len).unsigned_abs()],
+                Tile::Garden(_)
+            ) {
+                dq.push_back((new_coord, steps_traveled + 1));
             }
         }
     }
 
-    calculate_sum(&map)
+    println!("Garden plots: {garden_plots}");
+    garden_plots
 }
 
-fn calculate_sum(map: &[Vec<Tile>]) -> usize {
-    map.iter()
-        .map(|row| {
-            row.iter().fold(0, |acc, curr| {
-                if matches!(curr, Tile::Garden(true)) {
-                    acc + 1
-                } else {
-                    acc
-                }
-            })
+fn part_2(garden: &[Vec<Tile>], start: (usize, usize)) -> usize {
+    // forgive me, for I am not smart enough to understand this problem
+    // this solution is the Rust version of https://github.com/terminalmage/adventofcode/blob/4a52a87f4af8908e4ef6df637680a04770a3a27e/2023/day21.py#L256
+    let steps: isize = 26_501_365;
+
+    let columns = garden[0].len();
+
+    let edge = columns - 1 - start.1;
+
+    let [u0, u1, u2]: [usize; 3] = (0..3)
+        .map(|x| {
+            bfs(
+                garden,
+                (start.0.try_into().unwrap(), start.1.try_into().unwrap()),
+                NonZeroUsize::new(edge + (columns * x)).unwrap(),
+            )
         })
-        .sum()
+        .collect::<Vec<_>>()
+        .try_into()
+        .unwrap();
+
+    let (u0, u1, u2): (isize, isize, isize) = (
+        u0.try_into().unwrap(),
+        u1.try_into().unwrap(),
+        u2.try_into().unwrap(),
+    );
+
+    let c = u0;
+
+    let a = (u2 - (2 * u1) + u0) / 2;
+
+    let b = u1 - u0 - a;
+
+    let n: isize = (steps - TryInto::<isize>::try_into(edge).unwrap())
+        / TryInto::<isize>::try_into(columns).unwrap();
+
+    ((a * n.pow(2)) + (b * n) + c).unsigned_abs()
 }
 
 impl Parts for Solution {
     fn part_1(&self, input: &str) -> PartSolution {
         let map = parse_input(input);
 
-        steps(map).into()
+        let start = map
+            .iter()
+            .enumerate()
+            .find_map(|(r, row)| {
+                row.iter().enumerate().find_map(|(c, t)| {
+                    if matches!(t, Tile::Garden(true)) {
+                        Some((r, c))
+                    } else {
+                        None
+                    }
+                })
+            })
+            .unwrap();
+
+        bfs(
+            &map,
+            (start.0.try_into().unwrap(), start.1.try_into().unwrap()),
+            NonZeroUsize::new(64).unwrap(),
+        )
+        .into()
     }
 
-    fn part_2(&self, _input: &str) -> PartSolution {
-        None.into()
+    fn part_2(&self, input: &str) -> PartSolution {
+        let map = parse_input(input);
+
+        let start = map
+            .iter()
+            .enumerate()
+            .find_map(|(r, row)| {
+                row.iter().enumerate().find_map(|(c, t)| {
+                    if matches!(t, Tile::Garden(true)) {
+                        Some((r, c))
+                    } else {
+                        None
+                    }
+                })
+            })
+            .unwrap();
+
+        part_2(&map, start).into()
     }
 }
 
@@ -114,30 +185,22 @@ mod test {
 
         #[test]
         fn example() {
-            assert_eq!(42, (Solution {}).part_1(&read_file("examples", &DAY)));
+            assert_eq!(2665, (Solution {}).part_1(&read_file("examples", &DAY)));
         }
     }
 
     mod part_2 {
 
         use advent_of_code_2023::shared::solution::read_file;
-        use advent_of_code_2023::shared::{PartSolution, Parts};
+        use advent_of_code_2023::shared::Parts;
 
         use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
             assert_eq!(
-                PartSolution::None,
+                584_211_423_220_706usize,
                 (Solution {}).part_2(&read_file("inputs", &DAY))
-            );
-        }
-
-        #[test]
-        fn example() {
-            assert_eq!(
-                PartSolution::None,
-                (Solution {}).part_2(&read_file("examples", &DAY))
             );
         }
     }
