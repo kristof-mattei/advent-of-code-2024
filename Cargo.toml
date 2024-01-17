@@ -11,21 +11,6 @@ repository = "https://github.com/kristof-mattei/advent-of-code-2023"
 keywords = ["playground"]
 categories = ["playground"]
 
-[lib]
-doctest = false
-
-[profile.dev]
-debug = true
-
-[profile.release]
-debug = true
-
-[profile.bench]
-debug = true
-
-[profile.test]
-debug = true
-
 [lints.clippy]
 # don't stop from compiling / running
 all = "warn"
