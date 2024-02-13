@@ -46,7 +46,7 @@ fn parse_input(input: &str) -> Vec<Vec<Rock>> {
         .collect::<Vec<_>>()
 }
 
-fn roll_north(platform: &mut Vec<Vec<Rock>>) {
+fn roll_north(platform: &mut [Vec<Rock>]) {
     let mut stable = false;
     while !stable {
         stable = true;
@@ -77,7 +77,7 @@ fn roll_north(platform: &mut Vec<Vec<Rock>>) {
     }
 }
 
-fn roll_west(platform: &mut Vec<Vec<Rock>>) {
+fn roll_west(platform: &mut [Vec<Rock>]) {
     let mut stable = false;
 
     while !stable {
@@ -110,7 +110,7 @@ fn roll_west(platform: &mut Vec<Vec<Rock>>) {
     }
 }
 
-fn roll_south(platform: &mut Vec<Vec<Rock>>) {
+fn roll_south(platform: &mut [Vec<Rock>]) {
     let mut stable = false;
 
     while !stable {
@@ -142,7 +142,7 @@ fn roll_south(platform: &mut Vec<Vec<Rock>>) {
     }
 }
 
-fn roll_east(platform: &mut Vec<Vec<Rock>>) {
+fn roll_east(platform: &mut [Vec<Rock>]) {
     let mut stable = false;
 
     while !stable {
@@ -199,7 +199,7 @@ fn roll_north_and_count(mut platform: Vec<Vec<Rock>>) -> usize {
     count(&platform)
 }
 
-fn roll_all(platform: &mut Vec<Vec<Rock>>) {
+fn roll_all(platform: &mut [Vec<Rock>]) {
     roll_north(platform);
     roll_west(platform);
     roll_south(platform);

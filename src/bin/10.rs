@@ -55,7 +55,7 @@ fn parse_lines(lines: Vec<Vec<char>>, start_piece: Tile) -> Vec<Vec<Tile>> {
         .collect::<Vec<_>>()
 }
 
-fn find_start_piece(map: &Vec<Vec<char>>) -> ((usize, usize), Tile) {
+fn find_start_piece(map: &[Vec<char>]) -> ((usize, usize), Tile) {
     for (i, line) in map.iter().enumerate() {
         for (j, column) in line.iter().enumerate() {
             if column != &'S' {
