@@ -148,9 +148,8 @@ impl<T> Index<usize> for Grid<T> {
 
 #[cfg(test)]
 mod tests {
-    use crate::shared::grids::GridIter;
-
     use super::Grid;
+    use crate::shared::grids::GridIter;
 
     #[test]
     fn test_rows() {

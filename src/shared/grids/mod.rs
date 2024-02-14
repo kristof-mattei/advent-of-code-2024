@@ -1,8 +1,9 @@
 pub mod grid;
 pub mod infinite_grid;
 
+use std::cmp::PartialEq;
 use std::ops::Index;
-use std::{cmp::PartialEq, slice::Iter};
+use std::slice::Iter;
 
 pub(super) trait Neighbors {
     type Index: GridIndex;

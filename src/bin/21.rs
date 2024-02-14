@@ -1,10 +1,10 @@
-use std::{collections::VecDeque, num::NonZeroUsize};
+use std::collections::VecDeque;
+use std::num::NonZeroUsize;
 
 use advent_of_code_2023::shared::{PartSolution, Parts};
 use hashbrown::HashSet;
 
 advent_of_code_2023::solution!(3503, 584_211_423_220_706usize);
-
 enum Tile {
     Rock,
     Garden(bool),
