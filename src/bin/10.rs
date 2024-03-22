@@ -62,17 +62,13 @@ fn find_start_piece(map: &[Vec<char>]) -> ((usize, usize), Tile) {
                 continue;
             }
 
-            let left = (j.checked_sub(1))
-                .map(|jj| ['-', 'L', 'F'].contains(&line[jj]))
-                .unwrap_or_default();
+            let left = (j.checked_sub(1)).is_some_and(|jj| ['-', 'L', 'F'].contains(&line[jj]));
 
             let right = (j + 1 < line.len())
                 .then(|| ['-', 'J', '7'].contains(&line[j + 1]))
                 .unwrap_or_default();
 
-            let up = (i.checked_sub(1))
-                .map(|ii| ['|', 'F', '7'].contains(&map[ii][j]))
-                .unwrap_or_default();
+            let up = (i.checked_sub(1)).is_some_and(|ii| ['|', 'F', '7'].contains(&map[ii][j]));
 
             let down = (i + 1 < map.len())
                 .then(|| ['|', 'L', 'J'].contains(&map[i + 1][j]))
