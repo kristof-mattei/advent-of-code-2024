@@ -5,6 +5,7 @@ use std::cmp::PartialEq;
 use std::ops::Index;
 use std::slice::Iter;
 
+#[allow(dead_code)]
 pub(super) trait Neighbors {
     type Index: GridIndex;
 
@@ -54,6 +55,7 @@ pub trait GridIter {
     }
 }
 
+#[allow(dead_code)]
 pub(super) trait GridIndex {}
 
 impl GridIndex for usize {}
