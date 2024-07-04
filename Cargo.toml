@@ -5,11 +5,11 @@ version = "0.0.0-development"
 edition = "2021"
 rust-version = "1.79.0"
 authors = ["Kristof Mattei"]
-license-file = "LICENSE"
 description = "Advent of Code 2023"
-repository = "https://github.com/kristof-mattei/advent-of-code-2023"
-keywords = ["playground"]
+license-file = "LICENSE"
 categories = ["playground"]
+keywords = ["playground"]
+repository = "https://github.com/kristof-mattei/advent-of-code-2023"
 
 [lints.clippy]
 # don't stop from compiling / running
@@ -33,7 +33,9 @@ coverage = []
 
 [dependencies]
 regex = "1.10.5"
-color-eyre = { git = "https://github.com/kristof-mattei/eyre", branch = "bump-backtrace-rs", features = ["track-caller"] }
+color-eyre = { git = "https://github.com/kristof-mattei/eyre", branch = "bump-backtrace-rs", features = [
+    "track-caller",
+] }
 backtrace = "0.3.73"
 once_cell = "1.19.0"
 hashbrown = { version = "0.14.5", default-features = false, features = [
