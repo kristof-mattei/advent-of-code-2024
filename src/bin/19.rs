@@ -1,17 +1,18 @@
 use advent_of_code_2023::shared::{PartSolution, Parts};
 use hashbrown::HashMap;
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 advent_of_code_2023::solution!(420_739, 130_251_901_420_382_usize);
 
-static PART_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"\{x=(?<x>\d+),m=(?<m>\d+),a=(?<a>\d+),s=(?<s>\d+)\}").unwrap());
+use std::sync::LazyLock;
 
-static WORKFLOW_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(?<name>[a-z]+)\{(?<pieces>(.*),?)\}").unwrap());
+static PART_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\{x=(?<x>\d+),m=(?<m>\d+),a=(?<a>\d+),s=(?<s>\d+)\}").unwrap());
 
-static WORKFLOW_REGEX_RULE: Lazy<Regex> = Lazy::new(|| {
+static WORKFLOW_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"(?<name>[a-z]+)\{(?<pieces>(.*),?)\}").unwrap());
+
+static WORKFLOW_REGEX_RULE: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?<property>[xmas])(?<cmp>[<>])(?<value>[0-9]*):(?<target>[AR]|[a-z]*)").unwrap()
 });
 
