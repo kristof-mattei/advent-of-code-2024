@@ -1,10 +1,11 @@
+use std::sync::LazyLock;
+
 use advent_of_code_2023::shared::{PartSolution, Parts};
-use once_cell::sync::Lazy;
 use regex::{Regex, RegexBuilder};
 
 advent_of_code_2023::solution!(40714, 129_849_166_997_110_usize);
 
-static REGEX: Lazy<Regex> = Lazy::new(|| {
+static REGEX: LazyLock<Regex> = LazyLock::new(|| {
     let mut builder =
         RegexBuilder::new(r"(?<direction>[URDL]) (?<count>\d+) \(#(?<color>(?:[0-9A-F]{2}){3})\)");
 

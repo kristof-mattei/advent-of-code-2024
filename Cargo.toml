@@ -37,7 +37,6 @@ color-eyre = { git = "https://github.com/eyre-rs/eyre", rev = "2dc0688d33a487009
     "track-caller",
 ] }
 backtrace = "0.3.73"
-once_cell = "1.19.0"
 hashbrown = { version = "0.14.5", default-features = false, features = [
     "ahash",
     "inline-more",

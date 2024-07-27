@@ -50,8 +50,8 @@ macro_rules! solution {
     };
     ($solution_1:expr, $solution_2:expr) => {
         /// The current day.
-        static DAY: once_cell::sync::Lazy<$crate::shared::day::Day> =
-            once_cell::sync::Lazy::new(|| {
+        static DAY: std::sync::LazyLock<$crate::shared::day::Day> =
+            std::sync::LazyLock::new(|| {
                 use std::path::Path;
 
                 let path = Path::new(file!());
