@@ -19,7 +19,7 @@ fn count_valid_games(lines: &str) -> u32 {
 }
 
 fn is_valid_game_optimized(line: &str) -> Option<u32> {
-    let (left, right) = line.split_once(|d| d == ':')?;
+    let (left, right) = line.split_once(':')?;
 
     let game_number = left[5..].parse::<u32>().ok()?;
 
@@ -126,7 +126,7 @@ impl TryFrom<(u32, &str)> for Cube {
 }
 
 fn naive_parse_line(line: &str) -> Game {
-    let (left, right) = line.split_once(|d| d == ':').expect("Invalid game");
+    let (left, right) = line.split_once(':').expect("Invalid game");
 
     let game_number = left[5..].parse::<u32>().unwrap();
 

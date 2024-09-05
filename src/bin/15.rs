@@ -16,7 +16,7 @@ fn parse_input_split(input: &str) -> Vec<(Label, Option<FocalLength>)> {
     let mut parsed = vec![];
 
     for piece in input.trim().split(',') {
-        if let Some((left, right)) = piece.split_once(|what| what == '=') {
+        if let Some((left, right)) = piece.split_once('=') {
             let lens = right.parse::<usize>().expect("Invalid lens").into();
 
             parsed.push((Label::new(left), Some(lens)));
