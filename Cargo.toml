@@ -37,7 +37,7 @@ color-eyre = { git = "https://github.com/eyre-rs/eyre", rev = "2dc0688d33a487009
     "track-caller",
 ] }
 backtrace = "0.3.74"
-hashbrown = "0.15.1"
+hashbrown = "0.15.2"
 
 # We compile the Docker container with musl to get a static library. Smaller, faster.
 # BUT that means that we need to include openssl
