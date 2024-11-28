@@ -158,7 +158,7 @@ fn parse_game_jack_is_wildcard(game: &str) -> Vec<Card> {
     parsed
 }
 
-fn _parse_hands(input: &str, parse_game_fn: fn(&str) -> Vec<Card>) -> Vec<Hand> {
+fn parse_hands_with_callback(input: &str, parse_game_fn: fn(&str) -> Vec<Card>) -> Vec<Hand> {
     let mut hands = vec![];
     for line in input.lines() {
         let (game, bid) = line.split_once(' ').expect("Invalid game");
@@ -176,11 +176,11 @@ fn _parse_hands(input: &str, parse_game_fn: fn(&str) -> Vec<Card>) -> Vec<Hand> 
 }
 
 fn parse_hands(input: &str) -> Vec<Hand> {
-    _parse_hands(input, parse_game)
+    parse_hands_with_callback(input, parse_game)
 }
 
 fn parse_hands_jack_is_wildcard(input: &str) -> Vec<Hand> {
-    _parse_hands(input, parse_game_jack_is_wildcard)
+    parse_hands_with_callback(input, parse_game_jack_is_wildcard)
 }
 
 impl Parts for Solution {
