@@ -19,7 +19,6 @@ impl Parts for Solution {
 }
 
 #[cfg(test)]
-
 mod test {
 
     mod part_1 {
