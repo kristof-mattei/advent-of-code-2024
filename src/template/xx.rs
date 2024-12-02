@@ -1,6 +1,6 @@
-use advent_of_code_2023::shared::{PartSolution, Parts};
+use advent_of_code_2024::shared::{PartSolution, Parts};
 
-advent_of_code_2023::solution!();
+advent_of_code_2024::solution!();
 
 impl Parts for Solution {
     fn part_1(&self, _input: &str) -> PartSolution {
@@ -15,8 +15,8 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2023::shared::solution::read_file;
-        use advent_of_code_2023::shared::{PartSolution, Parts};
+        use advent_of_code_2024::shared::solution::read_file;
+        use advent_of_code_2024::shared::{PartSolution, Parts};
 
         use crate::{Solution, DAY};
 
@@ -39,8 +39,8 @@ mod test {
 
     mod part_2 {
 
-        use advent_of_code_2023::shared::solution::read_file;
-        use advent_of_code_2023::shared::{PartSolution, Parts};
+        use advent_of_code_2024::shared::solution::read_file;
+        use advent_of_code_2024::shared::{PartSolution, Parts};
 
         use crate::{Solution, DAY};
 

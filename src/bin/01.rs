@@ -1,113 +1,70 @@
-use advent_of_code_2023::shared::{PartSolution, Parts};
+use std::collections::BTreeMap;
 
-advent_of_code_2023::solution!(54159, 53866);
+use advent_of_code_2024::shared::{PartSolution, Parts};
 
-fn first_09_digit(line: &str) -> Option<(usize, u32)> {
-    line.chars()
-        .enumerate()
-        .find_map(|(index, c)| c.to_digit(10).map(|d| (index, d)))
-}
+advent_of_code_2024::solution!(1_579_939, 20_351_745);
 
-fn last_09_digit(line: &str) -> Option<(usize, u32)> {
-    line.chars()
-        .rev()
-        .enumerate()
-        .find_map(|(index, c)| c.to_digit(10).map(|d| (line.len() - index - 1, d)))
-}
+fn calculate_distances(input: &str) -> PartSolution {
+    let lines = input.lines().collect::<Vec<&str>>();
 
-fn calculate_total_calibration_value_part_1(lines: &str) -> u32 {
-    let mut total = 0;
-    for line in lines.lines() {
-        let (_, first_number) = first_09_digit(line).expect("No number found");
-        let (_, last_number) = last_09_digit(line).expect("No number found");
+    let mut left = Vec::with_capacity(lines.len());
+    let mut right = Vec::with_capacity(lines.len());
 
-        total += first_number * 10 + last_number;
+    for line in lines {
+        let (l, r) = line
+            .split_once(' ')
+            .map(|(l, r)| (l.trim().parse::<u32>(), r.trim().parse::<u32>()))
+            .expect("Bad input");
+
+        left.push(l.expect("Bad input"));
+        right.push(r.expect("Bad input"));
     }
 
-    total
-}
+    // we don't need to sort smallest to largest for now
+    left.sort_unstable();
+    right.sort_unstable();
 
-const NUMBER_WORDS: [&str; 9] = [
-    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-];
+    let mut total_diff = 0;
 
-fn get_first_last(
-    left: Option<(usize, u32)>,
-    right: Option<(usize, u32)>,
-    cmp: fn(usize, usize) -> bool,
-) -> Option<u32> {
-    match (left, right) {
-        (None, None) => None,
-        (None, Some((_, right))) => Some(right),
-        (Some((_, left)), None) => Some(left),
-        (Some((left_index, left_number)), Some((right_index, right_number))) => {
-            if cmp(left_index, right_index) {
-                Some(left_number)
-            } else {
-                Some(right_number)
-            }
-        },
-    }
-}
-
-fn calculate_total_calibration_value_part_2(lines: &str) -> u32 {
-    let mut total = 0;
-    for line in lines.lines() {
-        let first_09_digit = first_09_digit(line);
-        let last_09_digit = last_09_digit(line);
-
-        let first_word_digit =
-            first_word_digit(line, first_09_digit.map_or(line.len(), |(index, _)| index));
-        let last_word_digit = last_word_digit(line, last_09_digit.map_or(0, |(index, _)| index));
-
-        let first =
-            get_first_last(first_09_digit, first_word_digit, |l, r| l < r).expect("No first found");
-        let last =
-            get_first_last(last_09_digit, last_word_digit, |l, r| l > r).expect("No last found");
-
-        total += last;
-        total += first * 10;
-    }
-    total
-}
-
-fn first_word_digit(line: &str, first_09_digit_index: usize) -> Option<(usize, u32)> {
-    for i in 0..first_09_digit_index {
-        for (word_index, word) in NUMBER_WORDS.iter().enumerate() {
-            if line[i..].starts_with(word) {
-                return Some((
-                    i,
-                    u32::try_from(word_index).expect("index doesn't fit u32") + 1,
-                ));
-            }
-        }
+    for (l, r) in left.into_iter().zip(right) {
+        total_diff += l.abs_diff(r);
     }
 
-    None
+    PartSolution::U32(total_diff)
 }
 
-fn last_word_digit(line: &str, last_09_digit_index: usize) -> Option<(usize, u32)> {
-    for i in (last_09_digit_index..line.len()).rev() {
-        for (word_index, word) in NUMBER_WORDS.iter().enumerate() {
-            if line[i..].starts_with(word) {
-                return Some((
-                    i,
-                    u32::try_from(word_index).expect("index doesn't fit u32") + 1,
-                ));
-            }
-        }
+fn calculate_similarity(input: &str) -> PartSolution {
+    let mut map_l: BTreeMap<u32, u32> = BTreeMap::new();
+    let mut map_r: BTreeMap<u32, u32> = BTreeMap::new();
+
+    for line in input.lines() {
+        let (l, r) = line
+            .split_once(' ')
+            .map(|(l, r)| (l.trim().parse::<u32>(), r.trim().parse::<u32>()))
+            .expect("Bad input");
+
+        let (l, r) = (l.expect("Bad input"), r.expect("Bad input"));
+
+        map_l.entry(l).and_modify(|v| *v += 1).or_insert(1);
+        map_r.entry(r).and_modify(|v| *v += 1).or_insert(1);
     }
 
-    None
+    let mut similiarity = 0;
+
+    for (number, count) in map_l {
+        similiarity += number * count * map_r.get(&number).copied().unwrap_or(0);
+    }
+
+    PartSolution::U32(similiarity)
 }
 
 impl Parts for Solution {
     fn part_1(&self, input: &str) -> PartSolution {
-        calculate_total_calibration_value_part_1(input).into()
+        calculate_distances(input)
     }
 
     fn part_2(&self, input: &str) -> PartSolution {
-        calculate_total_calibration_value_part_2(input).into()
+        calculate_similarity(input)
     }
 }
 
@@ -115,60 +72,36 @@ impl Parts for Solution {
 mod test {
 
     mod part_1 {
-        use advent_of_code_2023::shared::solution::{read_file, read_file_part};
-        use advent_of_code_2023::shared::Parts;
+        use advent_of_code_2024::shared::solution::read_file;
+        use advent_of_code_2024::shared::Parts;
 
         use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
-            assert_eq!(54159, (Solution {}).part_1(&read_file("inputs", &DAY)));
+            assert_eq!(1_579_939, (Solution {}).part_1(&read_file("inputs", &DAY)));
         }
 
         #[test]
         fn example() {
-            assert_eq!(
-                142,
-                (Solution {}).part_1(&read_file_part("examples", &DAY, 1))
-            );
+            assert_eq!(11, (Solution {}).part_1(&read_file("examples", &DAY)));
         }
     }
 
     mod part_2 {
-        use advent_of_code_2023::shared::solution::{read_file, read_file_part};
-        use advent_of_code_2023::shared::Parts;
+        use advent_of_code_2024::shared::solution::read_file;
+        use advent_of_code_2024::shared::Parts;
 
-        use crate::{first_word_digit, last_word_digit, Solution, DAY};
+        use crate::{Solution, DAY};
 
         #[test]
         fn example() {
-            assert_eq!(
-                281,
-                Solution {}.part_2(&read_file_part("examples", &DAY, 2))
-            );
+            assert_eq!(31, Solution {}.part_2(&read_file("examples", &DAY)));
         }
 
         #[test]
         fn outcome() {
-            assert_eq!(53866, (Solution {}).part_2(&read_file("inputs", &DAY)));
-        }
-
-        #[test]
-        fn first_word_with_index() {
-            let line = "one two three four five six seven eight nine";
-            let (index, number) = first_word_digit(line, line.len()).unwrap();
-
-            assert_eq!(index, 0);
-            assert_eq!(number, 1);
-        }
-
-        #[test]
-        fn last_word_with_index() {
-            let line = "one two three four five six seven eight nine";
-            let (index, number) = last_word_digit(line, 0).unwrap();
-
-            assert_eq!(index, 40);
-            assert_eq!(number, 9);
+            assert_eq!(20_351_745, (Solution {}).part_2(&read_file("inputs", &DAY)));
         }
     }
 }

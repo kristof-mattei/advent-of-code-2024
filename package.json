@@ -1,5 +1,5 @@
 {
-  "name": "advent-of-code-2023",
+  "name": "advent-of-code-2024",
   "version": "0.0.0-development",
   "description": "It's written in Rust!",
   "main": "src/main.rs",
@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kristof-mattei/advent-of-code-2023.git"
+    "url": "https://github.com/kristof-mattei/advent-of-code-2024.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/kristof-mattei/advent-of-code-2023/issues"
+    "url": "https://github.com/kristof-mattei/advent-of-code-2024/issues"
   },
-  "homepage": "https://github.com/kristof-mattei/advent-of-code-2023#readme",
+  "homepage": "https://github.com/kristof-mattei/advent-of-code-2024#readme",
   "devDependencies": {
     "@actions/tool-cache": "2.0.1",
     "@semantic-release/changelog": "6.0.3",
