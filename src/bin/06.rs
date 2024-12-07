@@ -1,8 +1,7 @@
-use hashbrown::HashSet;
-
 use advent_of_code_2024::shared::grids::grid::Grid;
 use advent_of_code_2024::shared::grids::GridIter;
 use advent_of_code_2024::shared::{PartSolution, Parts};
+use hashbrown::HashSet;
 
 advent_of_code_2024::solution!(4973, 1482);
 
