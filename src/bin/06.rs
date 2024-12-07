@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use hashbrown::HashSet;
 
 use advent_of_code_2024::shared::grids::grid::Grid;
 use advent_of_code_2024::shared::grids::GridIter;
@@ -25,7 +25,7 @@ impl std::fmt::Debug for Cell {
     }
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
 enum Direction {
     Up,
     Right,
@@ -78,7 +78,7 @@ fn parse_input(input: &str) -> Grid<Cell> {
 
 fn count_guard_positions(input: &str) -> PartSolution {
     let mut grid = parse_input(input);
-    let mut traveled = BTreeSet::<(usize, usize)>::new();
+    let mut traveled = HashSet::<(usize, usize)>::new();
     // starting direction is always up
     let mut direction = Direction::Up;
     let (mut guard_row_index, mut guard_column_index) =
@@ -231,7 +231,7 @@ fn count_possibl_obstacle_positions(input: &str) -> PartSolution {
 
     let (start_guard_row_index, start_guard_column_index) = (guard_row_index, guard_column_index);
 
-    let mut tried_infinite = BTreeSet::new();
+    let mut tried_infinite = HashSet::new();
 
     let mut infinite = 0usize;
 
@@ -260,7 +260,7 @@ fn count_possibl_obstacle_positions(input: &str) -> PartSolution {
 }
 
 fn is_infinite(mut grid: Grid<Cell>) -> bool {
-    let mut traveled = BTreeSet::<(usize, usize, Direction)>::new();
+    let mut traveled = HashSet::<(usize, usize, Direction)>::new();
 
     // starting direction is always up
     let mut direction = Direction::Up;
