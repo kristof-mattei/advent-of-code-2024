@@ -1,6 +1,8 @@
 use std::ops::Index;
 
-use super::{GridIter, Neighbors};
+use super::{
+    GridIter, HorizontalVerticalDiagonalDirection, HorizontalVerticalDirection, Neighbors,
+};
 
 pub struct Grid<T> {
     data: Vec<Row<T>>,
@@ -77,26 +79,105 @@ impl<T> GridIter for Grid<T> {
 impl<T> Neighbors for Grid<T> {
     type Index = usize;
 
-    fn neighbors(
+    fn hv_neighbors(
         &self,
-        (row_index, column_index): (Self::Index, Self::Index),
-    ) -> Vec<(Self::Index, Self::Index)> {
+        row_index: Self::Index,
+        column_index: Self::Index,
+    ) -> Vec<(Self::Index, Self::Index, HorizontalVerticalDirection)> {
         let mut neighbors = vec![];
 
-        if row_index > 0 {
-            neighbors.push((row_index - 1, column_index));
+        let up = row_index.checked_sub(1);
+        let down = {
+            let down = row_index + 1;
+
+            (down < self.row_len).then_some(down)
+        };
+
+        let left = column_index.checked_sub(1);
+        let right = {
+            let right = column_index + 1;
+
+            (right < self.column_len).then_some(right)
+        };
+
+        if let Some(up) = up {
+            neighbors.push((up, column_index, HorizontalVerticalDirection::Up));
         }
 
-        if column_index + 1 < self.column_len {
-            neighbors.push((row_index, column_index + 1));
+        if let Some(right) = right {
+            neighbors.push((row_index, right, HorizontalVerticalDirection::Right));
         }
 
-        if column_index > 0 {
-            neighbors.push((row_index, column_index - 1));
+        if let Some(down) = down {
+            neighbors.push((down, column_index, HorizontalVerticalDirection::Down));
         }
 
-        if row_index + 1 < self.row_len {
-            neighbors.push((row_index + 1, column_index));
+        if let Some(left) = left {
+            neighbors.push((row_index, left, HorizontalVerticalDirection::Left));
+        }
+
+        neighbors
+    }
+
+    fn hvd_neighbors(
+        &self,
+        row_index: Self::Index,
+        column_index: Self::Index,
+    ) -> Vec<(
+        Self::Index,
+        Self::Index,
+        HorizontalVerticalDiagonalDirection,
+    )> {
+        let mut neighbors = vec![];
+
+        let up = row_index.checked_sub(1);
+        let down = {
+            let down = row_index + 1;
+
+            (down < self.row_len).then_some(down)
+        };
+
+        let left = column_index.checked_sub(1);
+        let right = {
+            let right = column_index + 1;
+
+            (right < self.column_len).then_some(right)
+        };
+
+        if let Some(up) = up {
+            neighbors.push((up, column_index, HorizontalVerticalDiagonalDirection::Up));
+        }
+
+        if let (Some(up), Some(right)) = (up, right) {
+            neighbors.push((up, right, HorizontalVerticalDiagonalDirection::UpRight));
+        }
+
+        if let Some(right) = right {
+            neighbors.push((row_index, right, HorizontalVerticalDiagonalDirection::Right));
+        }
+
+        if let (Some(down), Some(right)) = (down, right) {
+            neighbors.push((down, right, HorizontalVerticalDiagonalDirection::DownRight));
+        }
+
+        if let Some(down) = down {
+            neighbors.push((
+                down,
+                column_index,
+                HorizontalVerticalDiagonalDirection::Down,
+            ));
+        }
+
+        if let (Some(down), Some(left)) = (down, left) {
+            neighbors.push((down, left, HorizontalVerticalDiagonalDirection::DownLeft));
+        }
+
+        if let Some(left) = left {
+            neighbors.push((row_index, left, HorizontalVerticalDiagonalDirection::Left));
+        }
+
+        if let (Some(up), Some(left)) = (up, left) {
+            neighbors.push((up, left, HorizontalVerticalDiagonalDirection::UpLeft));
         }
 
         neighbors
@@ -149,7 +230,9 @@ impl<T> Index<usize> for Grid<T> {
 #[cfg(test)]
 mod tests {
     use super::Grid;
-    use crate::shared::grids::GridIter;
+    use crate::shared::grids::{
+        GridIter, HorizontalVerticalDiagonalDirection, HorizontalVerticalDirection, Neighbors,
+    };
 
     #[test]
     fn test_rows() {
@@ -184,7 +267,6 @@ mod tests {
     }
 
     #[test]
-
     fn test_row_columns_iter() {
         let g = Grid::new(vec![
             vec!['a', 'b', 'c'],
@@ -205,5 +287,78 @@ mod tests {
         ];
 
         assert_eq!(v, g.row_column_index_value_iter().collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn test_hv_neighbors_middle() {
+        let g = Grid::new(vec![
+            vec!['a', 'b', 'c'],
+            vec!['d', 'e', 'f'],
+            vec!['g', 'h', 'i'],
+        ]);
+
+        let v = vec![
+            (0, 1, HorizontalVerticalDirection::Up),
+            (1, 2, HorizontalVerticalDirection::Right),
+            (2, 1, HorizontalVerticalDirection::Down),
+            (1, 0, HorizontalVerticalDirection::Left),
+        ];
+
+        assert_eq!(v, g.hv_neighbors(1, 1));
+    }
+
+    #[test]
+    fn test_hv_neighbors_corner() {
+        let g = Grid::new(vec![
+            vec!['a', 'b', 'c'],
+            vec!['d', 'e', 'f'],
+            vec!['g', 'h', 'i'],
+        ]);
+
+        let v = vec![
+            (0, 1, HorizontalVerticalDirection::Right),
+            (1, 0, HorizontalVerticalDirection::Down),
+        ];
+
+        assert_eq!(v, g.hv_neighbors(0, 0));
+    }
+
+    #[test]
+    fn test_hvd_neighbors_middle() {
+        let g = Grid::new(vec![
+            vec!['a', 'b', 'c'],
+            vec!['d', 'e', 'f'],
+            vec!['g', 'h', 'i'],
+        ]);
+
+        let v = vec![
+            (0, 1, HorizontalVerticalDiagonalDirection::Up),
+            (0, 2, HorizontalVerticalDiagonalDirection::UpRight),
+            (1, 2, HorizontalVerticalDiagonalDirection::Right),
+            (2, 2, HorizontalVerticalDiagonalDirection::DownRight),
+            (2, 1, HorizontalVerticalDiagonalDirection::Down),
+            (2, 0, HorizontalVerticalDiagonalDirection::DownLeft),
+            (1, 0, HorizontalVerticalDiagonalDirection::Left),
+            (0, 0, HorizontalVerticalDiagonalDirection::UpLeft),
+        ];
+
+        assert_eq!(v, g.hvd_neighbors(1, 1));
+    }
+
+    #[test]
+    fn test_hvd_neighbors_corner() {
+        let g = Grid::new(vec![
+            vec!['a', 'b', 'c'],
+            vec!['d', 'e', 'f'],
+            vec!['g', 'h', 'i'],
+        ]);
+
+        let v = vec![
+            (0, 1, HorizontalVerticalDiagonalDirection::Right),
+            (1, 1, HorizontalVerticalDiagonalDirection::DownRight),
+            (1, 0, HorizontalVerticalDiagonalDirection::Down),
+        ];
+
+        assert_eq!(v, g.hvd_neighbors(0, 0));
     }
 }
