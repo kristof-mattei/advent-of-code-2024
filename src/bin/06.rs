@@ -1,8 +1,7 @@
-use std::collections::BTreeSet;
-
 use advent_of_code_2024::shared::grids::grid::Grid;
 use advent_of_code_2024::shared::grids::GridIter;
 use advent_of_code_2024::shared::{PartSolution, Parts};
+use hashbrown::HashSet;
 
 advent_of_code_2024::solution!(4973, 1482);
 
@@ -25,7 +24,7 @@ impl std::fmt::Debug for Cell {
     }
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
 enum Direction {
     Up,
     Right,
@@ -78,7 +77,7 @@ fn parse_input(input: &str) -> Grid<Cell> {
 
 fn count_guard_positions(input: &str) -> PartSolution {
     let mut grid = parse_input(input);
-    let mut traveled = BTreeSet::<(usize, usize)>::new();
+    let mut traveled = HashSet::<(usize, usize)>::new();
     // starting direction is always up
     let mut direction = Direction::Up;
     let (mut guard_row_index, mut guard_column_index) =
@@ -218,7 +217,155 @@ fn travel(
     }
 }
 
-fn count_possibl_obstacle_positions(input: &str) -> PartSolution {
+struct PathTraveled {
+    traveled: Vec<(usize, usize)>,
+    direction: Direction,
+    new_direction: Direction,
+}
+
+fn travel_trace(
+    grid: &mut Grid<Cell>,
+    guard_row_index: usize,
+    guard_column_index: usize,
+    direction: Direction,
+) -> Option<PathTraveled> {
+    // guard is at (guard_row_index, guard_column_index) and facing direction
+
+    // unset the current space, we're moving
+    grid[guard_row_index][guard_column_index] = Cell::Open;
+
+    let mut traveled = Vec::new();
+
+    match direction {
+        Direction::Up => {
+            // calculate up. If out of bounds, return none
+            // if empty, move, update grid and return
+            // if obstacle, rotate, invoke self
+
+            let mut new_guard_row_index = guard_row_index;
+            while new_guard_row_index > 0 {
+                new_guard_row_index -= 1;
+                if matches!(
+                    grid[new_guard_row_index][guard_column_index],
+                    Cell::Obstruction
+                ) {
+                    let new_direction = direction.rotate_clockwise();
+
+                    // can't move in that direction, travel again, but pointing in new direction
+                    grid[guard_row_index][guard_column_index] = Cell::Guard(new_direction);
+                    return Some(PathTraveled {
+                        traveled,
+                        direction,
+                        new_direction,
+                    });
+                }
+
+                // shortcut, cell is empty, return new position, maintain direction
+                grid[new_guard_row_index][guard_column_index] = Cell::Guard(direction);
+                traveled.push((new_guard_row_index, guard_column_index));
+            }
+
+            // OOB
+            None
+        },
+        Direction::Right => {
+            // calculate right. If out of bounds, return none
+            // if empty, move, update grid and return
+            // if obstacle, rotate, invoke self
+
+            let mut new_guard_column_index = guard_column_index;
+            while new_guard_column_index + 1 < grid.get_column_length() {
+                new_guard_column_index += 1;
+
+                if matches!(
+                    grid[guard_row_index][new_guard_column_index],
+                    Cell::Obstruction
+                ) {
+                    let new_direction = direction.rotate_clockwise();
+
+                    // can't move in that direction, travel again, but pointing in new direction
+                    grid[guard_row_index][guard_column_index] = Cell::Guard(new_direction);
+                    return Some(PathTraveled {
+                        traveled,
+                        direction,
+                        new_direction,
+                    });
+                }
+
+                // shortcut, cell is empty, return new position, maintain direction
+                grid[guard_row_index][new_guard_column_index] = Cell::Guard(direction);
+                traveled.push((guard_row_index, new_guard_column_index));
+            }
+
+            // OOB
+            None
+        },
+        Direction::Down => {
+            // calculate down. If out of bounds, return none
+            // if empty, move, update grid and return
+            // if obstacle, rotate, invoke self
+
+            let mut new_guard_row_index = guard_row_index;
+            while new_guard_row_index + 1 < grid.get_row_length() {
+                new_guard_row_index += 1;
+                if matches!(
+                    grid[new_guard_row_index][guard_column_index],
+                    Cell::Obstruction
+                ) {
+                    let new_direction = direction.rotate_clockwise();
+
+                    // can't move in that direction, travel again, but pointing in new direction
+                    grid[guard_row_index][guard_column_index] = Cell::Guard(new_direction);
+                    return Some(PathTraveled {
+                        traveled,
+                        direction,
+                        new_direction,
+                    });
+                }
+
+                // shortcut, cell is empty, return new position, maintain direction
+                grid[new_guard_row_index][guard_column_index] = Cell::Guard(direction);
+                traveled.push((new_guard_row_index, guard_column_index));
+            }
+
+            // OOB
+            None
+        },
+        Direction::Left => {
+            // calculate left. If out of bounds, return none
+            // if empty, move, update grid and return
+            // if obstacle, rotate, invoke self
+
+            let mut new_guard_column_index = guard_column_index;
+            while new_guard_column_index > 0 {
+                new_guard_column_index -= 1;
+                if matches!(
+                    grid[guard_row_index][new_guard_column_index],
+                    Cell::Obstruction
+                ) {
+                    let new_direction = direction.rotate_clockwise();
+
+                    // can't move in that direction, travel again, but pointing in new direction
+                    grid[guard_row_index][guard_column_index] = Cell::Guard(new_direction);
+                    return Some(PathTraveled {
+                        traveled,
+                        direction,
+                        new_direction,
+                    });
+                }
+
+                // shortcut, cell is empty, return new position, maintain direction
+                grid[guard_row_index][new_guard_column_index] = Cell::Guard(direction);
+                traveled.push((guard_row_index, new_guard_column_index));
+            }
+
+            // OOB
+            None
+        },
+    }
+}
+
+fn count_possible_obstacle_positions(input: &str) -> PartSolution {
     let mut grid = parse_input(input);
 
     let original = grid.clone();
@@ -231,7 +378,7 @@ fn count_possibl_obstacle_positions(input: &str) -> PartSolution {
 
     let (start_guard_row_index, start_guard_column_index) = (guard_row_index, guard_column_index);
 
-    let mut tried_infinite = BTreeSet::new();
+    let mut tried_infinite = HashSet::new();
 
     let mut infinite = 0usize;
 
@@ -250,7 +397,7 @@ fn count_possibl_obstacle_positions(input: &str) -> PartSolution {
             let mut new_grid = original.clone();
             new_grid[guard_row_index][guard_column_index] = Cell::Obstruction;
 
-            if is_infinite(new_grid) {
+            if is_infinite(new_grid, start_guard_row_index, start_guard_column_index) {
                 infinite += 1;
             }
         }
@@ -259,27 +406,37 @@ fn count_possibl_obstacle_positions(input: &str) -> PartSolution {
     infinite.into()
 }
 
-fn is_infinite(mut grid: Grid<Cell>) -> bool {
-    let mut traveled = BTreeSet::<(usize, usize, Direction)>::new();
+fn is_infinite(
+    mut grid: Grid<Cell>,
+    mut guard_row_index: usize,
+    mut guard_column_index: usize,
+) -> bool {
+    let mut coordinates_visited = HashSet::<(usize, usize, Direction)>::new();
 
     // starting direction is always up
     let mut direction = Direction::Up;
 
-    let (mut guard_row_index, mut guard_column_index) =
-        grid.find(&Cell::Guard(direction)).expect("Bad input");
-
     // starting position needs to be recorded too
-    traveled.insert((guard_row_index, guard_column_index, direction));
+    coordinates_visited.insert((guard_row_index, guard_column_index, direction));
 
-    while let Some((r, c, d)) = travel(&mut grid, guard_row_index, guard_column_index, direction) {
-        guard_row_index = r;
-        guard_column_index = c;
-        direction = d;
+    while let Some(PathTraveled {
+        traveled,
+        direction: old_direction,
+        new_direction,
+    }) = travel_trace(&mut grid, guard_row_index, guard_column_index, direction)
+    {
+        coordinates_visited.reserve(traveled.len());
+        for (r, c) in traveled {
+            // if we have been at this spot, in this direction it's infinite
+            if !coordinates_visited.insert((r, c, old_direction)) {
+                return true;
+            }
 
-        // if we have been at this spot, in this direction it's infinite
-        if !traveled.insert((guard_row_index, guard_column_index, d)) {
-            return true;
+            guard_row_index = r;
+            guard_column_index = c;
         }
+
+        direction = new_direction;
     }
 
     false
@@ -291,7 +448,7 @@ impl Parts for Solution {
     }
 
     fn part_2(&self, input: &str) -> PartSolution {
-        count_possibl_obstacle_positions(input)
+        count_possible_obstacle_positions(input)
     }
 }
 
