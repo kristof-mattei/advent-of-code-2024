@@ -8,8 +8,8 @@ use std::str::FromStr;
 /// This value displays as a two digit number.
 ///
 /// ```
-/// # use advent_of_code_2023::shared::day::Day;
-/// let day = Day::new(8).unwrap();
+/// # use advent_of_code_2024::shared::day::Day;
+/// const day: Day = Day::try_new(8).unwrap();
 /// assert_eq!(day.to_string(), "08")
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

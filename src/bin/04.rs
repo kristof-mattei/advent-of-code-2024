@@ -1,8 +1,8 @@
-use advent_of_code_2024::shared::grids::{HorizontalVerticalDiagonalDirection, Neighbors};
-use advent_of_code_2024::shared::{
-    grids::{grid::Grid, GridIter},
-    PartSolution, Parts,
+use advent_of_code_2024::shared::grids::grid::Grid;
+use advent_of_code_2024::shared::grids::{
+    GridIter, HorizontalVerticalDiagonalDirection, Neighbors,
 };
+use advent_of_code_2024::shared::{PartSolution, Parts};
 
 advent_of_code_2024::solution!(2447, 1868);
 
@@ -222,7 +222,7 @@ mod test {
 
         #[test]
         fn example() {
-            assert_eq!(0, (Solution {}).part_2(&read_file("examples", &DAY)));
+            assert_eq!(9, (Solution {}).part_2(&read_file("examples", &DAY)));
         }
     }
 }

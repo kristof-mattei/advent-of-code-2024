@@ -1,4 +1,4 @@
-use std::ops::Index;
+use std::ops::{Index, IndexMut};
 
 use super::{
     GridIter, HorizontalVerticalDiagonalDirection, HorizontalVerticalDirection, Neighbors,
@@ -10,6 +10,16 @@ pub struct Grid<T> {
     column_len: usize,
     // max_row: usize,
     // max_column: usize,
+}
+
+impl<T: Clone> Clone for Grid<T> {
+    fn clone(&self) -> Self {
+        Self {
+            data: self.data.clone(),
+            row_len: self.row_len,
+            column_len: self.column_len,
+        }
+    }
 }
 
 impl<T> Grid<T> {
@@ -52,11 +62,23 @@ impl<T> Grid<T> {
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct Row<T>(Vec<T>);
 
+impl<T: Clone> std::clone::Clone for Row<T> {
+    fn clone(&self) -> Self {
+        Self(self.0.clone())
+    }
+}
+
 impl<T> Index<usize> for Row<T> {
     type Output = T;
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.0[index]
+    }
+}
+
+impl<T> IndexMut<usize> for Row<T> {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.0[index]
     }
 }
 
@@ -224,6 +246,12 @@ impl<T> Index<usize> for Grid<T> {
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.data[index]
+    }
+}
+
+impl<T> IndexMut<usize> for Grid<T> {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.data[index]
     }
 }
 
