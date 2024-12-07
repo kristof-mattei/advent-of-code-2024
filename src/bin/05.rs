@@ -1,6 +1,7 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
 use advent_of_code_2024::shared::{PartSolution, Parts};
+use hashbrown::HashMap;
 
 advent_of_code_2024::solution!(4281, 5466);
 
@@ -106,8 +107,8 @@ fn fix_invalid_page_updates(input: &str) -> PartSolution {
 
 fn fixup(
     mut original: Vec<u32>,
-    pages_before: &BTreeMap<u32, BTreeSet<u32>>,
-    pages_after: &BTreeMap<u32, BTreeSet<u32>>,
+    pages_before: &HashMap<u32, BTreeSet<u32>>,
+    pages_after: &HashMap<u32, BTreeSet<u32>>,
 ) -> Vec<u32> {
     let mut updated = Vec::with_capacity(original.len());
 
@@ -147,16 +148,16 @@ fn fixup(
 }
 
 struct ParseInputResult {
-    pages_before: BTreeMap<u32, BTreeSet<u32>>,
-    pages_after: BTreeMap<u32, BTreeSet<u32>>,
+    pages_before: HashMap<u32, BTreeSet<u32>>,
+    pages_after: HashMap<u32, BTreeSet<u32>>,
     all_updates: Vec<Vec<u32>>,
 }
 
 fn parse_input(input: &str) -> ParseInputResult {
     let mut after_empty_line = false;
 
-    let mut pages_before = BTreeMap::<u32, BTreeSet<u32>>::new();
-    let mut pages_after = BTreeMap::<u32, BTreeSet<u32>>::new();
+    let mut pages_before = HashMap::<u32, BTreeSet<u32>>::new();
+    let mut pages_after = HashMap::<u32, BTreeSet<u32>>::new();
 
     let mut all_updates = vec![];
 

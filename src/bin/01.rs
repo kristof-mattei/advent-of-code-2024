@@ -1,6 +1,5 @@
-use std::collections::BTreeMap;
-
 use advent_of_code_2024::shared::{PartSolution, Parts};
+use hashbrown::HashMap;
 
 advent_of_code_2024::solution!(1_579_939, 20_351_745);
 
@@ -34,8 +33,8 @@ fn calculate_distances(input: &str) -> PartSolution {
 }
 
 fn calculate_similarity(input: &str) -> PartSolution {
-    let mut map_l: BTreeMap<u32, u32> = BTreeMap::new();
-    let mut map_r: BTreeMap<u32, u32> = BTreeMap::new();
+    let mut map_l: HashMap<u32, u32> = HashMap::new();
+    let mut map_r: HashMap<u32, u32> = HashMap::new();
 
     for line in input.lines() {
         let (l, r) = line
