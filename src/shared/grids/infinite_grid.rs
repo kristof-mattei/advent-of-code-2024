@@ -217,9 +217,9 @@ impl<T> Index<isize> for InfiniteGrid<T> {
 
 #[cfg(test)]
 mod tests {
+    use crate::shared::grids::infinite_grid::InfiniteGrid;
     use crate::shared::grids::{
-        infinite_grid::InfiniteGrid, HorizontalVerticalDiagonalDirection,
-        HorizontalVerticalDirection, Neighbors,
+        HorizontalVerticalDiagonalDirection, HorizontalVerticalDirection, Neighbors,
     };
 
     #[test]

@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use advent_of_code_2024::shared::{PartSolution, Parts};
 
-advent_of_code_2024::solution!(4281);
+advent_of_code_2024::solution!(4281, 5466);
 
 fn validate_page_updates(input: &str) -> PartSolution {
     let ParseInputResult {
