@@ -1,4 +1,4 @@
-use std::ops::Index;
+use std::ops::{Deref, DerefMut, Index};
 
 use super::{
     GridIter, HorizontalVerticalDiagonalDirection, HorizontalVerticalDirection, Neighbors,
@@ -6,6 +6,12 @@ use super::{
 
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub struct InfiniteRow<T>(Vec<T>);
+
+impl<T: Clone> std::clone::Clone for InfiniteRow<T> {
+    fn clone(&self) -> Self {
+        Self(self.0.clone())
+    }
+}
 
 impl<T> Index<isize> for InfiniteRow<T> {
     type Output = T;
@@ -27,12 +33,51 @@ impl<T> Index<usize> for InfiniteRow<T> {
     }
 }
 
+impl<T> Deref for InfiniteRow<T> {
+    type Target = [T];
+
+    #[inline]
+    fn deref(&self) -> &[T] {
+        self.0.as_slice()
+    }
+}
+
+impl<T> DerefMut for InfiniteRow<T> {
+    fn deref_mut(&mut self) -> &mut [T] {
+        self.0.as_mut_slice()
+    }
+}
+
 pub struct InfiniteGrid<T> {
     data: Vec<InfiniteRow<T>>,
     row_len: usize,
     column_len: usize,
     // max_row: usize,
     // max_column: usize,
+}
+
+impl<T> Deref for InfiniteGrid<T> {
+    type Target = [InfiniteRow<T>];
+
+    fn deref(&self) -> &[InfiniteRow<T>] {
+        self.data.as_slice()
+    }
+}
+
+impl<T> DerefMut for InfiniteGrid<T> {
+    fn deref_mut(&mut self) -> &mut [InfiniteRow<T>] {
+        self.data.as_mut_slice()
+    }
+}
+
+impl<T: Clone> Clone for InfiniteGrid<T> {
+    fn clone(&self) -> Self {
+        Self {
+            data: self.data.clone(),
+            row_len: self.row_len,
+            column_len: self.column_len,
+        }
+    }
 }
 
 impl<T> InfiniteGrid<T> {
