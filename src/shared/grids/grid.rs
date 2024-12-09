@@ -1,4 +1,4 @@
-use std::ops::{Index, IndexMut};
+use std::ops::{Deref, DerefMut, Index, IndexMut};
 
 use super::{
     GridIter, HorizontalVerticalDiagonalDirection, HorizontalVerticalDirection, Neighbors,
@@ -10,6 +10,20 @@ pub struct Grid<T> {
     column_len: usize,
     // max_row: usize,
     // max_column: usize,
+}
+
+impl<T> Deref for Grid<T> {
+    type Target = [Row<T>];
+
+    fn deref(&self) -> &[Row<T>] {
+        self.data.as_slice()
+    }
+}
+
+impl<T> DerefMut for Grid<T> {
+    fn deref_mut(&mut self) -> &mut [Row<T>] {
+        self.data.as_mut_slice()
+    }
 }
 
 impl<T: Clone> Clone for Grid<T> {
@@ -79,6 +93,21 @@ impl<T> Index<usize> for Row<T> {
 impl<T> IndexMut<usize> for Row<T> {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.0[index]
+    }
+}
+
+impl<T> Deref for Row<T> {
+    type Target = [T];
+
+    #[inline]
+    fn deref(&self) -> &[T] {
+        self.0.as_slice()
+    }
+}
+
+impl<T> DerefMut for Row<T> {
+    fn deref_mut(&mut self) -> &mut [T] {
+        self.0.as_mut_slice()
     }
 }
 
