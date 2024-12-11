@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use advent_of_code_2024::shared::{PartSolution, Parts};
 
-advent_of_code_2024::solution!(6_359_213_660_505_u64);
+advent_of_code_2024::solution!(6_359_213_660_505_u64, 6_381_624_803_796_u64);
 
 struct File(u64, u64);
 
@@ -249,7 +249,7 @@ mod test {
         fn outcome() {
             let result = Solution {}.part_2(&read_file("inputs", &DAY));
 
-            assert_eq!(8_583_576_817_788u64, result);
+            assert_eq!(6_381_624_803_796_u64, result);
         }
 
         #[test]
