@@ -3,6 +3,7 @@ use std::cmp::Ordering;
 pub mod day;
 pub mod grids;
 pub mod solution;
+pub mod tree;
 
 pub trait Parts {
     fn part_1(&self, input: &str) -> PartSolution;

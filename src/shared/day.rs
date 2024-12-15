@@ -9,8 +9,8 @@ use std::str::FromStr;
 ///
 /// ```
 /// # use advent_of_code_2024::shared::day::Day;
-/// const day: Day = Day::try_new(8).unwrap();
-/// assert_eq!(day.to_string(), "08")
+/// const DAY: Day = Day::try_new(8).unwrap();
+/// assert_eq!(DAY.to_string(), "08")
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Day(u8);
