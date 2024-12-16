@@ -24,6 +24,7 @@ dependencies = [
  "backtrace",
  "color-eyre",
  "hashbrown",
+ "once_cell",
  "regex",
 ]
 

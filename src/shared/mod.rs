@@ -13,6 +13,7 @@ pub trait Parts {
 pub enum PartSolution {
     I32(i32),
     U32(u32),
+    I64(i64),
     U64(u64),
     USize(usize),
     String(String),
@@ -28,6 +29,7 @@ impl std::fmt::Debug for PartSolution {
         match self {
             Self::I32(arg0) => write!(f, "{}i32", arg0),
             Self::U32(arg0) => write!(f, "{}u32", arg0),
+            Self::I64(arg0) => write!(f, "{}i64", arg0),
             Self::U64(arg0) => write!(f, "{}u64", arg0),
             Self::USize(arg0) => write!(f, "{}usize", arg0),
             Self::String(arg0) => write!(f, "\"{}\"", arg0),
@@ -50,6 +52,7 @@ impl PartialEq<PartSolution> for PartSolution {
         match self {
             PartSolution::I32(i) => i == other,
             PartSolution::U32(i) => i == other,
+            PartSolution::I64(i) => i == other,
             PartSolution::U64(i) => i == other,
             PartSolution::USize(i) => i == other,
             PartSolution::String(i) => i == other,
@@ -69,6 +72,12 @@ impl From<i32> for PartSolution {
 impl From<u32> for PartSolution {
     fn from(v: u32) -> Self {
         PartSolution::U32(v)
+    }
+}
+
+impl From<i64> for PartSolution {
+    fn from(v: i64) -> Self {
+        PartSolution::I64(v)
     }
 }
 
@@ -108,12 +117,13 @@ impl From<Option<PartSolution>> for PartSolution {
 impl std::fmt::Display for PartSolution {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let string = match &self {
-            PartSolution::I32(x) => x.to_string(),
-            PartSolution::U32(x) => x.to_string(),
-            PartSolution::U64(x) => x.to_string(),
-            PartSolution::USize(x) => x.to_string(),
-            PartSolution::String(x) => x.to_string(),
-            PartSolution::Vec(x) => format!("\n{}", x.join("\n")),
+            PartSolution::I32(other) => other.to_string(),
+            PartSolution::U32(other) => other.to_string(),
+            PartSolution::I64(other) => other.to_string(),
+            PartSolution::U64(other) => other.to_string(),
+            PartSolution::USize(other) => other.to_string(),
+            PartSolution::String(other) => other.to_string(),
+            PartSolution::Vec(other) => format!("\n{}", other.join("\n")),
             PartSolution::Manual => "Manual".to_owned(),
             PartSolution::None => "None".to_owned(),
         };
@@ -124,11 +134,12 @@ impl std::fmt::Display for PartSolution {
 
 impl std::cmp::PartialEq<PartSolution> for i32 {
     fn eq(&self, other: &PartSolution) -> bool {
-        match other {
-            PartSolution::I32(x) => self == x,
-            &PartSolution::U32(x) => x.try_into().is_ok_and(|o: i32| &o == self),
-            &PartSolution::U64(x) => x.try_into().is_ok_and(|o: i32| &o == self),
-            &PartSolution::USize(x) => x.try_into().is_ok_and(|o: i32| &o == self),
+        match *other {
+            PartSolution::I32(other) => *self == other,
+            PartSolution::U32(other) => i64::from(*self) == i64::from(other),
+            PartSolution::I64(other) => i64::from(*self) == other,
+            PartSolution::U64(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::USize(other) => Ok(*self) == Self::try_from(other),
             _ => false,
         }
     }
@@ -136,11 +147,25 @@ impl std::cmp::PartialEq<PartSolution> for i32 {
 
 impl std::cmp::PartialEq<PartSolution> for u32 {
     fn eq(&self, other: &PartSolution) -> bool {
-        match other {
-            &PartSolution::I32(x) => x.try_into().is_ok_and(|o: u32| &o == self),
-            PartSolution::U32(x) => self == x,
-            PartSolution::U64(x) => (x) == &u64::from(*self),
-            &PartSolution::USize(x) => x.try_into().is_ok_and(|o: u32| &o == self),
+        match *other {
+            PartSolution::I32(other) => i64::from(*self) == i64::from(other),
+            PartSolution::U32(other) => *self == other,
+            PartSolution::I64(other) => i64::from(*self) == other,
+            PartSolution::U64(other) => u64::from(*self) == other,
+            PartSolution::USize(other) => Ok(*self) == Self::try_from(other),
+            _ => false,
+        }
+    }
+}
+
+impl std::cmp::PartialEq<PartSolution> for i64 {
+    fn eq(&self, other: &PartSolution) -> bool {
+        match *other {
+            PartSolution::I32(other) => *self == Self::from(other),
+            PartSolution::U32(other) => *self == Self::from(other),
+            PartSolution::I64(other) => *self == other,
+            PartSolution::U64(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::USize(other) => Ok(*self) == Self::try_from(other),
             _ => false,
         }
     }
@@ -148,11 +173,12 @@ impl std::cmp::PartialEq<PartSolution> for u32 {
 
 impl std::cmp::PartialEq<PartSolution> for u64 {
     fn eq(&self, other: &PartSolution) -> bool {
-        match other {
-            &PartSolution::I32(x) => x.try_into().is_ok_and(|o: u64| &o == self),
-            &PartSolution::U32(x) => &u64::from(x) == self,
-            PartSolution::U64(x) => x == self,
-            &PartSolution::USize(x) => x.try_into().is_ok_and(|o: u64| &o == self),
+        match *other {
+            PartSolution::I32(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::U32(other) => *self == Self::from(other),
+            PartSolution::I64(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::U64(other) => *self == other,
+            PartSolution::USize(other) => Ok(*self) == Self::try_from(other),
             _ => false,
         }
     }
@@ -160,11 +186,12 @@ impl std::cmp::PartialEq<PartSolution> for u64 {
 
 impl std::cmp::PartialEq<PartSolution> for usize {
     fn eq(&self, other: &PartSolution) -> bool {
-        match other {
-            &PartSolution::I32(x) => x.try_into().is_ok_and(|o: usize| &o == self),
-            &PartSolution::U32(x) => x.try_into().is_ok_and(|o: usize| &o == self),
-            &PartSolution::U64(x) => x.try_into().is_ok_and(|o: usize| &o == self),
-            PartSolution::USize(x) => x == self,
+        match *other {
+            PartSolution::I32(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::U32(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::I64(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::U64(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::USize(other) => *self == other,
             _ => false,
         }
     }
@@ -203,10 +230,25 @@ impl std::cmp::PartialEq<PartSolution> for Vec<String> {
 impl std::cmp::PartialOrd<PartSolution> for i32 {
     fn partial_cmp(&self, other: &PartSolution) -> Option<Ordering> {
         match other {
-            PartSolution::I32(x) => self.cmp(x).into(),
-            &PartSolution::U32(x) => x.try_into().ok().map(|o: i32| o.cmp(self)),
-            &PartSolution::U64(x) => x.try_into().ok().map(|o: i32| o.cmp(self)),
-            &PartSolution::USize(x) => x.try_into().ok().map(|o: i32| o.cmp(self)),
+            PartSolution::I32(other) => self.partial_cmp(other),
+            &PartSolution::U32(other) => i64::from(*self).partial_cmp(&i64::from(other)),
+            PartSolution::I64(other) => i64::from(*self).partial_cmp(other),
+            &PartSolution::U64(other) => {
+                if let Ok(other) = Self::try_from(other) {
+                    self.partial_cmp(&other)
+                } else {
+                    // other doesn't fit into the smaller i32, meaning self is Less
+                    Some(Ordering::Less)
+                }
+            },
+            &PartSolution::USize(other) => {
+                if let Ok(other) = Self::try_from(other) {
+                    self.partial_cmp(&other)
+                } else {
+                    // other doesn't fit into the smaller i32, meaning self is Less
+                    Some(Ordering::Less)
+                }
+            },
             _ => None,
         }
     }
@@ -215,10 +257,25 @@ impl std::cmp::PartialOrd<PartSolution> for i32 {
 impl std::cmp::PartialOrd<PartSolution> for u32 {
     fn partial_cmp(&self, other: &PartSolution) -> Option<Ordering> {
         match other {
-            &PartSolution::I32(x) => x.try_into().ok().map(|o: u32| o.cmp(self)),
-            PartSolution::U32(x) => self.cmp(x).into(),
-            &PartSolution::U64(x) => x.cmp(&u64::from(*self)).into(),
-            &PartSolution::USize(x) => x.try_into().ok().map(|o: u32| o.cmp(self)),
+            &PartSolution::I32(other) => {
+                if let Ok(other) = Self::try_from(other) {
+                    self.partial_cmp(&other)
+                } else {
+                    // other is negative, so we are by definition Greater
+                    Some(Ordering::Greater)
+                }
+            },
+            PartSolution::U32(other) => self.partial_cmp(other),
+            PartSolution::I64(other) => i64::from(*self).partial_cmp(other),
+            PartSolution::U64(other) => u64::from(*self).partial_cmp(other),
+            &PartSolution::USize(other) => {
+                if let Ok(other) = Self::try_from(other) {
+                    self.partial_cmp(&other)
+                } else {
+                    // other doesn't fit into the smaller u32, meaning self is Less
+                    Some(Ordering::Less)
+                }
+            },
             _ => None,
         }
     }
@@ -227,10 +284,32 @@ impl std::cmp::PartialOrd<PartSolution> for u32 {
 impl std::cmp::PartialOrd<PartSolution> for u64 {
     fn partial_cmp(&self, other: &PartSolution) -> Option<Ordering> {
         match other {
-            &PartSolution::I32(x) => x.try_into().ok().map(|o: u64| o.cmp(self)),
-            &PartSolution::U32(x) => u64::from(x).cmp(self).into(),
-            PartSolution::U64(x) => x.cmp(self).into(),
-            &PartSolution::USize(x) => x.try_into().ok().map(|o: u64| o.cmp(self)),
+            &PartSolution::I32(other) => {
+                if let Ok(other) = Self::try_from(other) {
+                    self.partial_cmp(&other)
+                } else {
+                    // other is negative, so we are by definition Greater
+                    Some(Ordering::Greater)
+                }
+            },
+            &PartSolution::U32(other) => self.partial_cmp(&u64::from(other)),
+            &PartSolution::I64(other) => {
+                if let Ok(other) = Self::try_from(other) {
+                    self.partial_cmp(&other)
+                } else {
+                    // other is negative, so we are by definition Greater
+                    Some(Ordering::Greater)
+                }
+            },
+            PartSolution::U64(other) => self.partial_cmp(other),
+            &PartSolution::USize(other) => {
+                if let Ok(other) = Self::try_from(other) {
+                    self.partial_cmp(&other)
+                } else {
+                    // other doesn't fit into usize, meaning self is Less
+                    Some(Ordering::Less)
+                }
+            },
             _ => None,
         }
     }
@@ -238,11 +317,46 @@ impl std::cmp::PartialOrd<PartSolution> for u64 {
 
 impl std::cmp::PartialOrd<PartSolution> for usize {
     fn partial_cmp(&self, other: &PartSolution) -> Option<Ordering> {
-        match other {
-            &PartSolution::I32(x) => x.try_into().ok().map(|o: usize| o.cmp(self)),
-            &PartSolution::U32(x) => x.try_into().ok().map(|o: usize| o.cmp(self)),
-            &PartSolution::U64(x) => x.try_into().ok().map(|o: usize| o.cmp(self)),
-            PartSolution::USize(x) => x.cmp(self).into(),
+        match *other {
+            PartSolution::I32(other) => {
+                if other.is_negative() {
+                    Some(Ordering::Greater)
+                } else if let Ok(other) = Self::try_from(other) {
+                    self.partial_cmp(&other)
+                } else {
+                    // other is positive, but doesn't fit into usize, so we're Less
+                    Some(Ordering::Less)
+                }
+            },
+            PartSolution::U32(other) => {
+                // if this fails, that means that usize is smaller than u32
+                if let Ok(other) = Self::try_from(other) {
+                    self.partial_cmp(&other)
+                } else {
+                    // other doesn't fit into usize
+                    Some(Ordering::Less)
+                }
+            },
+            PartSolution::I64(other) => {
+                if other.is_negative() {
+                    Some(Ordering::Greater)
+                } else if let Ok(other) = Self::try_from(other) {
+                    self.partial_cmp(&other)
+                } else {
+                    // other is positive, but doesn't fit into usize, so we're Less
+                    Some(Ordering::Less)
+                }
+            },
+            PartSolution::U64(other) => {
+                // if this fails, that means that usize is smaller than u64
+                if let Ok(other) = Self::try_from(other) {
+                    self.partial_cmp(&other)
+                } else {
+                    // other doesn't fit into usize
+                    Some(Ordering::Less)
+                }
+            },
+            PartSolution::USize(other) => other.partial_cmp(self),
             _ => None,
         }
     }
@@ -251,7 +365,7 @@ impl std::cmp::PartialOrd<PartSolution> for usize {
 impl std::cmp::PartialOrd<PartSolution> for String {
     fn partial_cmp(&self, other: &PartSolution) -> Option<Ordering> {
         match other {
-            PartSolution::String(s) => s.cmp(self).into(),
+            PartSolution::String(s) => s.partial_cmp(self),
             _ => None,
         }
     }
