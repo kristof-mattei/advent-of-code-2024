@@ -21,7 +21,7 @@ fn count_xmas(input: &str) -> PartSolution {
             // good starting point, trace neighbors
             let neighbors = g.hvd_neighbors(row_index, column_index);
 
-            for (_, _, direction) in neighbors {
+            for ((_, _), direction) in neighbors {
                 if is_merry(&g, row_index, column_index, &direction, &['M', 'A', 'S']) {
                     solution += 1;
                 }

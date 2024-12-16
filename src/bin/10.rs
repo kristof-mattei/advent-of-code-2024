@@ -59,7 +59,8 @@ fn follow_0_to_9(
         return;
     }
 
-    for (neighbor_row_index, neighbor_column_index, _) in grid.hv_neighbors(row_index, column_index)
+    for ((neighbor_row_index, neighbor_column_index), _) in
+        grid.hv_neighbors(row_index, column_index)
     {
         if grid[neighbor_row_index][neighbor_column_index] == Cell::Number(number + 1) {
             follow_0_to_9(
@@ -101,7 +102,8 @@ fn follow_all_0_to_9(grid: &Grid<Cell>, row_index: usize, column_index: usize, n
         return 1;
     }
 
-    for (neighbor_row_index, neighbor_column_index, _) in grid.hv_neighbors(row_index, column_index)
+    for ((neighbor_row_index, neighbor_column_index), _) in
+        grid.hv_neighbors(row_index, column_index)
     {
         if grid[neighbor_row_index][neighbor_column_index] == Cell::Number(number + 1) {
             nexts += follow_all_0_to_9(grid, neighbor_row_index, neighbor_column_index, number + 1);

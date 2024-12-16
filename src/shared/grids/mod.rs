@@ -25,6 +25,9 @@ pub enum HorizontalVerticalDiagonalDirection {
     UpLeft,
 }
 
+type HorizontalVerticalNeighbors<T> = Vec<((T, T), HorizontalVerticalDirection)>;
+type HorizontalVerticalDiagonalNeighbors<T> = Vec<((T, T), HorizontalVerticalDiagonalDirection)>;
+
 pub trait Neighbors {
     type Index: GridIndex;
 
@@ -33,18 +36,14 @@ pub trait Neighbors {
         &self,
         row_index: Self::Index,
         column_index: Self::Index,
-    ) -> Vec<(Self::Index, Self::Index, HorizontalVerticalDirection)>;
+    ) -> HorizontalVerticalNeighbors<Self::Index>;
 
     /// Gets the horizontal, vertical, and diagonal neighbors
     fn hvd_neighbors(
         &self,
         row_index: Self::Index,
         column_index: Self::Index,
-    ) -> Vec<(
-        Self::Index,
-        Self::Index,
-        HorizontalVerticalDiagonalDirection,
-    )>;
+    ) -> HorizontalVerticalDiagonalNeighbors<Self::Index>;
 }
 
 pub trait GridIter {
@@ -70,22 +69,6 @@ pub trait GridIter {
         Self: Sized,
     {
         RowColumnIndexValueIter::new(self)
-    }
-
-    fn find<T>(&self, value: &T) -> Option<(usize, usize)>
-    where
-        T: PartialEq,
-        Self: Sized + Index<usize, Output = Self::GridRow>,
-        Self::GridRow: Index<usize>,
-        <Self::GridRow as Index<usize>>::Output: PartialEq<T>,
-    {
-        for ((row_index, column_index), v) in self.row_column_index_value_iter() {
-            if v == value {
-                return Some((row_index, column_index));
-            }
-        }
-
-        None
     }
 }
 
@@ -143,6 +126,25 @@ pub struct RowColumnIndexValueIter<'g, G> {
     row_length: usize,
     column_index: usize,
     column_length: usize,
+}
+
+impl<G: GridIter> RowColumnIndexValueIter<'_, G>
+where
+    G: GridIter + Index<usize, Output = G::GridRow>,
+    G::GridRow: Index<usize>,
+{
+    pub fn find<P: Fn(&<G::GridRow as Index<usize>>::Output) -> bool>(
+        &self,
+        predicate: P,
+    ) -> Option<(usize, usize)> {
+        for ((row_index, column_index), v) in self.grid.row_column_index_value_iter() {
+            if predicate(v) {
+                return Some((row_index, column_index));
+            }
+        }
+
+        None
+    }
 }
 
 impl<'g, G: GridIter> RowColumnIndexValueIter<'g, G> {

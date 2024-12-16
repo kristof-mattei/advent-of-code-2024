@@ -80,8 +80,10 @@ fn count_guard_positions(input: &str) -> PartSolution {
     let mut traveled = HashSet::<(usize, usize)>::new();
     // starting direction is always up
     let mut direction = Direction::Up;
-    let (mut guard_row_index, mut guard_column_index) =
-        grid.find(&Cell::Guard(direction)).expect("Bad input");
+    let (mut guard_row_index, mut guard_column_index) = grid
+        .row_column_index_value_iter()
+        .find(|c| c == &Cell::Guard(direction))
+        .expect("Bad input");
 
     // starting position needs to be recorded too
     traveled.insert((guard_row_index, guard_column_index));
@@ -373,8 +375,10 @@ fn count_possible_obstacle_positions(input: &str) -> PartSolution {
     // starting direction is always up
     let mut direction = Direction::Up;
 
-    let (mut guard_row_index, mut guard_column_index) =
-        grid.find(&Cell::Guard(direction)).expect("Bad input");
+    let (mut guard_row_index, mut guard_column_index) = grid
+        .row_column_index_value_iter()
+        .find(|c| c == &Cell::Guard(direction))
+        .expect("Bad input");
 
     let (start_guard_row_index, start_guard_column_index) = (guard_row_index, guard_column_index);
 
