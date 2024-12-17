@@ -3,7 +3,7 @@ use advent_of_code_2024::shared::grids::{GridIter, Neighbors};
 use advent_of_code_2024::shared::{PartSolution, Parts};
 use hashbrown::HashSet;
 
-advent_of_code_2024::solution!(1_573_474);
+advent_of_code_2024::solution!(1_573_474, 966_476);
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
 struct Cell(char);
@@ -206,10 +206,7 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!(
-                259_755_538_429_618_u64,
-                (Solution {}).part_2(&read_file("inputs", &DAY))
-            );
+            assert_eq!(966_476, (Solution {}).part_2(&read_file("inputs", &DAY)));
         }
 
         #[test]
