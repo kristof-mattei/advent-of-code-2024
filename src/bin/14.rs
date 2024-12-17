@@ -2,7 +2,7 @@ use advent_of_code_2024::shared::{PartSolution, Parts};
 use once_cell::sync::Lazy;
 use regex::Regex;
 
-advent_of_code_2024::solution!(214_400_550);
+advent_of_code_2024::solution!(214_400_550, 8149);
 
 static ROBOT_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"p=(\d+),(\d+) v=(-?\d+),(-?\d+)").unwrap());
