@@ -57,11 +57,22 @@ pub trait GridIter {
         self.get_grid().iter()
     }
 
-    fn column_iter(&self) -> ColumnIter<Self>
+    fn y_iter(&self) -> Iter<Self::GridRow> {
+        self.get_grid().iter()
+    }
+
+    fn x_iter(&self) -> XIter<Self>
     where
         Self: Sized,
     {
-        ColumnIter::new(self)
+        XIter::new(self)
+    }
+
+    fn column_iter(&self) -> XIter<Self>
+    where
+        Self: Sized,
+    {
+        XIter::new(self)
     }
 
     fn row_column_index_value_iter(&self) -> RowColumnIndexValueIter<Self>
@@ -69,6 +80,13 @@ pub trait GridIter {
         Self: Sized,
     {
         RowColumnIndexValueIter::new(self)
+    }
+
+    fn x_y_value_iter(&self) -> XYValueIter<Self>
+    where
+        Self: Sized,
+    {
+        XYValueIter::new(self)
     }
 }
 
@@ -78,13 +96,13 @@ impl GridIndex for usize {}
 impl GridIndex for isize {}
 
 #[must_use]
-pub struct ColumnIter<'g, G> {
+pub struct XIter<'g, G> {
     grid: &'g G,
     column_index: usize,
     column_length: usize,
 }
 
-impl<'g, G> Iterator for ColumnIter<'g, G>
+impl<'g, G> Iterator for XIter<'g, G>
 where
     G: GridIter,
     G::GridRow: Index<usize>,
@@ -109,12 +127,82 @@ where
     }
 }
 
-impl<'g, G: GridIter> ColumnIter<'g, G> {
-    fn new(grid: &'g G) -> ColumnIter<'g, G> {
+impl<'g, G: GridIter> XIter<'g, G> {
+    fn new(grid: &'g G) -> XIter<'g, G> {
         Self {
             grid,
             column_index: 0,
             column_length: grid.get_column_length(),
+        }
+    }
+}
+
+#[must_use]
+pub struct XYValueIter<'g, G> {
+    grid: &'g G,
+    row_index: usize,
+    row_length: usize,
+    column_index: usize,
+    column_length: usize,
+}
+
+impl<G: GridIter> XYValueIter<'_, G>
+where
+    G: GridIter + Index<usize, Output = G::GridRow>,
+    G::GridRow: Index<usize>,
+{
+    pub fn find<P: Fn(&<G::GridRow as Index<usize>>::Output) -> bool>(
+        &self,
+        predicate: P,
+    ) -> Option<(usize, usize)> {
+        for ((row_index, column_index), v) in self.grid.row_column_index_value_iter() {
+            if predicate(v) {
+                return Some((row_index, column_index));
+            }
+        }
+
+        None
+    }
+}
+
+impl<'g, G: GridIter> XYValueIter<'g, G> {
+    fn new(grid: &'g G) -> XYValueIter<'g, G> {
+        Self {
+            grid,
+            row_index: 0,
+            row_length: grid.get_row_length(),
+            column_index: 0,
+            column_length: grid.get_column_length(),
+        }
+    }
+}
+
+impl<'g, G> Iterator for XYValueIter<'g, G>
+where
+    G: GridIter + Index<usize, Output = G::GridRow>,
+    G::GridRow: Index<usize>,
+{
+    type Item = ((usize, usize), &'g <G::GridRow as Index<usize>>::Output);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.column_index < self.column_length {
+            let old = (
+                (self.column_index, self.row_index),
+                &self.grid[self.column_index][self.row_index],
+            );
+
+            // and go next
+            if self.row_index + 1 == self.row_length {
+                self.row_index = 0;
+
+                self.column_index += 1;
+            } else {
+                self.row_index += 1;
+            }
+
+            Some(old)
+        } else {
+            None
         }
     }
 }
