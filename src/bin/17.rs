@@ -39,7 +39,7 @@ impl TryFrom<u32> for OpCode {
             OpCode::Out,
             OpCode::Bdv,
             OpCode::Cdv,
-        ][value as usize])
+        ][usize::try_from(value).unwrap()])
     }
 }
 
@@ -71,17 +71,17 @@ fn parse_instructions(program: &[u32]) -> Vec<Instruction> {
 
 #[derive(Default, Clone)]
 struct State {
-    register_a: u32,
-    register_b: u32,
-    register_c: u32,
+    register_a: u64,
+    register_b: u64,
+    register_c: u64,
     index: usize,
     instructions: Vec<Instruction>,
-    outputs: Vec<u32>,
+    outputs: Vec<u64>,
 }
 
 impl State {
-    fn output(&mut self, operand: u32) {
-        self.outputs.push(operand);
+    fn output(&mut self, value: u64) {
+        self.outputs.push(value);
     }
 }
 
@@ -112,7 +112,7 @@ fn parse_input(input: &str) -> State {
         .split_once(": ")
         .unwrap()
         .1
-        .parse::<u32>()
+        .parse::<u64>()
         .unwrap();
     let register_b = lines
         .next()
@@ -120,7 +120,7 @@ fn parse_input(input: &str) -> State {
         .split_once(": ")
         .unwrap()
         .1
-        .parse::<u32>()
+        .parse::<u64>()
         .unwrap();
     let register_c = lines
         .next()
@@ -128,7 +128,7 @@ fn parse_input(input: &str) -> State {
         .split_once(": ")
         .unwrap()
         .1
-        .parse::<u32>()
+        .parse::<u64>()
         .unwrap();
 
     let _empty = lines.next().unwrap();
@@ -141,7 +141,7 @@ fn parse_input(input: &str) -> State {
             .unwrap()
             .1
             .split(',')
-            .map(|v| v.parse::<u32>().unwrap())
+            .map(|c| c.parse::<u32>().unwrap())
             .collect::<Vec<u32>>(),
     );
 
@@ -154,14 +154,14 @@ fn parse_input(input: &str) -> State {
     }
 }
 
-fn parse_operand(state: &State, opcode: OpCode, operand: u32) -> u32 {
+fn parse_operand(state: &State, opcode: OpCode, operand: u32) -> u64 {
     match opcode {
         // 1 & 3
-        OpCode::Bxl | OpCode::Jnz => operand,
+        OpCode::Bxl | OpCode::Jnz => operand.into(),
         // 0, 2, 4 -> 7
         OpCode::Adv | OpCode::Bst | OpCode::Bxc | OpCode::Out | OpCode::Bdv | OpCode::Cdv => {
             match operand {
-                0..=3 => operand,
+                0..=3 => operand.into(),
                 4 => state.register_a,
                 5 => state.register_b,
                 6 => state.register_c,
@@ -171,7 +171,7 @@ fn parse_operand(state: &State, opcode: OpCode, operand: u32) -> u32 {
     }
 }
 
-fn execute(state: &mut State) -> Vec<u32> {
+fn execute(state: &mut State) -> Vec<u64> {
     while let Some(Instruction { opcode, operand }) = state.instructions.get(state.index) {
         let operand = parse_operand(state, *opcode, *operand);
 
@@ -185,7 +185,7 @@ fn execute(state: &mut State) -> Vec<u32> {
             OpCode::Bst => state.register_b = operand % 8,
             OpCode::Jnz => {
                 if state.register_a != 0 {
-                    state.index = operand as usize / 2;
+                    state.index = usize::try_from(operand).expect("Operand too large") / 2;
                     continue;
                 }
             },
@@ -230,22 +230,24 @@ fn execute_program_util_match(input: &str) -> PartSolution {
         .iter()
         .flat_map(|instruction: &Instruction| Instruction::to_raw(*instruction))
         .rev()
-        .fold(vec![0u32], |candidates, instruction| {
+        .fold(vec![0u64], |candidates, instruction| {
             candidates
                 .iter()
-                .flat_map(|candidate: &u32| {
-                    let shifted = candidate << 3;
+                .flat_map(|&candidate| {
+                    // for each candidate shift to the left and then try all (candidate + each 0..8)
+                    // whether that number in register A produces the expected instruction
+                    let next = candidate << 3;
 
-                    (shifted..shifted + 8).filter(|&attempt| {
+                    (next..next + 8).filter(|&possibility| {
                         let mut clone = input.clone();
-                        clone.register_a = attempt;
+                        clone.register_a = possibility;
 
                         let output = execute(&mut clone);
 
-                        output.first() == Some(&instruction)
+                        output.first() == Some(&instruction.into())
                     })
                 })
-                .collect::<Vec<u32>>()
+                .collect::<Vec<_>>()
         })
         .first()
         .copied()
@@ -361,13 +363,26 @@ mod test {
         use advent_of_code_2024::shared::solution::read_file;
         use advent_of_code_2024::shared::Parts;
 
-        use crate::{execute_program_util_match, Solution, DAY};
+        use crate::{execute, execute_program_util_match, parse_input, Solution, DAY};
 
         #[test]
         fn outcome() {
+            let expected = 109_019_930_331_546;
+            assert_eq!(expected, (Solution {}).part_2(&read_file("inputs", &DAY)));
+
+            let mut program = parse_input(read_file("inputs", &DAY).as_str());
+            program.register_a = expected;
+
+            let result = execute(&mut program);
+
             assert_eq!(
-                775_457_178,
-                (Solution {}).part_2(&read_file("inputs", &DAY))
+                result,
+                program
+                    .instructions
+                    .iter()
+                    .flat_map(|i| i.to_raw())
+                    .map(Into::into)
+                    .collect::<Vec<u64>>()
             );
         }
 
