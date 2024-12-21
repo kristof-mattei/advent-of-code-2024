@@ -105,6 +105,12 @@ impl From<String> for PartSolution {
     }
 }
 
+impl From<&'_ str> for PartSolution {
+    fn from(v: &'_ str) -> Self {
+        PartSolution::String(v.into())
+    }
+}
+
 impl From<Option<PartSolution>> for PartSolution {
     fn from(value: Option<PartSolution>) -> Self {
         match value {
