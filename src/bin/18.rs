@@ -150,16 +150,23 @@ fn heuristic(_map: &Grid<Cell>, current: Coordinates, goal: Coordinates) -> u32 
         + (current.column_index as isize - goal.column_index as isize).abs()) as u32
 }
 
-fn reconstruct_path(mut came_from: HashMap<Node, Node>, mut current: Node) -> Vec<Coordinates> {
+fn reconstruct_path<'l1, 'l2>(
+    came_from: &'l1 HashMap<Node, Node>,
+    mut current: &'l2 Node,
+) -> Vec<Coordinates>
+where
+    'l1: 'l2,
+{
     let mut total_path = vec![current.coordinates];
 
-    while let Some(next) = came_from.remove(&current) {
+    while let Some(next) = came_from.get(current) {
         total_path.push(next.coordinates);
 
         current = next;
     }
 
     total_path.reverse();
+
     total_path
 }
 
@@ -237,7 +244,7 @@ fn fall_bytes(input: &str, size: usize, take: usize) -> PartSolution {
     }
 
     match a_star(&grid, (0, 0).into(), (size - 1, size - 1).into()) {
-        Some((came_from, node)) => (reconstruct_path(came_from, node).len() - 1).into(),
+        Some((came_from, node)) => (reconstruct_path(&came_from, &node).len() - 1).into(),
         None => PartSolution::None,
     }
 }
