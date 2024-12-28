@@ -67,7 +67,7 @@ fn calculate_banana_price_combos(mut secret: u64) -> HashMap<[i8; 4], u8> {
 
     let mut last_banana_price = banana_price(secret);
 
-    let mut combinations = HashMap::<[i8; 4], u8>::new();
+    let mut combinations = HashMap::<[i8; 4], u8>::with_capacity(2000 - 4);
 
     for i in 0..2000 {
         secret = calculate_new_secret(secret);
@@ -99,20 +99,22 @@ fn calculate_banana_price_combos(mut secret: u64) -> HashMap<[i8; 4], u8> {
 fn calculate_max_bananas(input: &str) -> PartSolution {
     let parsed = parse_input(input);
 
-    let mut all_combos = HashMap::<[i8; 4], u64>::new();
+    let mut all_combos = HashMap::<[i8; 4], u64>::with_capacity(50_000);
+
+    let mut max_total_banana_price = 0;
 
     for p in parsed {
         let banana_price_combos = calculate_banana_price_combos(p);
 
         for (combination, price) in banana_price_combos {
-            all_combos
+            let price = all_combos
                 .entry(combination)
                 .and_modify(|p| *p += u64::from(price))
                 .or_insert(u64::from(price));
+
+            max_total_banana_price = max_total_banana_price.max(*price);
         }
     }
-
-    let max_total_banana_price = all_combos.values().max().copied().unwrap();
 
     max_total_banana_price.into()
 }
