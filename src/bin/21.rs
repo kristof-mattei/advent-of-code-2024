@@ -68,6 +68,7 @@ fn parse_input(input: &str) -> Vec<(usize, Vec<char>)> {
             (
                 {
                     let mut chars = line.chars();
+                    // yeet last character
                     chars.next_back();
 
                     chars.collect::<String>().parse::<usize>().unwrap()
@@ -78,27 +79,46 @@ fn parse_input(input: &str) -> Vec<(usize, Vec<char>)> {
         .collect::<Vec<_>>()
 }
 
-#[derive(Eq, PartialEq, Clone)]
+#[derive(Clone)]
 struct Journey {
     coordinates: (usize, usize),
     history: Vec<(usize, usize)>,
-}
-
-#[derive(Eq, PartialEq)]
-struct JourneyWithCost {
-    journey: Journey,
     cost: u64,
 }
 
-impl std::cmp::Ord for JourneyWithCost {
+impl std::cmp::Eq for Journey {}
+
+impl std::cmp::PartialEq for Journey {
+    fn eq(&self, other: &Self) -> bool {
+        self.coordinates == other.coordinates
+    }
+}
+
+impl std::fmt::Debug for Journey {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("JourneyWithCost")
+            .field("coordinates", &self.coordinates)
+            .field("history", &self.history)
+            .field("cost", &self.cost)
+            .finish()
+    }
+}
+
+impl std::cmp::Ord for Journey {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.cost.cmp(&other.cost).reverse()
     }
 }
 
-impl std::cmp::PartialOrd for JourneyWithCost {
+impl std::cmp::PartialOrd for Journey {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
+    }
+}
+
+impl std::hash::Hash for Journey {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.coordinates.hash(state);
     }
 }
 
@@ -153,31 +173,30 @@ fn calculate_cost<T>(
     start: (usize, usize),
     goal: (usize, usize),
 ) -> Vec<Vec<char>> {
-    let mut heap = BinaryHeap::new();
-
-    heap.push(JourneyWithCost {
-        journey: Journey {
-            coordinates: start,
-            history: vec![],
-        },
-        cost: 0,
-    });
-
-    let mut seen = HashMap::<(usize, usize), u64>::new();
-
     let mut cheapest_path = None;
 
     let mut all_paths = vec![];
 
-    while let Some(JourneyWithCost { mut journey, cost }) = heap.pop() {
-        if cheapest_path.is_some_and(|cheapest| cost > cheapest) {
+    let start = Journey {
+        coordinates: start,
+        history: vec![],
+        cost: 0,
+    };
+
+    let mut g_score: HashMap<(usize, usize), u64> = HashMap::from([(start.coordinates, 0)]);
+
+    let mut heap = BinaryHeap::from([start]);
+
+    while let Some(mut journey_with_cost) = heap.pop() {
+        if cheapest_path.is_some_and(|cheapest| journey_with_cost.cost > cheapest) {
             return all_paths;
-        } else if journey.coordinates == goal {
-            cheapest_path = Some(cost);
+        } else if journey_with_cost.coordinates == goal {
+            cheapest_path = Some(journey_with_cost.cost);
+            journey_with_cost
+                .history
+                .push(journey_with_cost.coordinates);
 
-            journey.history.push(journey.coordinates);
-
-            let mut arrows: Vec<_> = journey
+            let mut arrows: Vec<_> = journey_with_cost
                 .history
                 .windows(2)
                 .map(|w| find_arrow(w[0], w[1]))
@@ -186,19 +205,35 @@ fn calculate_cost<T>(
             arrows.push('A');
 
             all_paths.push(arrows);
-        } else if seen.get(&journey.coordinates).copied().unwrap_or(u64::MAX) >= cost {
-            seen.insert(journey.coordinates, cost);
-
-            for neighbor_coordinates in get_neighbor_directions(journey.coordinates) {
+        } else if journey_with_cost.cost
+            <= g_score
+                .get(&journey_with_cost.coordinates)
+                .copied()
+                .unwrap_or(u64::MAX)
+        {
+            for neighbor_coordinates in get_neighbor_directions(journey_with_cost.coordinates) {
                 if keyboard.contains_key(&neighbor_coordinates) {
-                    let mut clone = journey.clone();
-                    clone.history.push(journey.coordinates);
-                    clone.coordinates = neighbor_coordinates;
+                    let tentative_g_score =
+                        *g_score.get(&journey_with_cost.coordinates).unwrap() + 1;
 
-                    heap.push(JourneyWithCost {
-                        journey: clone,
-                        cost: cost + 1,
-                    });
+                    let f_score = tentative_g_score;
+
+                    let mut neighbor = journey_with_cost.clone();
+                    neighbor.history.push(journey_with_cost.coordinates);
+                    neighbor.coordinates = neighbor_coordinates;
+                    neighbor.cost = f_score;
+
+                    if tentative_g_score
+                        < g_score
+                            .get(&neighbor.coordinates)
+                            .copied()
+                            .unwrap_or(u64::MAX)
+                    {
+                        g_score.insert(neighbor.coordinates, tentative_g_score);
+                    }
+
+                    // always push, we want to consider all paths with the same cost
+                    heap.push(neighbor);
                 }
             }
         }
@@ -220,15 +255,17 @@ fn find_arrow(from: (usize, usize), to: (usize, usize)) -> char {
 fn find_cost(
     code: Vec<char>,
     depth: usize,
-    transitions: &HashMap<(char, char), Vec<Vec<char>>>,
+    arrows: &HashMap<(char, char), Vec<Vec<char>>>,
     cache: &mut HashMap<(Vec<char>, usize), usize>,
 ) -> usize {
     let key = (code, depth);
 
-    if let Some(c) = cache.get(&key) {
-        *c
+    if let Some(&cached) = cache.get(&key) {
+        cached
     } else {
+        // take it apart again
         let (code, depth) = key;
+
         // always start from A
         let mut code_from_a = vec!['A'];
 
@@ -239,7 +276,7 @@ fn find_cost(
         let value = code_from_a
             .windows(2)
             .map(|w| {
-                let paths = transitions.get(&(w[0], w[1])).unwrap();
+                let paths = arrows.get(&(w[0], w[1])).unwrap();
 
                 if depth == 0 {
                     paths.iter().map(Vec::len).min().unwrap()
@@ -304,7 +341,7 @@ mod test {
 
     mod part_2 {
         use advent_of_code_2024::shared::solution::read_file;
-        use advent_of_code_2024::shared::{PartSolution, Parts};
+        use advent_of_code_2024::shared::Parts;
 
         use crate::{Solution, DAY};
 
@@ -319,7 +356,7 @@ mod test {
         #[test]
         fn example() {
             assert_eq!(
-                PartSolution::None,
+                154_115_708_116_294_usize,
                 (Solution {}).part_2(&read_file("examples", &DAY))
             );
         }
