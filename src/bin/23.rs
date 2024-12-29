@@ -138,7 +138,7 @@ fn find_largest_set(input: &str) -> PartSolution {
 
                 largest_set = new_set;
 
-                assert_eq!(largest_len, largest_set.len());
+                largest_len = largest_set.len();
             }
         }
     }
