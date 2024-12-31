@@ -252,7 +252,7 @@ fn flip_wires(input: &str) -> PartSolution {
             Operator::And => {
                 if map.get(wire_out).map_or(true, |next| {
                     // ensure we are followed by Or
-                    !instructions_match(next, &[Operator::And, Operator::Xor])
+                    !instructions_match(next, &[Operator::Or])
                 }) {
                     incorrect_outputs.insert(wire_out.clone());
                 }
