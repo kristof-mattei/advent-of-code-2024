@@ -31,11 +31,11 @@ fn validate_page_updates(input: &str) -> PartSolution {
 
             let after_disjoint = pages_after
                 .get(page)
-                .map_or(true, |a| a.is_disjoint(&before_));
+                .is_none_or(|a| a.is_disjoint(&before_));
 
             let before_disjoint = pages_before
                 .get(page)
-                .map_or(true, |a| a.is_disjoint(&after_));
+                .is_none_or(|a| a.is_disjoint(&after_));
 
             if after_disjoint && before_disjoint {
                 // good
@@ -76,13 +76,9 @@ fn fix_invalid_page_updates(input: &str) -> PartSolution {
         for page in &updates {
             after.remove(page);
 
-            let after_disjoint = pages_after
-                .get(page)
-                .map_or(true, |a| a.is_disjoint(&before));
+            let after_disjoint = pages_after.get(page).is_none_or(|a| a.is_disjoint(&before));
 
-            let before_disjoint = pages_before
-                .get(page)
-                .map_or(true, |a| a.is_disjoint(&after));
+            let before_disjoint = pages_before.get(page).is_none_or(|a| a.is_disjoint(&after));
 
             if after_disjoint && before_disjoint {
                 // good
@@ -122,17 +118,13 @@ fn fixup(
                 let mut after = after.clone();
                 after.remove(page);
 
-                let all_before_match = pages_before.get(page).map_or(true, |a| before.is_subset(a));
+                let all_before_match = pages_before.get(page).is_none_or(|a| before.is_subset(a));
 
-                let all_after_match = pages_after.get(page).map_or(true, |a| after.is_subset(a));
+                let all_after_match = pages_after.get(page).is_none_or(|a| after.is_subset(a));
 
-                let before_disjoint = pages_before
-                    .get(page)
-                    .map_or(true, |a| a.is_disjoint(&after));
+                let before_disjoint = pages_before.get(page).is_none_or(|a| a.is_disjoint(&after));
 
-                let after_disjoint = pages_after
-                    .get(page)
-                    .map_or(true, |a| a.is_disjoint(&before));
+                let after_disjoint = pages_after.get(page).is_none_or(|a| a.is_disjoint(&before));
 
                 before_disjoint && after_disjoint && all_before_match && all_after_match
             })
@@ -223,10 +215,10 @@ mod test {
     mod part_1 {
         use std::collections::BTreeSet;
 
-        use advent_of_code_2024::shared::solution::read_file;
         use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::solution::read_file;
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {
@@ -245,10 +237,10 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::solution::read_file;
         use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::solution::read_file;
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {

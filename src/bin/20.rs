@@ -1,5 +1,5 @@
-use advent_of_code_2024::shared::grids::grid::Grid;
 use advent_of_code_2024::shared::grids::GridIter;
+use advent_of_code_2024::shared::grids::grid::Grid;
 use advent_of_code_2024::shared::{PartSolution, Parts};
 
 advent_of_code_2024::solution!(1511, 1_020_507_usize);
@@ -207,10 +207,10 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2024::shared::solution::read_file;
         use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::solution::read_file;
 
-        use crate::{count_cheats, Solution, DAY};
+        use crate::{DAY, Solution, count_cheats};
 
         #[test]
         fn outcome() {
@@ -224,10 +224,10 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::solution::read_file;
         use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::solution::read_file;
 
-        use crate::{count_cheats, Solution, DAY};
+        use crate::{DAY, Solution, count_cheats};
 
         #[test]
         fn outcome() {

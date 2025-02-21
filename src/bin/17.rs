@@ -271,7 +271,7 @@ mod test {
         use advent_of_code_2024::shared::solution::read_file;
         use advent_of_code_2024::shared::{PartSolution, Parts};
 
-        use crate::{execute, parse_instructions, Solution, State, DAY};
+        use crate::{DAY, Solution, State, execute, parse_instructions};
 
         #[test]
         fn outcome() {
@@ -359,10 +359,10 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::solution::read_file;
         use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::solution::read_file;
 
-        use crate::{execute, execute_program_util_match, parse_input, Solution, DAY};
+        use crate::{DAY, Solution, execute, execute_program_util_match, parse_input};
 
         #[test]
         fn outcome() {
