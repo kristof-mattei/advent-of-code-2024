@@ -1,12 +1,14 @@
+use std::sync::LazyLock;
+
 use advent_of_code_2024::shared::{PartSolution, Parts};
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 advent_of_code_2024::solution!(29522, 101_214_869_433_312_u64);
 
-static PRIZE_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"Prize: X=(\d+), Y=(\d+)").unwrap());
-static BUTTON_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"Button (?:A|B): X\+(\d+), Y\+(\d+)").unwrap());
+static PRIZE_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"Prize: X=(\d+), Y=(\d+)").unwrap());
+static BUTTON_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"Button (?:A|B): X\+(\d+), Y\+(\d+)").unwrap());
 
 struct Game {
     button_a: (i64, i64),
@@ -144,10 +146,10 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2024::shared::solution::read_file;
         use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::solution::read_file;
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {
@@ -161,10 +163,10 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::solution::read_file;
         use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::solution::read_file;
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {

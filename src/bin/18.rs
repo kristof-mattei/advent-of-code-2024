@@ -1,7 +1,7 @@
 use std::collections::BinaryHeap;
 
-use advent_of_code_2024::shared::grids::grid::Grid;
 use advent_of_code_2024::shared::grids::GridIter;
+use advent_of_code_2024::shared::grids::grid::Grid;
 use advent_of_code_2024::shared::{PartSolution, Parts};
 use hashbrown::HashMap;
 
@@ -278,10 +278,10 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2024::shared::solution::read_file;
         use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::solution::read_file;
 
-        use crate::{fall_bytes, Solution, DAY};
+        use crate::{DAY, Solution, fall_bytes};
 
         #[test]
         fn outcome() {
@@ -298,7 +298,7 @@ mod test {
         use advent_of_code_2024::shared::solution::read_file;
         use advent_of_code_2024::shared::{PartSolution, Parts};
 
-        use crate::{fall_bytes_until, Solution, DAY};
+        use crate::{DAY, Solution, fall_bytes_until};
 
         #[test]
         fn outcome() {

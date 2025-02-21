@@ -1,11 +1,12 @@
+use std::sync::LazyLock;
+
 use advent_of_code_2024::shared::{PartSolution, Parts};
-use once_cell::sync::Lazy;
 use regex::Regex;
 
 advent_of_code_2024::solution!(214_400_550, 8149);
 
-static ROBOT_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"p=(\d+),(\d+) v=(-?\d+),(-?\d+)").unwrap());
+static ROBOT_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"p=(\d+),(\d+) v=(-?\d+),(-?\d+)").unwrap());
 
 struct Robot {
     position: (isize, isize),
@@ -182,10 +183,10 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2024::shared::solution::read_file;
         use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::solution::read_file;
 
-        use crate::{calculate_safety_factor, Solution, DAY};
+        use crate::{DAY, Solution, calculate_safety_factor};
 
         #[test]
         fn outcome() {
@@ -205,10 +206,10 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::solution::read_file;
         use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::solution::read_file;
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {
