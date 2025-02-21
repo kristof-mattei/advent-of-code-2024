@@ -236,7 +236,7 @@ fn flip_wires(input: &str) -> PartSolution {
 
                 // check for the (in1, in2) -> (Xor, And) block
                 if wire1_is_input
-                    && map.get(wire_out).map_or(true, |next| {
+                    && map.get(wire_out).is_none_or(|next| {
                         // ensure we are followed by Xor and And
                         !instructions_match(next, &[Operator::And, Operator::Xor])
                     })
@@ -250,7 +250,7 @@ fn flip_wires(input: &str) -> PartSolution {
                 }
             },
             Operator::And => {
-                if map.get(wire_out).map_or(true, |next| {
+                if map.get(wire_out).is_none_or(|next| {
                     // ensure we are followed by Or
                     !instructions_match(next, &[Operator::Or])
                 }) {
@@ -263,7 +263,7 @@ fn flip_wires(input: &str) -> PartSolution {
                     incorrect_outputs.insert(wire_out.clone());
                 }
 
-                if map.get(wire_out).map_or(true, |next| {
+                if map.get(wire_out).is_none_or(|next| {
                     // ensure we are followed by Xor and And
                     !instructions_match(next, &[Operator::And, Operator::Xor])
                 }) {
@@ -310,10 +310,10 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2024::shared::solution::{read_file, read_file_part};
         use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::solution::{read_file, read_file_part};
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {
@@ -344,7 +344,7 @@ mod test {
         use advent_of_code_2024::shared::solution::{read_file, read_file_part};
         use advent_of_code_2024::shared::{PartSolution, Parts};
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {
