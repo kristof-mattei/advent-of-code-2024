@@ -3,6 +3,7 @@ use std::ops::{Deref, DerefMut, Index};
 use super::{
     GridIter, HorizontalVerticalDiagonalDirection, HorizontalVerticalDirection, Neighbors,
 };
+use crate::shared::grids::IntoVecVec;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub struct InfiniteRow<T>(Vec<T>);
@@ -86,7 +87,8 @@ impl<T> InfiniteGrid<T> {
     /// # Panics
     /// When rows are not equal length
     #[must_use]
-    pub fn new(data: Vec<Vec<T>>) -> Self {
+    pub fn new(data: impl IntoVecVec<T>) -> Self {
+        let data = data.into_vec_vec();
         for w in data.windows(2) {
             assert_eq!(w[0].len(), w[1].len());
         }
@@ -260,11 +262,7 @@ mod tests {
 
     #[test]
     fn test_infinite_grid() {
-        let g = InfiniteGrid::new(vec![
-            vec!['a', 'b', 'c'],
-            vec!['d', 'e', 'f'],
-            vec!['g', 'h', 'i'],
-        ]);
+        let g = InfiniteGrid::new([['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i']]);
 
         assert_eq!('b', g[-9isize][-5isize]);
 
@@ -273,11 +271,7 @@ mod tests {
 
     #[test]
     fn test_hv_neighbors_middle() {
-        let g = InfiniteGrid::new(vec![
-            vec!['a', 'b', 'c'],
-            vec!['d', 'e', 'f'],
-            vec!['g', 'h', 'i'],
-        ]);
+        let g = InfiniteGrid::new([['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i']]);
 
         let v = vec![
             ((0, 1), HorizontalVerticalDirection::Up),
@@ -291,11 +285,7 @@ mod tests {
 
     #[test]
     fn test_hv_neighbors_corner() {
-        let g = InfiniteGrid::new(vec![
-            vec!['a', 'b', 'c'],
-            vec!['d', 'e', 'f'],
-            vec!['g', 'h', 'i'],
-        ]);
+        let g = InfiniteGrid::new([['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i']]);
 
         let v = vec![
             ((-1, 0), HorizontalVerticalDirection::Up),
@@ -309,11 +299,7 @@ mod tests {
 
     #[test]
     fn test_hvd_neighbors_middle() {
-        let g = InfiniteGrid::new(vec![
-            vec!['a', 'b', 'c'],
-            vec!['d', 'e', 'f'],
-            vec!['g', 'h', 'i'],
-        ]);
+        let g = InfiniteGrid::new([['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i']]);
 
         let v = vec![
             ((0, 1), HorizontalVerticalDiagonalDirection::Up),
@@ -331,11 +317,7 @@ mod tests {
 
     #[test]
     fn test_hvd_neighbors_corner() {
-        let g = InfiniteGrid::new(vec![
-            vec!['a', 'b', 'c'],
-            vec!['d', 'e', 'f'],
-            vec!['g', 'h', 'i'],
-        ]);
+        let g = InfiniteGrid::new([['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i']]);
 
         let v = vec![
             ((-1, 0), HorizontalVerticalDiagonalDirection::Up),

@@ -277,6 +277,24 @@ where
     }
 }
 
+pub trait IntoVecVec<T> {
+    fn into_vec_vec(self) -> Vec<Vec<T>>;
+}
+
+impl<T, const R: usize, const C: usize> IntoVecVec<T> for [[T; C]; R] {
+    fn into_vec_vec(self) -> Vec<Vec<T>> {
+        self.into_iter()
+            .map(|row| row.into_iter().collect::<Vec<T>>())
+            .collect()
+    }
+}
+
+impl<T> IntoVecVec<T> for Vec<Vec<T>> {
+    fn into_vec_vec(self) -> Vec<Vec<T>> {
+        self
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
