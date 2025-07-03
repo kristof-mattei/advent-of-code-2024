@@ -142,12 +142,10 @@ fn distance(_map: &Grid<Cell>, _c: Coordinates, _n: Coordinates) -> u32 {
     1
 }
 
-#[expect(clippy::cast_possible_wrap)]
 #[expect(clippy::cast_possible_truncation)]
-#[expect(clippy::cast_sign_loss)]
 fn heuristic(_map: &Grid<Cell>, current: Coordinates, goal: Coordinates) -> u32 {
-    ((current.row_index as isize - goal.row_index as isize).abs()
-        + (current.column_index as isize - goal.column_index as isize).abs()) as u32
+    (current.row_index.abs_diff(goal.row_index) + current.column_index.abs_diff(goal.column_index))
+        as u32
 }
 
 fn reconstruct_path<'l1, 'l2>(
