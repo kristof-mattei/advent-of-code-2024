@@ -4,6 +4,7 @@ use super::{
     GridIter, HorizontalVerticalDiagonalDirection, HorizontalVerticalDiagonalNeighbors,
     HorizontalVerticalDirection, HorizontalVerticalNeighbors, Neighbors,
 };
+use crate::shared::grids::IntoVecVec;
 
 pub struct Grid<T> {
     data: Vec<Row<T>>,
@@ -43,7 +44,9 @@ impl<T> Grid<T> {
     /// # Panics
     /// When rows are not equal length
     #[must_use]
-    pub fn new(data: Vec<Vec<T>>) -> Self {
+    pub fn new(data: impl IntoVecVec<T>) -> Self {
+        let data = data.into_vec_vec();
+
         for w in data.windows(2) {
             assert_eq!(w[0].len(), w[1].len());
         }
@@ -282,11 +285,7 @@ mod tests {
 
     #[test]
     fn test_rows() {
-        let g = Grid::new(vec![
-            vec!['a', 'b', 'c'],
-            vec!['d', 'e', 'f'],
-            vec!['g', 'h', 'i'],
-        ]);
+        let g = Grid::new([['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i']]);
 
         let rows = g.data.iter().collect::<Vec<_>>();
 
@@ -295,11 +294,7 @@ mod tests {
 
     #[test]
     fn test_columns() {
-        let g = Grid::new(vec![
-            vec!['a', 'b', 'c'],
-            vec!['d', 'e', 'f'],
-            vec!['g', 'h', 'i'],
-        ]);
+        let g = Grid::new([['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i']]);
 
         let columns = vec![
             vec![&'a', &'d', &'g'],
@@ -314,11 +309,7 @@ mod tests {
 
     #[test]
     fn test_row_columns_iter() {
-        let g = Grid::new(vec![
-            vec!['a', 'b', 'c'],
-            vec!['d', 'e', 'f'],
-            vec!['g', 'h', 'i'],
-        ]);
+        let g = Grid::new([['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i']]);
 
         let v = vec![
             ((0, 0), &'a'),
@@ -337,11 +328,7 @@ mod tests {
 
     #[test]
     fn test_hv_neighbors_middle() {
-        let g = Grid::new(vec![
-            vec!['a', 'b', 'c'],
-            vec!['d', 'e', 'f'],
-            vec!['g', 'h', 'i'],
-        ]);
+        let g = Grid::new([['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i']]);
 
         let v = vec![
             ((0, 1), HorizontalVerticalDirection::Up),
@@ -355,11 +342,7 @@ mod tests {
 
     #[test]
     fn test_hv_neighbors_corner() {
-        let g = Grid::new(vec![
-            vec!['a', 'b', 'c'],
-            vec!['d', 'e', 'f'],
-            vec!['g', 'h', 'i'],
-        ]);
+        let g = Grid::new([['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i']]);
 
         let v = vec![
             ((0, 1), HorizontalVerticalDirection::Right),
@@ -371,11 +354,7 @@ mod tests {
 
     #[test]
     fn test_hvd_neighbors_middle() {
-        let g = Grid::new(vec![
-            vec!['a', 'b', 'c'],
-            vec!['d', 'e', 'f'],
-            vec!['g', 'h', 'i'],
-        ]);
+        let g = Grid::new([['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i']]);
 
         let v = vec![
             ((0, 1), HorizontalVerticalDiagonalDirection::Up),
@@ -393,11 +372,7 @@ mod tests {
 
     #[test]
     fn test_hvd_neighbors_corner() {
-        let g = Grid::new(vec![
-            vec!['a', 'b', 'c'],
-            vec!['d', 'e', 'f'],
-            vec!['g', 'h', 'i'],
-        ]);
+        let g = Grid::new([['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i']]);
 
         let v = vec![
             ((0, 1), HorizontalVerticalDiagonalDirection::Right),
