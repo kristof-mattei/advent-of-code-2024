@@ -5,11 +5,11 @@ edition = "2024"
 rust-version = "1.88.0"
 authors = ["Kristof Mattei"]
 description = "Advent of Code 2024"
-license-file = "LICENSE"
+license = "MIT"
 categories = ["playground"]
 keywords = ["playground"]
 repository = "https://github.com/kristof-mattei/advent-of-code-2024"
-include = [".cargo/**", ".config/**", "src/**", "tests/**"]
+include = ["src/**", "/LICENSE", "/LICENSE-*"]
 
 [profile.release]
 debug = true
