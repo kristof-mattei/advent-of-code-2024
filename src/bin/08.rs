@@ -1,4 +1,4 @@
-use advent_of_code_2024::shared::grids::GridIter;
+use advent_of_code_2024::shared::grids::GridIter as _;
 use advent_of_code_2024::shared::grids::grid::Grid;
 use advent_of_code_2024::shared::{PartSolution, Parts};
 use hashbrown::{HashMap, HashSet};
@@ -14,7 +14,7 @@ enum Cell {
 
 impl std::fmt::Display for Cell {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
+        match *self {
             Cell::Antenna(c) => write!(f, "{}", c),
             Cell::Nothing => write!(f, "."),
             Cell::Antinode => write!(f, "#"),
@@ -45,9 +45,9 @@ fn parse_into_grid_and_group_antennas(input: &str) -> Parsed {
     let mut antennas: HashMap<char, Vec<(usize, usize)>> = HashMap::new();
 
     for ((row_index, column_index), cell) in grid.row_column_index_value_iter() {
-        if let Cell::Antenna(c) = cell {
+        if let &Cell::Antenna(c) = cell {
             antennas
-                .entry(*c)
+                .entry(c)
                 .and_modify(|v| {
                     v.push((row_index, column_index));
                 })
@@ -147,7 +147,11 @@ fn count_antinodes(input: &str, times: Times) -> PartSolution {
 }
 
 const fn checked_signed_diff(lhs: usize, rhs: usize) -> Option<isize> {
-    #[expect(clippy::cast_possible_wrap)]
+    #[expect(
+        clippy::cast_possible_wrap,
+        clippy::as_conversions,
+        reason = "We remain within boundaries"
+    )]
     let result = lhs.wrapping_sub(rhs) as isize;
     let overflow = (lhs >= rhs) == (result < 0);
 
@@ -185,7 +189,7 @@ mod test {
 
     mod part_1 {
 
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution, checked_signed_diff};
@@ -201,13 +205,13 @@ mod test {
         }
 
         #[test]
-        fn test_wrapping_sub() {
-            assert_eq!(checked_signed_diff(4, 5), Some(-1isize));
+        fn wrapping_sub() {
+            assert_eq!(checked_signed_diff(4, 5), Some(-1_isize));
         }
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};

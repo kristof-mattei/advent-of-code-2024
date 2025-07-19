@@ -16,9 +16,9 @@ impl Parts for Solution {
 mod test {
     mod part_1 {
         use advent_of_code_2024::shared::solution::read_file;
-        use advent_of_code_2024::shared::{PartSolution, Parts};
+        use advent_of_code_2024::shared::{PartSolution, Parts as _};
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {
@@ -39,9 +39,9 @@ mod test {
 
     mod part_2 {
         use advent_of_code_2024::shared::solution::read_file;
-        use advent_of_code_2024::shared::{PartSolution, Parts};
+        use advent_of_code_2024::shared::{PartSolution, Parts as _};
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {

@@ -1,9 +1,9 @@
 use advent_of_code_2024::shared::{PartSolution, Parts};
 
-advent_of_code_2024::solution!(3133usize);
+advent_of_code_2024::solution!(3133_usize);
 
 fn parse_lock(lock: &[&str]) -> Vec<usize> {
-    lock.iter().skip(1).fold(vec![0usize; 5], |mut acc, curr| {
+    lock.iter().skip(1).fold(vec![0_usize; 5], |mut acc, curr| {
         for (i, c) in curr.chars().enumerate() {
             if c == '#' {
                 acc[i] += 1;
@@ -18,7 +18,7 @@ fn parse_key(key: &[&str]) -> Vec<usize> {
     key.iter()
         .rev()
         .skip(1)
-        .fold(vec![0usize; 5], |mut acc, curr| {
+        .fold(vec![0_usize; 5], |mut acc, curr| {
             for (i, c) in curr.chars().enumerate() {
                 if c == '#' {
                     acc[i] += 1;
@@ -92,7 +92,7 @@ impl Parts for Solution {
 mod test {
     mod part_1 {
         use advent_of_code_2024::shared::solution::read_file;
-        use advent_of_code_2024::shared::{PartSolution, Parts};
+        use advent_of_code_2024::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 
@@ -115,7 +115,7 @@ mod test {
 
     mod part_2 {
         use advent_of_code_2024::shared::solution::read_file;
-        use advent_of_code_2024::shared::{PartSolution, Parts};
+        use advent_of_code_2024::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 

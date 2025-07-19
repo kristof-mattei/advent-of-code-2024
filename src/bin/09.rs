@@ -13,16 +13,16 @@ enum Node {
 
 impl std::fmt::Display for Node {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Node::File(File(fileno, n)) => {
+        match *self {
+            Node::File(File(ref fileno, ref n)) => {
                 for _ in 0..*n {
                     write!(f, "{}", fileno)?;
                 }
 
                 Ok(())
             },
-            Node::Free(vec, available) => {
-                for File(fileno, n) in vec {
+            Node::Free(ref vec, ref available) => {
+                for &File(ref fileno, ref n) in vec {
                     for _ in 0..*n {
                         write!(f, "{}", fileno)?;
                     }
@@ -52,7 +52,7 @@ fn parse_input(input: &str) -> (BTreeMap<usize, u64>, Vec<Node>) {
                 // file
                 Node::File(File(u64::try_from(index / 2).expect("Input OOB"), number))
             } else {
-                assert!(free_space.insert(index, number).is_none());
+                assert!(free_space.insert(index, number).is_none(), "Bad input");
 
                 // free space
                 Node::Free(vec![], number)
@@ -69,16 +69,16 @@ fn calculate_checksum(filesystem: &[Node]) -> u64 {
     let mut position = 0;
 
     for node in filesystem {
-        match node {
-            Node::File(File(fileno, size)) => {
+        match *node {
+            Node::File(File(ref fileno, ref size)) => {
                 for i in position..(position + size) {
                     checksum += i * fileno;
                 }
 
                 position += size;
             },
-            Node::Free(replacements, available) => {
-                for File(fileno, size) in replacements {
+            Node::Free(ref replacements, ref available) => {
+                for &File(ref fileno, ref size) in replacements {
                     for i in position..(position + size) {
                         checksum += i * fileno;
                     }
@@ -115,7 +115,9 @@ fn defragment(input: &str) -> PartSolution {
             Some(Node::File(File(fileno, mut size))) => {
                 // we now insert as many as we can at the current `last_free_block` position, decreasing it's available, moving on when needed
                 while size > 0 {
-                    let Node::Free(replacements, available) = &mut filesystem[free_block] else {
+                    let &mut Node::Free(ref mut replacements, ref mut available) =
+                        &mut filesystem[free_block]
+                    else {
                         panic!();
                     };
 
@@ -124,7 +126,7 @@ fn defragment(input: &str) -> PartSolution {
                         if let Some(next_free_block) = filesystem
                             .iter()
                             .skip(free_block + 1)
-                            .position(|b| matches!(b, Node::Free(_, _)))
+                            .position(|b| matches!(*b, Node::Free(_, _)))
                         {
                             free_block = next_free_block + free_block + 1;
                             continue;
@@ -159,7 +161,7 @@ fn defragment_while_files(input: &str) -> PartSolution {
     // !!!! We can move a file just once, meaning once we passed it, we don't need to re-process it
     loop {
         match filesystem.get(file_index_from_right) {
-            Some(Node::Free(_, _)) => {},
+            Some(&Node::Free(_, _)) => {},
             Some(&Node::File(File(fileno, file_size))) => {
                 // find the lowest node that has space available
                 if let Some((&free_index, _)) =
@@ -167,10 +169,10 @@ fn defragment_while_files(input: &str) -> PartSolution {
                         available_size >= file_size && index < file_index_from_right
                     })
                 {
-                    assert!(free_space.remove(&free_index).is_some());
+                    assert!(free_space.remove(&free_index).is_some(), "Bad data");
 
                     // at this index there is a free block that can fit our file
-                    let Node::Free(replacements, available_size) = filesystem
+                    let &mut Node::Free(ref mut replacements, ref mut available_size) = filesystem
                         .get_mut(free_index)
                         .expect("free space only refers to Free nodes")
                     else {
@@ -182,7 +184,10 @@ fn defragment_while_files(input: &str) -> PartSolution {
                     *available_size -= file_size;
 
                     if *available_size > 0 {
-                        assert!(free_space.insert(free_index, *available_size).is_none());
+                        assert!(
+                            free_space.insert(free_index, *available_size).is_none(),
+                            "Bad data"
+                        );
                     }
 
                     // replace the current file with Free space as we moved it
@@ -219,7 +224,7 @@ mod test {
 
     mod part_1 {
 
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};
@@ -239,7 +244,7 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};

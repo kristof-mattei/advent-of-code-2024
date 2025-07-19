@@ -1,4 +1,4 @@
-use std::ops::Neg;
+use std::ops::Neg as _;
 
 use advent_of_code_2024::shared::{PartSolution, Parts};
 use part_1::solve_grid;
@@ -84,7 +84,7 @@ impl TryFrom<char> for Direction {
 
 mod part_1 {
     use advent_of_code_2024::shared::PartSolution;
-    use advent_of_code_2024::shared::grids::GridIter;
+    use advent_of_code_2024::shared::grids::GridIter as _;
     use advent_of_code_2024::shared::grids::grid::Grid;
 
     use crate::Direction;
@@ -113,7 +113,7 @@ mod part_1 {
 
     impl std::fmt::Debug for Cell {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            let c = match self {
+            let c = match *self {
                 Cell::Empty => '.',
                 Cell::Box => 'O',
                 Cell::Wall => '#',
@@ -165,7 +165,7 @@ mod part_1 {
     fn move_robot(grid: &mut Grid<Cell>, moves: &[Direction]) {
         let mut robot_position = grid
             .row_column_index_value_iter()
-            .find(|p| matches!(p, Cell::Robot))
+            .find(|p| matches!(*p, Cell::Robot))
             .expect("Robot gone?");
 
         for direction in moves {
@@ -237,7 +237,7 @@ mod part_1 {
         let mut gps_positions = 0;
 
         for ((row_index, column_index), cell) in grid.row_column_index_value_iter() {
-            if matches!(cell, Cell::Box) {
+            if matches!(*cell, Cell::Box) {
                 gps_positions += 100 * row_index + column_index;
             }
         }
@@ -258,7 +258,7 @@ mod part_2 {
     use std::cmp::Reverse;
 
     use advent_of_code_2024::shared::PartSolution;
-    use advent_of_code_2024::shared::grids::GridIter;
+    use advent_of_code_2024::shared::grids::GridIter as _;
     use advent_of_code_2024::shared::grids::grid::Grid;
 
     use crate::Direction;
@@ -274,7 +274,7 @@ mod part_2 {
 
     impl std::fmt::Display for Cell {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            let c = match self {
+            let c = match *self {
                 Cell::Empty => '.',
                 Cell::BoxLeft => '[',
                 Cell::BoxRight => ']',
@@ -341,7 +341,7 @@ mod part_2 {
     fn move_robot_doubled_grid(grid: &mut Grid<Cell>, moves: &[Direction]) {
         let mut robot_position = grid
             .row_column_index_value_iter()
-            .find(|p| matches!(p, Cell::Robot))
+            .find(|p| matches!(*p, Cell::Robot))
             .expect("Robot gone?");
 
         for direction in moves {
@@ -365,7 +365,7 @@ mod part_2 {
                 },
                 Cell::BoxLeft | Cell::BoxRight => {
                     // if direction is left / right, we basically just push again
-                    match direction {
+                    match *direction {
                         Direction::Left | Direction::Right => {
                             let Some(instructions) =
                                 calculate_left_right_moves(grid, next_robot_position, *direction)
@@ -455,7 +455,7 @@ mod part_2 {
         let mut gps_positions = 0;
 
         for ((row_index, column_index), cell) in grid.row_column_index_value_iter() {
-            if matches!(cell, Cell::BoxLeft) {
+            if matches!(*cell, Cell::BoxLeft) {
                 gps_positions += 100 * row_index + column_index;
             }
         }
@@ -597,6 +597,8 @@ mod part_2 {
                         }
 
                         return Some(instructions);
+                    } else {
+                        // we only care for left & right
                     }
 
                     panic!()
@@ -639,7 +641,7 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::{read_file, read_file_part};
 
         use crate::{DAY, Solution};
@@ -667,7 +669,7 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::{read_file, read_file_part};
 
         use crate::{DAY, Solution};

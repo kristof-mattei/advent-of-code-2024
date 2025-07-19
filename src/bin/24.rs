@@ -139,9 +139,9 @@ fn execute_program(input: &str) -> PartSolution {
         instruction.execute(&mut state);
     }
 
-    let mut output = 0u64;
+    let mut output = 0_u64;
 
-    for i in 0..64u32 {
+    for i in 0..64_u32 {
         let z_key = format!("z{:0>2}", i);
 
         let Some(mut bit) = state.get(&z_key).map(|&b| u64::from(b)) else {
@@ -191,6 +191,7 @@ fn flip_wires(input: &str) -> PartSolution {
     let (max_z, mut map) = build_reverse_map(&instructions);
 
     for (_, instructions) in &mut map {
+        #[expect(clippy::as_conversions, reason = "Operator is repr(usize)")]
         instructions.sort_by_key(|i| (i.operator) as usize);
     }
 
@@ -220,7 +221,7 @@ fn flip_wires(input: &str) -> PartSolution {
         // https://en.wikipedia.org/wiki/Adder_(electronics)#Ripple-carry_adder
 
         // sanity
-        assert!(!(wire1_is_input ^ wire2_is_input));
+        assert!(!(wire1_is_input ^ wire2_is_input), "Bad input");
 
         // the first bit is a half adder
         if wire_in_1 == "x00" && wire_in_2 == "y00" {
@@ -310,7 +311,7 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::{read_file, read_file_part};
 
         use crate::{DAY, Solution};
@@ -342,7 +343,7 @@ mod test {
 
     mod part_2 {
         use advent_of_code_2024::shared::solution::{read_file, read_file_part};
-        use advent_of_code_2024::shared::{PartSolution, Parts};
+        use advent_of_code_2024::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 

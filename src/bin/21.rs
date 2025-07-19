@@ -6,6 +6,10 @@ use hashbrown::HashMap;
 
 advent_of_code_2024::solution!(134_120, 167_389_793_580_400_usize);
 
+type KeypadPaths = LazyLock<HashMap<(char, char), Vec<Vec<char>>>>;
+
+type ArrowPaths = LazyLock<HashMap<(char, char), Vec<Vec<char>>>>;
+
 // +---+---+---+
 // | 7 | 8 | 9 |
 // +---+---+---+
@@ -34,9 +38,7 @@ static KEYPAD_COORDINATES: LazyLock<HashMap<(usize, usize), char>> = LazyLock::n
     map.into_iter().collect()
 });
 
-#[expect(clippy::type_complexity)]
-static KEYPAD_ALL_PATHS: LazyLock<HashMap<(char, char), Vec<Vec<char>>>> =
-    LazyLock::new(|| calculate_all_paths(&KEYPAD_COORDINATES));
+static KEYPAD_ALL_PATHS: KeypadPaths = LazyLock::new(|| calculate_all_paths(&KEYPAD_COORDINATES));
 
 //     +---+---+
 //     | ^ | A |
@@ -56,9 +58,7 @@ static ARROW_COORDINATES: LazyLock<HashMap<(usize, usize), char>> = LazyLock::ne
     map.into_iter().collect()
 });
 
-#[expect(clippy::type_complexity)]
-static ARROW_ALL_PATHS: LazyLock<HashMap<(char, char), Vec<Vec<char>>>> =
-    LazyLock::new(|| calculate_all_paths(&ARROW_COORDINATES));
+static ARROW_ALL_PATHS: ArrowPaths = LazyLock::new(|| calculate_all_paths(&ARROW_COORDINATES));
 
 fn parse_input(input: &str) -> Vec<(usize, Vec<char>)> {
     input
@@ -236,6 +236,8 @@ fn calculate_cost<T>(
                     heap.push(neighbor);
                 }
             }
+        } else {
+            // ...
         }
     }
 
@@ -299,7 +301,7 @@ fn find_cost(
 fn press_keys(input: &str, depth: usize) -> PartSolution {
     let codes = parse_input(input);
 
-    let mut total = 0usize;
+    let mut total = 0_usize;
 
     let mut cache = HashMap::new();
 
@@ -323,7 +325,7 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};
@@ -340,7 +342,7 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};

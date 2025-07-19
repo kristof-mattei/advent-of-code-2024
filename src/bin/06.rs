@@ -1,4 +1,4 @@
-use advent_of_code_2024::shared::grids::GridIter;
+use advent_of_code_2024::shared::grids::GridIter as _;
 use advent_of_code_2024::shared::grids::grid::Grid;
 use advent_of_code_2024::shared::{PartSolution, Parts};
 use hashbrown::HashSet;
@@ -14,7 +14,7 @@ enum Cell {
 
 impl std::fmt::Debug for Cell {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
+        match *self {
             Self::Open => write!(f, "."),
             Self::Obstruction => write!(f, "#"),
             Self::Guard(d) => {
@@ -34,7 +34,7 @@ enum Direction {
 
 impl std::fmt::Debug for Direction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let debug = match self {
+        let debug = match *self {
             Direction::Up => '^',
             Direction::Down => 'v',
             Direction::Left => '<',
@@ -384,7 +384,7 @@ fn count_possible_obstacle_positions(input: &str) -> PartSolution {
 
     let mut tried_infinite = HashSet::new();
 
-    let mut infinite = 0usize;
+    let mut infinite = 0_usize;
 
     while let Some((r, c, d)) = travel(&mut grid, guard_row_index, guard_column_index, direction) {
         guard_row_index = r;
@@ -461,7 +461,7 @@ mod test {
 
     mod part_1 {
 
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};
@@ -478,7 +478,7 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};
