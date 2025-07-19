@@ -1,7 +1,7 @@
 use advent_of_code_2024::shared::{PartSolution, Parts};
 use hashbrown::HashMap;
 
-advent_of_code_2024::solution!(17_262_627_539u64, 1986);
+advent_of_code_2024::solution!(17_262_627_539_u64, 1986);
 
 fn parse_input(input: &str) -> Vec<u64> {
     input
@@ -14,12 +14,17 @@ fn parse_input(input: &str) -> Vec<u64> {
 fn mix(secret: u64, number: u64) -> u64 {
     let new_secret = number ^ secret;
 
-    #[expect(clippy::let_and_return)]
     new_secret
 }
 
 fn prune(secret: u64) -> u64 {
-    secret % 16_777_216
+    #[expect(
+        clippy::decimal_literal_representation,
+        reason = "Doesn't make sense here"
+    )]
+    const REPEAT: u64 = 16_777_216_u64;
+
+    secret % REPEAT
 }
 
 fn calculate_new_secret(secret: u64) -> u64 {
@@ -38,7 +43,6 @@ fn calculate_new_secret(secret: u64) -> u64 {
     let new_secret = mix(new_secret, times_2048);
     let new_secret = prune(new_secret);
 
-    #[expect(clippy::let_and_return)]
     new_secret
 }
 
@@ -57,7 +61,11 @@ fn calculate_secret_sum(input: &str) -> PartSolution {
     sum.into()
 }
 
-#[expect(clippy::cast_possible_truncation)]
+#[expect(
+    clippy::cast_possible_truncation,
+    clippy::as_conversions,
+    reason = "We select the last digit, so our range is 0 -> 9"
+)]
 fn banana_price(secret: u64) -> u8 {
     (secret - ((secret / 10) * 10)) as u8
 }
@@ -74,7 +82,11 @@ fn calculate_banana_price_combos(mut secret: u64) -> HashMap<[i8; 4], u8> {
 
         let banana_price = banana_price(secret);
 
-        #[expect(clippy::cast_possible_wrap)]
+        #[expect(
+            clippy::cast_possible_wrap,
+            clippy::as_conversions,
+            reason = "Banana price is 0 -> 9"
+        )]
         let diff = banana_price as i8 - last_banana_price as i8;
 
         last_banana_price = banana_price;
@@ -132,7 +144,7 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::{read_file, read_file_part};
 
         use crate::{DAY, Solution, calculate_new_secret, mix, prune};
@@ -140,7 +152,7 @@ mod test {
         #[test]
         fn outcome() {
             assert_eq!(
-                17_262_627_539u64,
+                17_262_627_539_u64,
                 (Solution {}).part_1(&read_file("inputs", &DAY))
             );
         }
@@ -181,7 +193,7 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::{read_file, read_file_part};
 
         use crate::{DAY, Solution, calculate_banana_price_combos};

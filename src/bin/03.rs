@@ -65,7 +65,7 @@ fn find_muls_do_dont(input: &str) -> PartSolution {
                 capture.get(2).map(|v| v.as_str().parse::<u32>().unwrap()),
             ) {
                 (v, Some(l), Some(r)) => {
-                    assert!(v.starts_with("mul"));
+                    assert!(v.starts_with("mul"), "Bad input");
 
                     if enabled {
                         total += l * r;
@@ -101,7 +101,7 @@ impl Parts for Solution {
 mod test {
 
     mod part_1 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};
@@ -121,7 +121,7 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};

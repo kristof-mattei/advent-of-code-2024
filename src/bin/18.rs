@@ -1,6 +1,6 @@
 use std::collections::BinaryHeap;
 
-use advent_of_code_2024::shared::grids::GridIter;
+use advent_of_code_2024::shared::grids::GridIter as _;
 use advent_of_code_2024::shared::grids::grid::Grid;
 use advent_of_code_2024::shared::{PartSolution, Parts};
 use hashbrown::HashMap;
@@ -15,7 +15,7 @@ enum Cell {
 
 impl std::fmt::Display for Cell {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let c = match self {
+        let c = match *self {
             Cell::Corrupted => '#',
             Cell::Empty => '.',
         };
@@ -142,7 +142,11 @@ fn distance(_map: &Grid<Cell>, _c: Coordinates, _n: Coordinates) -> u32 {
     1
 }
 
-#[expect(clippy::cast_possible_truncation)]
+#[expect(
+    clippy::cast_possible_truncation,
+    clippy::as_conversions,
+    reason = "We remain within bounds"
+)]
 fn heuristic(_map: &Grid<Cell>, current: Coordinates, goal: Coordinates) -> u32 {
     (current.row_index.abs_diff(goal.row_index) + current.column_index.abs_diff(goal.column_index))
         as u32
@@ -276,7 +280,7 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution, fall_bytes};
@@ -294,7 +298,7 @@ mod test {
 
     mod part_2 {
         use advent_of_code_2024::shared::solution::read_file;
-        use advent_of_code_2024::shared::{PartSolution, Parts};
+        use advent_of_code_2024::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution, fall_bytes_until};
 

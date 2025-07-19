@@ -23,11 +23,8 @@ fn validate_page_updates(input: &str) -> PartSolution {
         for page in &updates {
             after_.remove(page);
 
-            dbg!(&after_);
-            dbg!(&before_);
-
-            dbg!(&pages_after.get(page));
-            dbg!(&pages_before.get(page));
+            pages_after.get(page);
+            pages_before.get(page);
 
             let after_disjoint = pages_after
                 .get(page)
@@ -215,7 +212,7 @@ mod test {
     mod part_1 {
         use std::collections::BTreeSet;
 
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};
@@ -237,7 +234,7 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};

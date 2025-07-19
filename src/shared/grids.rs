@@ -155,6 +155,7 @@ where
         &self,
         predicate: P,
     ) -> Option<(usize, usize)> {
+        // The order here is incorrect, it goes by row by row, which is unexpected for xy (column by column)
         for ((row_index, column_index), v) in self.grid.row_column_index_value_iter() {
             if predicate(v) {
                 return Some((row_index, column_index));
@@ -274,24 +275,6 @@ where
         } else {
             None
         }
-    }
-}
-
-pub trait IntoVecVec<T> {
-    fn into_vec_vec(self) -> Vec<Vec<T>>;
-}
-
-impl<T, const R: usize, const C: usize> IntoVecVec<T> for [[T; C]; R] {
-    fn into_vec_vec(self) -> Vec<Vec<T>> {
-        self.into_iter()
-            .map(|row| row.into_iter().collect::<Vec<T>>())
-            .collect()
-    }
-}
-
-impl<T> IntoVecVec<T> for Vec<Vec<T>> {
-    fn into_vec_vec(self) -> Vec<Vec<T>> {
-        self
     }
 }
 

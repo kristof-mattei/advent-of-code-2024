@@ -71,7 +71,11 @@ fn calculate_safety_factor(input: &str, width: isize, height: isize) -> PartSolu
     let mut robots = parse_input(input);
 
     for _second in 0..100 {
-        for Robot { position, velocity } in &mut robots {
+        for &mut Robot {
+            ref mut position,
+            velocity,
+        } in &mut robots
+        {
             position.0 += velocity.0;
             position.0 = position.0.rem_euclid(width);
             position.1 += velocity.1;
@@ -93,7 +97,11 @@ fn find_with_lowest_variance(input: &str) -> PartSolution {
     let mut variances = Vec::new();
 
     for _ in 1..=WIDTH * HEIGHT + 1 {
-        for Robot { position, velocity } in &mut robots {
+        for &mut Robot {
+            ref mut position,
+            velocity,
+        } in &mut robots
+        {
             position.0 += velocity.0;
             position.0 = position.0.rem_euclid(WIDTH);
             position.1 += velocity.1;
@@ -117,7 +125,11 @@ fn find_with_lowest_variance(input: &str) -> PartSolution {
     min.0.into()
 }
 
-#[expect(clippy::cast_precision_loss)]
+#[expect(
+    clippy::cast_precision_loss,
+    clippy::as_conversions,
+    reason = "Within bounds"
+)]
 fn variance(robots: &[Robot]) -> f64 {
     let positions: Vec<_> = robots
         .iter()
@@ -151,7 +163,7 @@ fn count_robots_in_quadrants(
     let width_separator = width / 2;
     let height_separator = height / 2;
 
-    for Robot { position, .. } in robots {
+    for &Robot { position, .. } in robots {
         if position.0 == width_separator || position.1 == height_separator {
             continue;
         }
@@ -183,7 +195,7 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution, calculate_safety_factor};
@@ -206,7 +218,7 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};

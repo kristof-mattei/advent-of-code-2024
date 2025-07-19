@@ -1,6 +1,6 @@
 use advent_of_code_2024::shared::grids::grid::Grid;
 use advent_of_code_2024::shared::grids::{
-    GridIter, HorizontalVerticalDiagonalDirection, Neighbors,
+    GridIter as _, HorizontalVerticalDiagonalDirection, Neighbors as _,
 };
 use advent_of_code_2024::shared::{PartSolution, Parts};
 
@@ -74,7 +74,7 @@ fn follow(
         (right < grid.get_column_length()).then_some(right)
     };
 
-    match direction {
+    match *direction {
         HorizontalVerticalDiagonalDirection::Up => {
             up.map(|up| (up, column_index, HorizontalVerticalDiagonalDirection::Up))
         },
@@ -193,7 +193,7 @@ impl Parts for Solution {
 mod test {
 
     mod part_1 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};
@@ -210,7 +210,7 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};

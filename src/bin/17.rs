@@ -3,6 +3,7 @@ use advent_of_code_2024::shared::{PartSolution, Parts};
 advent_of_code_2024::solution!("3,4,3,1,7,6,5,6,0", 775_457_178);
 
 #[derive(Clone, Copy)]
+#[repr(u32)]
 enum OpCode {
     Adv,
     Bxl,
@@ -15,12 +16,14 @@ enum OpCode {
 }
 
 impl From<&OpCode> for u32 {
+    #[expect(clippy::as_conversions, reason = "OpCode is repr(u32)")]
     fn from(value: &OpCode) -> Self {
         *value as u32
     }
 }
 
 impl From<OpCode> for u32 {
+    #[expect(clippy::as_conversions, reason = "OpCode is repr(u32)")]
     fn from(value: OpCode) -> Self {
         value as u32
     }
@@ -50,6 +53,7 @@ struct Instruction {
 }
 
 impl Instruction {
+    #[expect(clippy::as_conversions, reason = "OpCode is repr(u32)")]
     fn to_raw(self) -> [u32; 2] {
         [self.opcode as u32, self.operand]
     }
@@ -94,9 +98,12 @@ impl std::fmt::Display for State {
         let instructions_original = self
             .instructions
             .iter()
-            .map(|Instruction { opcode, operand }| {
-                format!("{},{}", Into::<u32>::into(opcode), operand)
-            })
+            .map(
+                |&Instruction {
+                     ref opcode,
+                     operand,
+                 }| { format!("{},{}", Into::<u32>::into(opcode), operand) },
+            )
             .collect::<Vec<String>>();
 
         writeln!(f, "Program: {}", instructions_original.join(","))
@@ -172,10 +179,14 @@ fn parse_operand(state: &State, opcode: OpCode, operand: u32) -> u64 {
 }
 
 fn execute(state: &mut State) -> Vec<u64> {
-    while let Some(Instruction { opcode, operand }) = state.instructions.get(state.index) {
+    while let Some(&Instruction {
+        ref opcode,
+        ref operand,
+    }) = state.instructions.get(state.index)
+    {
         let operand = parse_operand(state, *opcode, *operand);
 
-        match opcode {
+        match *opcode {
             OpCode::Adv => {
                 state.register_a >>= operand;
             },
@@ -230,7 +241,7 @@ fn execute_program_util_match(input: &str) -> PartSolution {
         .iter()
         .flat_map(|instruction: &Instruction| Instruction::to_raw(*instruction))
         .rev()
-        .fold(vec![0u64], |candidates, instruction| {
+        .fold(vec![0_u64], |candidates, instruction| {
             candidates
                 .iter()
                 .flat_map(|&candidate| {
@@ -269,7 +280,7 @@ impl Parts for Solution {
 mod test {
     mod part_1 {
         use advent_of_code_2024::shared::solution::read_file;
-        use advent_of_code_2024::shared::{PartSolution, Parts};
+        use advent_of_code_2024::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution, State, execute, parse_instructions};
 
@@ -359,7 +370,7 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution, execute, execute_program_util_match, parse_input};
@@ -392,7 +403,7 @@ mod test {
 
         #[test]
         fn example_2() {
-            let input = r"Register A: 117440
+            let input = "Register A: 117440
 Register B: 0
 Register C: 0
 

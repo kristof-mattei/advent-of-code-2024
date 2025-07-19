@@ -53,7 +53,7 @@ fn find_combos_of_3(input: &str) -> PartSolution {
         }
     }
 
-    let mut has_t = 0u32;
+    let mut has_t = 0_u32;
 
     for (c1, c2, c3) in connections_of_3 {
         if c1.starts_with('t') || c2.starts_with('t') || c3.starts_with('t') {
@@ -174,7 +174,7 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};
@@ -192,7 +192,7 @@ mod test {
 
     mod part_2 {
         use advent_of_code_2024::shared::solution::read_file;
-        use advent_of_code_2024::shared::{PartSolution, Parts};
+        use advent_of_code_2024::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 

@@ -1,4 +1,4 @@
-use advent_of_code_2024::shared::grids::GridIter;
+use advent_of_code_2024::shared::grids::GridIter as _;
 use advent_of_code_2024::shared::grids::grid::Grid;
 use advent_of_code_2024::shared::{PartSolution, Parts};
 
@@ -14,7 +14,7 @@ enum Cell {
 
 impl std::fmt::Display for Cell {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let c = match self {
+        let c = match *self {
             Cell::Empty => '.',
             Cell::Wall => '#',
             Cell::Start => 'S',
@@ -50,13 +50,13 @@ fn parse_input(input: &str) -> Vec<Coordinates> {
 
     let start = grid
         .row_column_index_value_iter()
-        .find(|c| matches!(c, Cell::Start))
+        .find(|c| matches!(*c, Cell::Start))
         .unwrap()
         .into();
 
     let end = grid
         .row_column_index_value_iter()
-        .find(|c| matches!(c, Cell::End))
+        .find(|c| matches!(*c, Cell::End))
         .unwrap()
         .into();
 
@@ -87,11 +87,8 @@ fn parse_input(input: &str) -> Vec<Coordinates> {
     coordinates
 }
 
-#[expect(clippy::cast_sign_loss)]
-#[expect(clippy::cast_possible_wrap)]
 fn distance(c1: Coordinates, c2: Coordinates) -> usize {
-    ((c1.row_index as isize - c2.row_index as isize).abs()
-        + (c1.column_index as isize - c2.column_index as isize).abs()) as usize
+    c1.row_index.abs_diff(c2.row_index) + c1.column_index.abs_diff(c2.column_index)
 }
 
 fn find_cheats(coordinates: &[Coordinates], goal: usize, max_cheat_time: usize) -> usize {
@@ -207,7 +204,7 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution, count_cheats};
@@ -224,7 +221,7 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution, count_cheats};

@@ -1,9 +1,9 @@
 use advent_of_code_2024::shared::grids::grid::Grid;
-use advent_of_code_2024::shared::grids::{GridIter, Neighbors};
+use advent_of_code_2024::shared::grids::{GridIter as _, Neighbors as _};
 use advent_of_code_2024::shared::{PartSolution, Parts};
 use hashbrown::HashSet;
 
-advent_of_code_2024::solution!(674usize, 1372);
+advent_of_code_2024::solution!(674_usize, 1372);
 
 #[derive(PartialEq, Eq)]
 enum Cell {
@@ -31,7 +31,7 @@ fn count_longest_paths(input: &str) -> PartSolution {
         .row_column_index_value_iter()
         .filter_map(|((row_index, column_index), value)| match value {
             &Cell::Number(0) => Some((row_index, column_index)),
-            _ => None,
+            &Cell::Number(_) | &Cell::Empty => None,
         })
         .collect::<Vec<(usize, usize)>>();
 
@@ -81,7 +81,7 @@ fn follow_all_paths(input: &str) -> PartSolution {
         .row_column_index_value_iter()
         .filter_map(|((row_index, column_index), value)| match value {
             &Cell::Number(0) => Some((row_index, column_index)),
-            _ => None,
+            &Cell::Number(_) | &Cell::Empty => None,
         })
         .collect::<Vec<(usize, usize)>>();
 
@@ -127,14 +127,14 @@ impl Parts for Solution {
 mod test {
 
     mod part_1 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::{read_file, read_file_part};
 
         use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {
-            assert_eq!(674usize, (Solution {}).part_1(&read_file("inputs", &DAY)));
+            assert_eq!(674_usize, (Solution {}).part_1(&read_file("inputs", &DAY)));
         }
 
         #[test]
@@ -171,14 +171,14 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::{read_file, read_file_part};
 
         use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {
-            assert_eq!(1372u32, (Solution {}).part_2(&read_file("inputs", &DAY)));
+            assert_eq!(1372_u32, (Solution {}).part_2(&read_file("inputs", &DAY)));
         }
 
         #[test]

@@ -13,7 +13,7 @@ fn calculate_distances(input: &str) -> PartSolution {
             .map(|v| v.parse::<i32>().expect("Bad input"))
             .collect::<Vec<_>>();
 
-        assert!(v.len() >= 2);
+        assert!(v.len() >= 2, "Bad input");
 
         if is_safe(&v) {
             safe += 1;
@@ -57,7 +57,7 @@ fn calculate_distances_2(input: &str) -> PartSolution {
             .map(|v| v.parse::<i32>().expect("Bad input"))
             .collect::<Vec<_>>();
 
-        assert!(v.len() >= 2);
+        assert!(v.len() >= 2, "Bad input");
 
         if is_safe(&v) || is_safe_with_one_less(&v) {
             safe += 1;
@@ -95,7 +95,7 @@ impl Parts for Solution {
 mod test {
 
     mod part_1 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};
@@ -112,7 +112,7 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};

@@ -51,8 +51,8 @@ fn process_stones(input: &str, times: u32) -> PartSolution {
                 let digits = count_digits(*value);
 
                 if digits % 2 == 0 {
-                    let left = *value / (10u64.pow(digits / 2));
-                    let right = *value - (left * (10u64.pow(digits / 2)));
+                    let left = *value / (10_u64.pow(digits / 2));
+                    let right = *value - (left * (10_u64.pow(digits / 2)));
 
                     memory2
                         .entry(left)
@@ -90,7 +90,7 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};
@@ -107,7 +107,7 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};

@@ -10,7 +10,7 @@ enum Operator {
 
 impl Operator {
     fn execute(&self, left: u64, right: u64) -> u64 {
-        match self {
+        match *self {
             Operator::Add => left + right,
             Operator::Multiply => left * right,
             Operator::Concat => {
@@ -26,14 +26,14 @@ fn multiplier(v: u64) -> u64 {
     let mut power = 1;
 
     loop {
-        if 10u64.pow(power) > v {
+        if 10_u64.pow(power) > v {
             break;
         }
 
         power += 1;
     }
 
-    10u64.pow(power)
+    10_u64.pow(power)
 }
 
 fn calculate_permutations(input: &str, operators: &[Operator]) -> PartSolution {
@@ -42,7 +42,7 @@ fn calculate_permutations(input: &str, operators: &[Operator]) -> PartSolution {
         to_validate.push(parse(line));
     }
 
-    let mut total = 0u64;
+    let mut total = 0_u64;
 
     for (expected, operands) in to_validate {
         if try_all_permutations(expected, operands[0], &operands[1..], operators) > 0 {
@@ -116,7 +116,7 @@ mod test {
 
     mod part_1 {
 
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};
@@ -136,7 +136,7 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::read_file;
 
         use crate::{DAY, Solution};

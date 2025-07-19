@@ -1,7 +1,7 @@
 use std::collections::BinaryHeap;
 use std::hash::Hash;
 
-use advent_of_code_2024::shared::grids::GridIter;
+use advent_of_code_2024::shared::grids::GridIter as _;
 use advent_of_code_2024::shared::grids::grid::Grid;
 use advent_of_code_2024::shared::{PartSolution, Parts};
 use hashbrown::{HashMap, HashSet};
@@ -17,7 +17,7 @@ enum Cell {
 
 impl std::fmt::Display for Cell {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let c = match self {
+        let c = match *self {
             Cell::Start => 'S',
             Cell::End => 'E',
             Cell::Wall => '#',
@@ -82,9 +82,9 @@ impl Direction {
         let row_limit = grid.len();
         let column_limit = grid[0].len();
 
-        let Coordinates {
-            row_index,
-            column_index,
+        let &Coordinates {
+            ref row_index,
+            ref column_index,
         } = row_column_index;
 
         match self {
@@ -203,13 +203,13 @@ fn calculate_cost(input: &str) -> PartSolution {
 
     let start: Coordinates = grid
         .row_column_index_value_iter()
-        .find(|c| matches!(c, Cell::Start))
+        .find(|c| matches!(*c, Cell::Start))
         .unwrap()
         .into();
 
     let end: Coordinates = grid
         .row_column_index_value_iter()
-        .find(|c| matches!(c, Cell::End))
+        .find(|c| matches!(*c, Cell::End))
         .unwrap()
         .into();
 
@@ -254,6 +254,8 @@ fn calculate_cost(input: &str) -> PartSolution {
                     });
                 }
             }
+        } else {
+            // ...
         }
     }
 
@@ -267,13 +269,13 @@ fn count_all_points_on_lowest_cost_paths(input: &str) -> PartSolution {
 
     let start: Coordinates = grid
         .row_column_index_value_iter()
-        .find(|c| matches!(c, Cell::Start))
+        .find(|c| matches!(*c, Cell::Start))
         .unwrap()
         .into();
 
     let end: Coordinates = grid
         .row_column_index_value_iter()
-        .find(|c| matches!(c, Cell::End))
+        .find(|c| matches!(*c, Cell::End))
         .unwrap()
         .into();
 
@@ -330,6 +332,8 @@ fn count_all_points_on_lowest_cost_paths(input: &str) -> PartSolution {
                     });
                 }
             }
+        } else {
+            // ...
         }
     }
 
@@ -349,7 +353,7 @@ impl Parts for Solution {
 #[cfg(test)]
 mod test {
     mod part_1 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::{read_file, read_file_part};
 
         use crate::{DAY, Solution};
@@ -377,7 +381,7 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2024::shared::Parts;
+        use advent_of_code_2024::shared::Parts as _;
         use advent_of_code_2024::shared::solution::{read_file, read_file_part};
 
         use crate::{DAY, Solution};
