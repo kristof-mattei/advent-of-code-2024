@@ -147,11 +147,7 @@ fn count_antinodes(input: &str, times: Times) -> PartSolution {
 }
 
 const fn checked_signed_diff(lhs: usize, rhs: usize) -> Option<isize> {
-    #[expect(
-        clippy::cast_possible_wrap,
-        clippy::as_conversions,
-        reason = "We remain within boundaries"
-    )]
+    #[expect(clippy::cast_possible_wrap, reason = "We remain within boundaries")]
     let result = lhs.wrapping_sub(rhs) as isize;
     let overflow = (lhs >= rhs) == (result < 0);
 

@@ -125,11 +125,7 @@ fn find_with_lowest_variance(input: &str) -> PartSolution {
     min.0.into()
 }
 
-#[expect(
-    clippy::cast_precision_loss,
-    clippy::as_conversions,
-    reason = "Within bounds"
-)]
+#[expect(clippy::cast_precision_loss, reason = "Within bounds")]
 fn variance(robots: &[Robot]) -> f64 {
     let positions: Vec<_> = robots
         .iter()

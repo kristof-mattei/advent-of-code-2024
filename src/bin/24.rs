@@ -191,7 +191,6 @@ fn flip_wires(input: &str) -> PartSolution {
     let (max_z, mut map) = build_reverse_map(&instructions);
 
     for (_, instructions) in &mut map {
-        #[expect(clippy::as_conversions, reason = "Operator is repr(usize)")]
         instructions.sort_by_key(|i| (i.operator) as usize);
     }
 

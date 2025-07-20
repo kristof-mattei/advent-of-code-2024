@@ -63,7 +63,6 @@ fn calculate_secret_sum(input: &str) -> PartSolution {
 
 #[expect(
     clippy::cast_possible_truncation,
-    clippy::as_conversions,
     reason = "We select the last digit, so our range is 0 -> 9"
 )]
 fn banana_price(secret: u64) -> u8 {
@@ -82,11 +81,7 @@ fn calculate_banana_price_combos(mut secret: u64) -> HashMap<[i8; 4], u8> {
 
         let banana_price = banana_price(secret);
 
-        #[expect(
-            clippy::cast_possible_wrap,
-            clippy::as_conversions,
-            reason = "Banana price is 0 -> 9"
-        )]
+        #[expect(clippy::cast_possible_wrap, reason = "Banana price is 0 -> 9")]
         let diff = banana_price as i8 - last_banana_price as i8;
 
         last_banana_price = banana_price;
