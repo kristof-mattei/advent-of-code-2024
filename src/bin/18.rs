@@ -142,11 +142,7 @@ fn distance(_map: &Grid<Cell>, _c: Coordinates, _n: Coordinates) -> u32 {
     1
 }
 
-#[expect(
-    clippy::cast_possible_truncation,
-    clippy::as_conversions,
-    reason = "We remain within bounds"
-)]
+#[expect(clippy::cast_possible_truncation, reason = "We remain within bounds")]
 fn heuristic(_map: &Grid<Cell>, current: Coordinates, goal: Coordinates) -> u32 {
     (current.row_index.abs_diff(goal.row_index) + current.column_index.abs_diff(goal.column_index))
         as u32

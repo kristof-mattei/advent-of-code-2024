@@ -16,14 +16,12 @@ enum OpCode {
 }
 
 impl From<&OpCode> for u32 {
-    #[expect(clippy::as_conversions, reason = "OpCode is repr(u32)")]
     fn from(value: &OpCode) -> Self {
         *value as u32
     }
 }
 
 impl From<OpCode> for u32 {
-    #[expect(clippy::as_conversions, reason = "OpCode is repr(u32)")]
     fn from(value: OpCode) -> Self {
         value as u32
     }
@@ -53,7 +51,6 @@ struct Instruction {
 }
 
 impl Instruction {
-    #[expect(clippy::as_conversions, reason = "OpCode is repr(u32)")]
     fn to_raw(self) -> [u32; 2] {
         [self.opcode as u32, self.operand]
     }
