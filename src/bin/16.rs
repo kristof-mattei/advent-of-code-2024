@@ -132,35 +132,35 @@ impl Direction {
 fn get_neighbor_directions(grid: &Grid<Cell>, current: &At) -> Vec<(Coordinates, Direction)> {
     let mut neighbors = Vec::with_capacity(3);
 
-    if let Some(keep_going) = current.direction.apply(grid, &current.coordinates) {
-        if matches!(
+    if let Some(keep_going) = current.direction.apply(grid, &current.coordinates)
+        && matches!(
             grid[keep_going.row_index][keep_going.column_index],
             Cell::Empty | Cell::End
-        ) {
-            neighbors.push((keep_going, current.direction));
-        }
+        )
+    {
+        neighbors.push((keep_going, current.direction));
     }
 
     let left_direction = current.direction.turn_left();
 
-    if let Some(left) = left_direction.apply(grid, &current.coordinates) {
-        if matches!(
+    if let Some(left) = left_direction.apply(grid, &current.coordinates)
+        && matches!(
             grid[left.row_index][left.column_index],
             Cell::Empty | Cell::End
-        ) {
-            neighbors.push((left, left_direction));
-        }
+        )
+    {
+        neighbors.push((left, left_direction));
     }
 
     let right_direction = current.direction.turn_right();
 
-    if let Some(right) = right_direction.apply(grid, &current.coordinates) {
-        if matches!(
+    if let Some(right) = right_direction.apply(grid, &current.coordinates)
+        && matches!(
             grid[right.row_index][right.column_index],
             Cell::Empty | Cell::End
-        ) {
-            neighbors.push((right, right_direction));
-        }
+        )
+    {
+        neighbors.push((right, right_direction));
     }
 
     neighbors
