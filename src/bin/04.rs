@@ -45,10 +45,9 @@ fn is_merry(
 
     if let Some((row_index, column_index, direction)) =
         follow(grid, row_index, column_index, direction)
+        && grid[row_index][column_index] == to_match[0]
     {
-        if grid[row_index][column_index] == to_match[0] {
-            return is_merry(grid, row_index, column_index, &direction, &to_match[1..]);
-        }
+        return is_merry(grid, row_index, column_index, &direction, &to_match[1..]);
     }
 
     false

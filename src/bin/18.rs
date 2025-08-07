@@ -96,12 +96,11 @@ fn get_neighbor_directions(
 
     for i in 0..DIRECTIONS.len() {
         let direction = DIRECTIONS[i];
-        if let Some(new_row_column_index) = direction.apply(grid, coordinates) {
-            if grid[new_row_column_index.row_index][new_row_column_index.column_index]
+        if let Some(new_row_column_index) = direction.apply(grid, coordinates)
+            && grid[new_row_column_index.row_index][new_row_column_index.column_index]
                 == Cell::Empty
-            {
-                neighbors[i] = Some(new_row_column_index);
-            }
+        {
+            neighbors[i] = Some(new_row_column_index);
         }
     }
 
