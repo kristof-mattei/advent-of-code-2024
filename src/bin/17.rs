@@ -15,12 +15,6 @@ enum OpCode {
     Cdv,
 }
 
-impl From<&OpCode> for u32 {
-    fn from(value: &OpCode) -> Self {
-        *value as u32
-    }
-}
-
 impl From<OpCode> for u32 {
     fn from(value: OpCode) -> Self {
         value as u32
@@ -99,7 +93,7 @@ impl std::fmt::Display for State {
                 |&Instruction {
                      ref opcode,
                      operand,
-                 }| { format!("{},{}", Into::<u32>::into(opcode), operand) },
+                 }| { format!("{},{}", Into::<u32>::into(*opcode), operand) },
             )
             .collect::<Vec<String>>();
 
