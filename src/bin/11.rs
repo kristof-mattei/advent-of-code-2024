@@ -50,7 +50,7 @@ fn process_stones(input: &str, times: u32) -> PartSolution {
             } else {
                 let digits = count_digits(*value);
 
-                if digits % 2 == 0 {
+                if digits.is_multiple_of(2) {
                     let left = *value / (10_u64.pow(digits / 2));
                     let right = *value - (left * (10_u64.pow(digits / 2)));
 
