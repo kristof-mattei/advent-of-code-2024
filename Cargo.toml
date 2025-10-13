@@ -17,7 +17,7 @@ hashbrown = { version = "0.16.0", default-features = false, features = [
     "inline-more",
     "equivalent",
 ] }
-regex = { version = "1.12.1", features = ["perf", "unicode-perl", "std"] }
+regex = { version = "1.12.2", features = ["perf", "unicode-perl", "std"] }
 
 [lints.clippy]
 # don't stop from compiling / running
