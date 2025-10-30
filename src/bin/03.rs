@@ -1,3 +1,5 @@
+#![expect(clippy::string_slice, reason = "Advent of Code is ASCII only")]
+
 use advent_of_code_2024::shared::{PartSolution, Parts};
 use regex::Regex;
 
